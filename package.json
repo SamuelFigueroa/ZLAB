@@ -4,8 +4,12 @@
   "description": "Zarko Lab's information management system",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ignore public/ --exec node --require dotenv/config --require @babel/register server.js",
-    "dev": "webpack -wd"
+    "prod-build": "webpack --config webpack.prod.js",
+    "prod": "node --require dotenv/config --require @babel/register server.js",
+    "start:prod": "npm run prod-build & npm run prod",
+    "dev-build": "webpack -wd --config webpack.dev.js",
+    "dev": "nodemon --ignore public/ --exec node --require dotenv/config --require @babel/register server.js",
+    "start:dev": "npm run dev-build & npm run dev"
   },
   "repository": {
     "type": "git",
@@ -58,6 +62,7 @@
     "eslint-plugin-react": "^7.9.1",
     "nodemon": "^1.17.5",
     "webpack": "^4.17.1",
-    "webpack-cli": "^3.0.7"
+    "webpack-cli": "^3.0.7",
+    "webpack-merge": "^4.1.4"
   }
 }
