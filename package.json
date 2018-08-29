@@ -7,6 +7,10 @@
     "start": "nodemon --ignore public/ --exec node --require dotenv/config --require @babel/register server.js",
     "dev": "webpack -wd"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://SamFig@bitbucket.org/SamFig/zlab.git"
+  },
   "author": "Samuel Figueroa-Lazu",
   "license": "GPL-3.0",
   "dependencies": {
