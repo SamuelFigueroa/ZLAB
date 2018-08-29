@@ -1,0 +1,7 @@
+node_modules
+.DS_Store
+.env
+storage
+.node_repl_history
+public/bundle.js
+public/bundle.js.map
