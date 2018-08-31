@@ -11,7 +11,6 @@ import Landing from './Landing';
 import Login from './Login';
 import SetCurrentUser from './mutations/SetCurrentUser';
 
-
 class App extends Component {
   constructor(props) {
     super(props);

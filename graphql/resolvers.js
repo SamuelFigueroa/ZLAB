@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import fse from 'fs-extra';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { secretOrKey, uploadDir } from '../config';
+import { secretOrKey, storageDir, cacheDir } from '../config';
+import path from 'path';
 
 //Load models
 import User from '../models/User';
@@ -20,20 +21,24 @@ import validateAddAssetInput from '../validation/asset';
 import validateAddMaintenanceEventInput from '../validation/maintenance_event';
 import validateUploadInput from '../validation/upload';
 
+const cache = path.normalize(cacheDir);
+const storage = path.normalize(storageDir);
+
 const storeFile = ({ stream, id, name }) => {
-  const path = `${uploadDir}/${id}-${name}`;
+  const dstPath = path.join(storage, `${id}-${name}`);
   return new Promise((resolve, reject) =>
     stream
       .on('error', error => {
         if (stream.truncated)
           // Delete the truncated file
-          fse.unlinkSync(path);
+          fse.unlinkSync(dstPath);
         reject(error);
       })
-      .pipe(fse.createWriteStream(path))
+      .pipe(fse.createWriteStream(dstPath))
       .on('error', error => reject(error))
       .on('finish', () => {
-        return resolve({ id, path });})
+        return resolve({ id, dstPath });
+      })
   );
 };
 
@@ -113,6 +118,31 @@ const resolvers = {
         });
       }
     },
+    document: async (root, args, context, info) => {
+      let document = await Document.findById(args.id);
+      if(!document) {
+        throw new ApolloError('Can\'t find document', 'BAD_REQUEST');
+      } else {
+        try {
+          await fse.ensureDir(cache);
+          await fse.ensureDir(storage);
+        } catch(err) {
+          throw new ApolloError('Document retrieval failed', 'DOC_DIRS_NOT_FOUND');
+        }
+        const { id, name } = document;
+        const srcPath = path.join(storage, `${id}-${name}`);
+        const dstPath = path.join(cache, `${id}-${name}`);
+        try {
+          await fse.copyFile(srcPath, dstPath);
+          const p = dstPath.split('/');
+          const result = p.slice(p.indexOf('public') + 1);
+          result.unshift('/');
+          return path.join.apply(this, result);
+        } catch(err) {
+          throw new ApolloError('Document retrieval failed', 'FILE_CACHE_ERROR');
+        }
+      }
+    }
     // location: async (root, args, context, info) => {
     //   console.log('Executed');
     //   const {areaID, subAreaID} = args.input;
@@ -390,7 +420,7 @@ const resolvers = {
       const { name, size, category, user, model: modelName, field, docID } = args.input;
 
       try {
-        await fse.ensureDir(uploadDir);
+        await fse.ensureDir(storage);
       } catch(err) {
         throw new ApolloError('Document upload failed', 'STORAGE_DIR_NOT_FOUND');
       }
@@ -436,6 +466,14 @@ const resolvers = {
         await doc.save();
         await newDocument.save();
         return true;
+      }
+    },
+    clearDocuments: async (root, args, context, info) => {
+      try {
+        await fse.emptyDir(cache);
+        return null;
+      } catch(err) {
+        throw new ApolloError('Document removal failed', 'FAILED_TO_EMPTY_DIR');
       }
     }
   }

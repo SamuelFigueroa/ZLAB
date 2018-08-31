@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { withRouter } from 'react-router-dom';
 
 import Zoom from '@material-ui/core/Zoom';
 import Button from '@material-ui/core/Button';
@@ -8,10 +9,10 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import green from '@material-ui/core/colors/green';
 
-
 import Table from './Table';
 import DocumentForm from './DocumentForm';
 import GET_ASSET from '../graphql/assets/getAsset';
+import GetDocument from './queries/GetDocument';
 
 const styles = (theme) => ({
   fab: {
@@ -50,6 +51,7 @@ class DocumentLog extends PureComponent {
       expanded: false
     };
     this.toggleEventForm = this.toggleEventForm.bind(this);
+    this.linkToDocument = this.linkToDocument.bind(this);
   }
 
   static contextTypes = {
@@ -63,6 +65,11 @@ class DocumentLog extends PureComponent {
   toggleEventForm = () => {
     const { expanded } = this.state;
     this.setState({ expanded: !expanded } );
+  };
+
+  linkToDocument = getDocument => id => async () => {
+    let docURL = await getDocument(id);
+    window.open(docURL, '_blank');
   };
 
   render() {
@@ -94,24 +101,27 @@ class DocumentLog extends PureComponent {
     }));
 
     return (
-      <div>
-        {fabs.map((fab, index) => (
-          <Zoom
-            key={fab.color}
-            in={Number(this.state.expanded) === index}
-            timeout={transitionDuration}
-            mountOnEnter
-            unmountOnExit
-          >
-            <Button variant="fab" className={fab.className} color={fab.color} onClick={this.toggleEventForm}>
-              {fab.icon}
-            </Button>
-          </Zoom>
-        ))}
-        <Table cols={documentCols} data={formatted_docs} title="Documents" subheading={assetHeadline} onRowClick={() => null}/>
-        <DocumentForm expanded={this.state.expanded} user={user} model="assets" query={GET_ASSET} docID={docID} toggleForm={this.toggleEventForm}/>
-      </div>
-
+      <GetDocument>
+        { getDocument => (
+          <div>
+            {fabs.map((fab, index) => (
+              <Zoom
+                key={fab.color}
+                in={Number(this.state.expanded) === index}
+                timeout={transitionDuration}
+                mountOnEnter
+                unmountOnExit
+              >
+                <Button variant="fab" className={fab.className} color={fab.color} onClick={this.toggleEventForm}>
+                  {fab.icon}
+                </Button>
+              </Zoom>
+            ))}
+            <Table cols={documentCols} data={formatted_docs} title="Documents" subheading={assetHeadline} onRowClick={this.linkToDocument(getDocument)}/>
+            <DocumentForm expanded={this.state.expanded} user={user} model="assets" query={GET_ASSET} docID={docID} toggleForm={this.toggleEventForm}/>
+          </div>
+        )}
+      </GetDocument>
     );
   }
 }
@@ -123,6 +133,7 @@ DocumentLog.propTypes = {
   user: PropTypes.object.isRequired,
   docID: PropTypes.string.isRequired,
   assetHeadline: PropTypes.string.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(DocumentLog);
+export default withStyles(styles, { withTheme: true })(withRouter(DocumentLog));

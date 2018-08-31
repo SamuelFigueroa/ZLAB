@@ -96,14 +96,6 @@ const typeDefs = gql`
     price: Float!
   }
 
-  type File {
-    id: ID!
-    path: String!
-    filename: String!
-    mimetype: String!
-    encoding: String!
-  }
-
   input AddUserInput {
     email: String!
     login: String!
@@ -253,6 +245,7 @@ const typeDefs = gql`
     errors: [Error]!
     assets: [Asset]!
     asset(id: ID!): Asset!
+    document(id: ID!): String
     locations: [LocationObject]!
     users: [User]!
     #location(areaID: ID!, subAreaID: ID!): Location!
@@ -276,7 +269,7 @@ const typeDefs = gql`
 
     #Delete Mutations
     deleteAsset(id: ID!) : Boolean
-
+    clearDocuments : Boolean
 
     setCurrentUser(payload: Payload!) : Boolean
     setErrors(errors: [ErrorInput]!) : Boolean

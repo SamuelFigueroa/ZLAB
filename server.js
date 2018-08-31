@@ -9,6 +9,7 @@ import jwt_decode from 'jwt-decode';
 import { ApolloServer } from 'apollo-server-express';
 import typeDefs from './graphql/schema';
 import resolvers from './graphql/resolvers';
+import path from 'path';
 
 
 const app = express();
@@ -30,7 +31,7 @@ app.set('view engine', 'pug');
 app.get('/', (req, res) => {
   res.render('index');
 });
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.all( /^\/(?!graphql)(.*)\/?$/i, (req, res) => {
   res.render('index');
