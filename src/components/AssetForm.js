@@ -62,6 +62,12 @@ const formatDate = (d) => {
   return dateArr.join('-');
 };
 
+const dateTimeToString = (d) => {
+  const date = new Date(d);
+  date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
+  return date.toLocaleDateString('en-US');
+};
+
 const categories = ['Lab Equipment', 'Lab Supplies', 'Computer Hardware', 'Software'];
 
 const conditions = ['To Be Installed', 'Fully Operational', 'Maintenance Due', 'Needs Repair', 'Decommissioned'];
@@ -563,7 +569,7 @@ class AssetForm extends Component {
                               </Grid>
                               <Grid item xs={12} md={6}>
                                 <Typography variant="subheading" color="textSecondary" align="right">
-                                  <i>{update ? 'Edited' : 'Registered'} by {this.props.user.name}  at  {new Date().toDateString()}</i>
+                                  <i>{update ? 'Edited' : 'Registered'} by {this.props.user.name}  at  {dateTimeToString(new Date())}</i>
                                 </Typography>
                               </Grid>
                             </Grid>

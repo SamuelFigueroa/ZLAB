@@ -23,6 +23,11 @@ const dateToString = (d) => {
   date.setHours(date.getHours() + (date.getTimezoneOffset() / 60));
   return date.toLocaleDateString('en-US');
 };
+const dateTimeToString = (d) => {
+  const date = new Date(d);
+  date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
+  return date.toLocaleDateString('en-US');
+};
 
 const styles = (theme) => ({
   addButton: {
@@ -212,7 +217,7 @@ class AssetInfo extends Component {
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subheading" color="textSecondary" align="right">
-                      Registered by {asset.registration_event.user} on {dateToString(asset.registration_event.date)}
+                      Registered by {asset.registration_event.user} on {dateTimeToString(asset.registration_event.date)}
                   </Typography>
                 </Grid>
               </Grid>
