@@ -299,7 +299,7 @@ const resolvers = {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
 
-      if(asset._id.toString() !== input.id) {
+      if(asset && asset._id.toString() !== input.id) {
         errors.errors.barcode = 'Barcode already exists';
         throw new ApolloError('Asset update failed', 'BAD_REQUEST', errors);
       } else {
