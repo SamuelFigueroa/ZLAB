@@ -25,9 +25,15 @@ class App extends Component {
             <CssBaseline />
             <SetCurrentUser>
               <Layout>
-                <Route exact path="/" component={Landing} />
-                <Route exact path="/login" component={Login} />
-                <PrivateRoutes />
+                { auth => (
+                  <div>
+                    <Route exact path="/" component={Landing} />
+                    <Route exact path="/login" component={Login} />
+                    { auth.isAuthenticated ?
+                      <PrivateRoutes auth={auth}/> : null
+                    }
+                  </div>
+                )}
               </Layout>
             </SetCurrentUser>
           </Fragment>
@@ -36,8 +42,5 @@ class App extends Component {
     );
   }
 }
-
-App.propTypes = {
-};
 
 export default App;

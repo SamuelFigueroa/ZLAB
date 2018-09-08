@@ -63,12 +63,12 @@ class Layout extends Component {
                 <Fragment>
                   <Drawer handleDrawerToggle={this.handleDrawerToggle} mobileOpen={this.state.mobileOpen} />
                   <main className={classes.content}>
-                    {this.props.children}
+                    {this.props.children(auth)}
                   </main>
                 </Fragment>
               ) : (
                 <main className={classes.guestContent}>
-                  {this.props.children}
+                  {this.props.children(auth)}
                 </main>
               )
               }
@@ -81,7 +81,7 @@ class Layout extends Component {
 }
 
 Layout.propTypes = {
-  children: PropTypes.node,
+  children: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 };
 
