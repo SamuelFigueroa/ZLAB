@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { Mutation } from 'react-apollo';
@@ -37,4 +38,4 @@ RegisterUser.propTypes = {
   children: PropTypes.func.isRequired
 };
 
-export default RegisterUser;
+export default withRouter(RegisterUser);

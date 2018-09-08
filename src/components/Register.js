@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -51,7 +50,7 @@ class Register extends Component {
   render() {
     const { classes } = this.props;
     return(
-      <RegisterUser history={this.props.history}>
+      <RegisterUser>
         { (registerUser, errors) => (
           <div className={classes.root}>
             <Grid
@@ -163,9 +162,8 @@ class Register extends Component {
 }
 
 Register.propTypes = {
-  classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired
 };
 
 
-export default withStyles(styles)(withRouter(Register));
+export default withStyles(styles)(Register);
