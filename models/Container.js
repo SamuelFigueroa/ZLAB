@@ -10,10 +10,10 @@ const ContainerSchema = new mongoose.Schema({
     type: ObjectId,
     required: true
   },
-  status: {
+  state: {
     type: String,
     required: true,
-    enum: ['L', 'S', 'Soln']
+    enum: ['L', 'S', 'Soln', 'Susp']
   },
   empty_weight: {
     weight: {
