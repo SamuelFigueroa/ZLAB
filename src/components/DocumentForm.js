@@ -60,7 +60,7 @@ const styles = theme => ({
   }
 });
 
-const categories = ['SOP', 'Safety', 'Invoice', 'Maintenance'];
+const categories = ['SOP', 'Safety', 'Invoice', 'Maintenance', 'Manual'];
 
 class DocumentForm extends PureComponent {
   constructor(props) {
