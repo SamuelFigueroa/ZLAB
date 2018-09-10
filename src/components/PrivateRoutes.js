@@ -7,6 +7,7 @@ import Assets from './Assets';
 import AssetForm from './AssetForm';
 import AssetInfo from './AssetInfo';
 import GetAsset from './queries/GetAsset';
+import Printers from './Printers';
 
 const PrivateRoutes = ({ auth }) => {
   const {user, isAuthenticated} = auth;
@@ -22,6 +23,7 @@ const PrivateRoutes = ({ auth }) => {
           </GetAsset>
         )}/>
       </Switch>
+      <Route exact path="/printers" render={()=><Printers />} />
       {
         user.admin ? (
           <Route exact path="/register" component={Register} />
