@@ -53,6 +53,7 @@ class Printers extends Component {
       barcode: '',
       printerURL: '',
       connection: null,
+      messages: [],
       error: ''
     };
     this.invokeMethod = this.invokeMethod.bind(this);
@@ -79,7 +80,13 @@ class Printers extends Component {
     if (this.state.connection !== null)
       try {
         await this.state.connection.start();
-        await this.state.connection.on('ReceiveMessage', (user, message) => console.log(`${user} said ${message}`));
+        await this.state.connection.on('ReceiveMessage',
+          (user, message) => this.setState(
+            { messages: this.state.messages.concat({
+              key: this.state.messages.length,
+              message: `${user} said ${message}` })
+            })
+        );
       } catch (err) {
         console.log(err);
         // this.setState({ error: 'The connection cannot be established'});
@@ -169,6 +176,19 @@ class Printers extends Component {
                     Log in Console
                     </Button>
                   </Grid>
+                </Grid>
+                <Grid
+                  container
+                  alignItems="flex-end"
+                  spacing={8}>
+                  {
+                    this.state.messages.map( message => (
+                      <Grid item key={message.key} sm={12}>
+                        <Typography variant="body2">
+                          {message.message}
+                        </Typography>
+                      </Grid>
+                    ))}
                 </Grid>
               </Paper>
             </Grid>
