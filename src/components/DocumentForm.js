@@ -69,7 +69,7 @@ class DocumentForm extends PureComponent {
       user: this.props.user.login,
       model: this.props.model,
       field: this.props.field,
-      docID: this.props.docID,
+      objID: this.props.objID,
       category: 'SOP',
     };
 
@@ -92,11 +92,7 @@ class DocumentForm extends PureComponent {
   }
 
   handleClose = (clearErrors, toggleForm) => () => {
-    this.setState({
-      field: '',
-      docID: '',
-      category: 'SOP',
-    });
+    this.setState({ category: 'SOP' });
     clearErrors();
     return toggleForm();
   }
@@ -113,7 +109,7 @@ class DocumentForm extends PureComponent {
       if(validationResult !== undefined) {
         let result = await addDocument(
           { file, name, size, ...this.state },
-          [{query: this.props.query, variables: { id: this.state.docID }}]
+          [{query: this.props.query, variables: { id: this.state.objID }}]
         );
         if(result !== undefined) handleClose();
       }
@@ -213,7 +209,7 @@ DocumentForm.propTypes = {
   model: PropTypes.string.isRequired,
   field: PropTypes.string,
   query: PropTypes.object.isRequired,
-  docID: PropTypes.string.isRequired,
+  objID: PropTypes.string.isRequired,
   toggleForm: PropTypes.func.isRequired
 };
 

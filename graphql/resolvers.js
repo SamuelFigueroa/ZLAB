@@ -326,8 +326,20 @@ const resolvers = {
     },
 
     deleteAsset: async (root, args, context, info) => {
+      let asset;
+      let asset_documents;
       try {
+        asset = await Asset.findById(args.id, 'documents');
+        const asset_document_IDs = asset.documents.map(docID => mongoose.Types.ObjectId(docID));
+        asset_documents = await Document.find({ '_id': { $in: asset_document_IDs } }, 'name');
+        const file_names = asset_documents.map(({ _id, name }) => `${_id.toString()}-${name}`);
+
+        await Document.deleteMany({ '_id': { $in: asset_document_IDs } });
         await Asset.findByIdAndDelete(args.id);
+
+        for (const name of file_names) {
+          await fse.unlink(path.join(storage, name));
+        }
       } catch(err) {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
       }
@@ -417,7 +429,7 @@ const resolvers = {
       return true;
     },
     addDocument: async (root, args, context, info) => {
-      const { name, size, category, user, model: modelName, field, docID } = args.input;
+      const { name, size, category, user, model: modelName, field, objID } = args.input;
 
       try {
         await fse.ensureDir(storage);
@@ -445,12 +457,12 @@ const resolvers = {
         throw new ApolloError('Document upload failed', 'FILE_UPLOAD_ERROR');
       }
 
-      const Model = context.db_conn.model(modelName);
+      let Model = await context.db_conn.model(modelName);
 
       let doc;
 
       try {
-        doc = await Model.findById(docID);
+        doc = await Model.findById(objID);
       } catch(err) {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
       }
@@ -467,6 +479,24 @@ const resolvers = {
         await newDocument.save();
         return true;
       }
+    },
+    deleteDocument: async (root, args, context, info) => {
+      let asset_documents;
+      let names;
+      const document_IDs = args.ids.map(id => mongoose.Types.ObjectId(id));
+      try {
+        await Asset.findByIdAndUpdate(args.assetID,
+          { $pull : { documents : { $in : document_IDs } } } );
+        asset_documents = await Document.find({ '_id': { $in: document_IDs }}, 'name');
+        names = asset_documents.map(asset_document => `${asset_document._id.toString()}-${asset_document.name}`);
+        await Document.deleteMany({ '_id': { $in: document_IDs }});
+        for (const name of names) {
+          await fse.unlink(path.join(storage, name));
+        }
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
+      }
+      return null;
     },
     clearDocuments: async (root, args, context, info) => {
       try {

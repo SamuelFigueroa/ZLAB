@@ -190,7 +190,7 @@ const typeDefs = gql`
     category: String!
     model: String!
     field: String
-    docID: ID!
+    objID: ID!
   }
 
   type loginOutput {
@@ -269,6 +269,7 @@ const typeDefs = gql`
 
     #Delete Mutations
     deleteAsset(id: ID!) : Boolean
+    deleteDocument(ids: [ID!]!, assetID: ID!) : Boolean
     clearDocuments : Boolean
 
     setCurrentUser(payload: Payload!) : Boolean

@@ -9,10 +9,12 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import green from '@material-ui/core/colors/green';
 
-import Table from './Table';
+import Table from './CheckableTable';
 import DocumentForm from './DocumentForm';
 import GET_ASSET from '../graphql/assets/getAsset';
 import GetDocument from './queries/GetDocument';
+import DeleteDocument from './mutations/DeleteDocument';
+
 
 const styles = (theme) => ({
   fab: {
@@ -73,7 +75,7 @@ class DocumentLog extends PureComponent {
   };
 
   render() {
-    const { classes, theme, docs, user, docID, assetHeadline } = this.props;
+    const { classes, theme, docs, user, assetID, assetHeadline } = this.props;
     const fabs = [
       {
         color: 'primary',
@@ -103,23 +105,34 @@ class DocumentLog extends PureComponent {
     return (
       <GetDocument>
         { getDocument => (
-          <div>
-            {fabs.map((fab, index) => (
-              <Zoom
-                key={fab.color}
-                in={Number(this.state.expanded) === index}
-                timeout={transitionDuration}
-                mountOnEnter
-                unmountOnExit
-              >
-                <Button variant="fab" className={fab.className} color={fab.color} onClick={this.toggleEventForm}>
-                  {fab.icon}
-                </Button>
-              </Zoom>
-            ))}
-            <Table cols={documentCols} data={formatted_docs} title="Documents" subheading={assetHeadline} onRowClick={this.linkToDocument(getDocument)}/>
-            <DocumentForm expanded={this.state.expanded} user={user} model="assets" query={GET_ASSET} docID={docID} toggleForm={this.toggleEventForm}/>
-          </div>
+          <DeleteDocument>
+            { deleteDocument => (
+              <div>
+                {fabs.map((fab, index) => (
+                  <Zoom
+                    key={fab.color}
+                    in={Number(this.state.expanded) === index}
+                    timeout={transitionDuration}
+                    mountOnEnter
+                    unmountOnExit
+                  >
+                    <Button variant="fab" className={fab.className} color={fab.color} onClick={this.toggleEventForm}>
+                      {fab.icon}
+                    </Button>
+                  </Zoom>
+                ))}
+                <Table
+                  cols={documentCols}
+                  data={formatted_docs}
+                  title="Documents"
+                  subheading={assetHeadline}
+                  actions={ { delete: deleteDocument(assetID) } }
+                  onRowClick={this.linkToDocument(getDocument)}
+                />
+                <DocumentForm expanded={this.state.expanded} user={user} model="assets" query={GET_ASSET} objID={assetID} toggleForm={this.toggleEventForm}/>
+              </div>
+            )}
+          </DeleteDocument>
         )}
       </GetDocument>
     );
@@ -131,7 +144,7 @@ DocumentLog.propTypes = {
   docs: PropTypes.array.isRequired,
   theme: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  docID: PropTypes.string.isRequired,
+  assetID: PropTypes.string.isRequired,
   assetHeadline: PropTypes.string.isRequired,
   history: PropTypes.object.isRequired,
 };
