@@ -96,6 +96,30 @@ const typeDefs = gql`
     price: Float!
   }
 
+  type PrinterHub {
+    id: ID!
+    name: String!
+    address: String!
+    online: Boolean!
+    user: String!
+  }
+
+  type Printer {
+    id: ID!
+    name: String!
+    connection_name: String!
+    queue: Boolean!
+    jobs: [PrinterJob]!
+  }
+
+  type PrinterJob {
+    id: ID!
+    name: String!
+    data: String!
+    time_added: String!
+    status: String!
+  }
+
   input AddUserInput {
     email: String!
     login: String!
@@ -193,9 +217,49 @@ const typeDefs = gql`
     objID: ID!
   }
 
+  input PrinterHubInput {
+    name: String!
+    address: String!
+    online: Boolean!
+    user: String!
+  }
+
+  input AddPrinterInput {
+    name: String!
+    connection_name: String!
+  }
+
+  input UpdatePrinterInput {
+    connection_name: String!
+    queue: Boolean!
+    reset: Boolean!
+  }
+
+  input AddPrinterJobInput {
+    connection_name: String!
+    job: PrinterJobInput!
+  }
+
+  input PrinterJobInput {
+    name: String!
+    data: String!
+    time_added: String!
+  }
+
+  input DeletePrinterJobInput {
+    connection_name: String!
+    jobID: ID!
+    dequeue: Boolean!
+  }
+
+
   type loginOutput {
     success: Boolean
     token: String
+  }
+
+  type PrinterHubOutput {
+    response: String
   }
 
   #Client-side types
@@ -248,6 +312,10 @@ const typeDefs = gql`
     document(id: ID!): String
     locations: [LocationObject]!
     users: [User]!
+    printerHub(address: String!): PrinterHub
+    onlinePrinterHubs : [PrinterHub]!
+    printer(connection_name: String!) : Printer
+    nextPrinterJob(connection_name: String!) : PrinterJob
     #location(areaID: ID!, subAreaID: ID!): Location!
   }
 
@@ -255,22 +323,27 @@ const typeDefs = gql`
   type Mutation {
     login(input: loginInput!) : loginOutput!
     validateUpload(input: UploadInput!) : Boolean
+    registerPrinterHub(input: PrinterHubInput!) : PrinterHubOutput!
 
     #Create Mutations
     addUser(input: AddUserInput!) : Boolean
     addAsset(input: AddAssetInput!) : Boolean
     addLocation(input: AddLocationInput!) : Boolean
     addMaintenanceEvent(input: AddMaintenanceEventInput!) : Boolean
-    addDocument(input: AddDocumentInput!): Boolean
+    addDocument(input: AddDocumentInput!) : Boolean
+    addPrinter(input: AddPrinterInput!) : Boolean
+    addPrinterJob(input: AddPrinterJobInput!) : Boolean
 
     #Update Mutations
     updateAsset(input: updateAssetInput!) : Boolean
+    updatePrinter(input: UpdatePrinterInput!) : Boolean
 
 
     #Delete Mutations
     deleteAsset(id: ID!) : Boolean
     deleteDocument(ids: [ID!]!, assetID: ID!) : Boolean
     clearDocuments : Boolean
+    deletePrinterJob(input: DeletePrinterJobInput!) : Boolean
 
     setCurrentUser(payload: Payload!) : Boolean
     setErrors(errors: [ErrorInput]!) : Boolean

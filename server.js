@@ -61,7 +61,7 @@ const server = new ApolloServer({
 
       const getUser = async (login) => {
         let user = await User.findOne({ login }, 'login');
-        return {user};
+        return user;
       };
 
       let loggedUser = await getUser(login);
