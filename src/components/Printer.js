@@ -99,6 +99,7 @@ class Printer extends Component {
     this.setInputRef = this.setInputRef.bind(this);
     this.messages = React.createRef();
     this.formatZpl = this.formatZpl.bind(this);
+    this.previewZpl = this.previewZpl.bind(this);
   }
 
   setInputRef = el => {
@@ -112,7 +113,21 @@ class Printer extends Component {
   formatLog = (arr) => arr.join('\n');
 
   //There needs to be a label format editor.
-  formatZpl = (barcode) =>
+  formatZpl = (barcode) => `
+    ^XA
+    ^FO50,50
+    ^A0N,40
+    ^FN7
+    ^FS
+    ^RFW,A
+    ^FD${barcode}
+    ^FS
+    ^FN7
+    ^RFR,A
+    ^FS
+    ^XZ`;
+
+  previewZpl = (barcode) =>
     `^XA
     ^FO50,50
     ^ADN,36,20
@@ -184,7 +199,7 @@ class Printer extends Component {
                         color="primary"
                         fullWidth
                         className={classes.printButton}
-                        onClick={async () => await previewLabel(this.formatZpl(this.state.barcode))}
+                        onClick={async () => await previewLabel(this.previewZpl(this.state.barcode))}
                       >
                         Preview
                       </Button>
@@ -199,7 +214,7 @@ class Printer extends Component {
                           const time_added = new Date();
                           await queueJob(addPrinterJob,
                             { name: this.state.barcode,
-                              data: this.state.barcode,
+                              data: this.formatZpl(this.state.barcode),
                               time_added: time_added.toLocaleString()
                             });
                         }}

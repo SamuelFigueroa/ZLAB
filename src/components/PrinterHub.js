@@ -94,7 +94,6 @@ class PrinterHub extends Component {
         await this.state.connection.invoke('GetPrinters');
 
       } catch (err) {
-        console.log(err);
         this.setState({ error: 'Failed to establish a connection with this printer hub.' });
       }
     } else {
