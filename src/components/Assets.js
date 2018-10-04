@@ -56,7 +56,6 @@ class Assets extends Component {
         tooltip: 'Add Supplies',
         cols: [
           { id: 'name', numeric: false, label: 'Name' },
-          { id: 'location', numeric: false, label: 'Location' },
           { id: 'shared', numeric: false, label: 'Shared' },
           { id: 'description', numeric: false, label: 'Description' },
         ]

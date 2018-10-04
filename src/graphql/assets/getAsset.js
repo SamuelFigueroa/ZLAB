@@ -7,23 +7,7 @@ const GET_ASSET = gql`
         name
         description
         category
-        location {
-          area {
-            id
-            name
-          }
-          sub_area {
-            id
-            name
-          }
-        }
         shared
-        training_required
-        grant {
-          funding_agency
-          grant_number
-          project_name
-        }
         documents {
           id
           name
@@ -32,7 +16,6 @@ const GET_ASSET = gql`
           uploaded_by
           upload_date
         }
-        users
         registration_event {
           user
           date
@@ -43,6 +26,23 @@ const GET_ASSET = gql`
           brand
           model
           condition
+          location {
+            area {
+              id
+              name
+            }
+            sub_area {
+              id
+              name
+            }
+          }
+          training_required
+          grant {
+            funding_agency
+            grant_number
+            project_name
+          }
+          users
           purchasing_info {
             date
             supplier

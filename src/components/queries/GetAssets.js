@@ -21,9 +21,13 @@ class GetAssets extends Component {
           if (error) return `Error!: ${error}`;
 
           const { assets } = data;
-          const formatted_assets = assets.map(asset => ({...asset,
-            location: (asset.location.area.name == 'UNASSIGNED') ?
-              'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}` }));
+          let formatted_assets = assets;
+          if (this.props.category == 'Lab Equipment')
+          {
+            formatted_assets = assets.map(asset => ({...asset,
+              location: (asset.location.area.name == 'UNASSIGNED') ?
+                'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}` }));
+          }
           return this.props.children(formatted_assets);
         }}
       </Query>

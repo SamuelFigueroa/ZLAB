@@ -5,22 +5,22 @@ const GET_ASSETS = gql`
       assets(category: $category) {
         id
         name
-        location {
-          area {
-            id
-            name
-          }
-          sub_area {
-            id
-            name
-          }
-        }
         shared
         ...on Equipment {
           barcode
           brand
           model
           condition
+          location {
+            area {
+              id
+              name
+            }
+            sub_area {
+              id
+              name
+            }
+          }
         }
         ...on Supply {
           description

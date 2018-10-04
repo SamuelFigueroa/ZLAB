@@ -68,27 +68,39 @@ const resolvers = {
   Query: {
     assets: async (root, args, context, info) => {
       let assets = await Asset.find({ category : args.category });
-      return assets.map(async asset => {
-        const { area: areaID, sub_area: subAreaID } = asset.location;
-        let location = await Location.findById(areaID);
-        const area = location.area.name;
-        const sub_area = location.area.sub_areas.id(subAreaID).name;
+      let result;
+      switch (args.category) {
+      case 'Lab Equipment': {
+        result = assets.map(async asset => {
+          const { area: areaID, sub_area: subAreaID } = asset.location;
+          let location = await Location.findById(areaID);
+          const area = location.area.name;
+          const sub_area = location.area.sub_areas.id(subAreaID).name;
 
-        return asset.toObject({
-          virtuals: true,
-          transform: (doc, ret) => {
-            ret.location = {};
-            ret.location.area = {id: areaID, name: area};
-            ret.location.sub_area = {id: subAreaID, name: sub_area};
-            // area == 'UNASSIGNED' ?
-            //   ret.location = `${area}`
-            //   :
-            //   ret.location = `${area} / ${sub_area}`;
-            return ret;
-          }
+          return asset.toObject({
+            virtuals: true,
+            transform: (doc, ret) => {
+              ret.location = {};
+              ret.location.area = {id: areaID, name: area};
+              ret.location.sub_area = {id: subAreaID, name: sub_area};
+              // area == 'UNASSIGNED' ?
+              //   ret.location = `${area}`
+              //   :
+              //   ret.location = `${area} / ${sub_area}`;
+              return ret;
+            }
+          });
         });
-
-      });
+        break;
+      }
+      case 'Lab Supplies': {
+        result = assets;
+        break;
+      }
+      default: {
+        throw new ApolloError('Category does not exist', 'BAD_REQUEST');
+      }}
+      return result;
     },
     // location: async (root, args, context, info) => {
     //   const { areaID, subAreaID } = args;
@@ -111,10 +123,6 @@ const resolvers = {
       if(!asset) {
         throw new ApolloError('Can\'t find asset', 'BAD_REQUEST');
       } else {
-        const { area: areaID, sub_area: subAreaID } = asset.location;
-        let location = await Location.findById(areaID);
-        const area = location.area.name;
-        const sub_area = location.area.sub_areas.id(subAreaID).name;
 
         const documents = await asset.documents.map( async docID => {
           let document = await Document.findById(docID);
@@ -128,16 +136,41 @@ const resolvers = {
           };
         });
 
-        return asset.toObject({
-          virtuals: true,
-          transform: (doc, ret) => {
-            ret.location = {};
-            ret.location.area = {id: areaID, name: area};
-            ret.location.sub_area = {id: subAreaID, name: sub_area};
-            ret.documents = documents;
-            return ret;
-          }
-        });
+        let result;
+
+        switch (asset.category) {
+        case 'Lab Equipment': {
+          const { area: areaID, sub_area: subAreaID } = asset.location;
+          let location = await Location.findById(areaID);
+          const area = location.area.name;
+          const sub_area = location.area.sub_areas.id(subAreaID).name;
+
+          result = asset.toObject({
+            virtuals: true,
+            transform: (doc, ret) => {
+              ret.location = {};
+              ret.location.area = {id: areaID, name: area};
+              ret.location.sub_area = {id: subAreaID, name: sub_area};
+              ret.documents = documents;
+              return ret;
+            }
+          });
+          break;
+        }
+        case 'Lab Supplies': {
+          result = asset.toObject({
+            virtuals: true,
+            transform: (doc, ret) => {
+              ret.documents = documents;
+              return ret;
+            }
+          });
+          break;
+        }
+        default: {
+          throw new ApolloError('Category does not exist', 'BAD_REQUEST');
+        }}
+        return result;
       }
     },
     document: async (root, args, context, info) => {
@@ -357,40 +390,37 @@ const resolvers = {
         throw new UserInputError('Asset registration failed', errors);
       }
 
-      let allowed_users;
-      const allowed_userIDs = input.users.map(userID => mongoose.Types.ObjectId(userID));
+      let newAsset = new Asset(input);
 
-      try {
-        allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
-      } catch(err) {
-        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
-      }
+      switch (input.category) {
+      case 'Lab Equipment': {
+        let allowed_users;
+        const allowed_userIDs = input.users.map(userID => mongoose.Types.ObjectId(userID));
 
-      if(allowed_users.length != input.users.length) {
-        errors.errors.users = 'Selected user(s) no longer exist(s)';
-        throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
-      } else {
+        try {
+          allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
+        } catch(err) {
+          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+        }
 
-        let newAsset = new Asset(input);
-
-        switch (input.category) {
-        case 'Lab Equipment': {
+        if(allowed_users.length != input.users.length) {
+          errors.errors.users = 'Selected user(s) no longer exist(s)';
+          throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
+        } else {
           let barcode = await Counter.getNextSequenceValue(input.category);
           newAsset.barcode = barcode;
-          break;
         }
-        case 'Lab Supplies': {
-          break;
-        }
-        default: {
-          errors.errors.category = 'Category does not exist';
-          throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
-        }
-        }
-
-        await newAsset.save();
-        return null;
+        break;
       }
+      case 'Lab Supplies': {
+        break;
+      }
+      default: {
+        errors.errors.category = 'Category does not exist';
+        throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
+      }}
+      await newAsset.save();
+      return null;
     },
     updateAsset: async (root, args, context, info) => {
       const input = args.input;
@@ -402,30 +432,37 @@ const resolvers = {
         throw new UserInputError('Asset registration failed', errors);
       }
 
-      let allowed_users;
-      const allowed_userIDs = input.users.map(userID => mongoose.Types.ObjectId(userID));
-
-      try {
-        allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
-      } catch(err) {
-        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
-      }
-
-      if(allowed_users.length != input.users.length) {
-        errors.errors.users = 'Selected user(s) no longer exist(s)';
-        throw new ApolloError('Asset update failed', 'BAD_REQUEST', errors);
-      } else {
+      switch (input.category) {
+      case 'Lab Equipment': {
+        let allowed_users;
+        const allowed_userIDs = input.users.map(userID => mongoose.Types.ObjectId(userID));
         try {
-          const { id, ...update } = input;
-          await Asset.findByIdAndUpdate(mongoose.Types.ObjectId(id), update);
+          allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
         } catch(err) {
           throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
         }
-
-        return null;
+        if(allowed_users.length != input.users.length) {
+          errors.errors.users = 'Selected user(s) no longer exist(s)';
+          throw new ApolloError('Asset update failed', 'BAD_REQUEST', errors);
+        }
+        break;
       }
-    },
+      case 'Lab Supplies': {
+        break;
+      }
+      default: {
+        errors.errors.category = 'Category does not exist';
+        throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
+      }}
 
+      try {
+        const { id, ...update } = input;
+        await Asset.findByIdAndUpdate(mongoose.Types.ObjectId(id), update);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+      return null;
+    },
     deleteAsset: async (root, args, context, info) => {
       let asset;
       let asset_documents;

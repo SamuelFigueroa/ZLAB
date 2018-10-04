@@ -16,11 +16,11 @@ const AssetSchema = new mongoose.Schema({
   location: {
     area: {
       type: ObjectId,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     },
     sub_area: {
       type: ObjectId,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     }
   },
   serial_number: String,
@@ -49,15 +49,15 @@ const AssetSchema = new mongoose.Schema({
   grant: {
     funding_agency: {
       type: String,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     },
     grant_number: {
       type: String,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     },
     project_name: {
       type: String,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     }
   },
   maintenance_log: [{
@@ -83,10 +83,7 @@ const AssetSchema = new mongoose.Schema({
     }
   }],
   users: [ObjectId],
-  training_required: {
-    type: String,
-    required: true
-  },
+  training_required: String,
   condition: {
     type: String,
     enum: ['Fully Operational', 'Needs Repair', 'Maintenance Due', 'Decommissioned', 'To Be Installed', '']

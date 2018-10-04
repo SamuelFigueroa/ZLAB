@@ -19,12 +19,8 @@ const typeDefs = gql`
     name: String!
     description: String!
     category: String!
-    location: Location!
     shared: String!
-    grant: Grant!
     documents: [Document]!
-    users: [ID]!
-    training_required: String!
     registration_event: RegistrationEvent!
   }
 
@@ -34,18 +30,18 @@ const typeDefs = gql`
     barcode: String
     description: String!
     category: String!
-    location: Location!
+    location: Location
     serial_number: String
     brand: String
     model: String
     condition: String
     shared: String!
     purchasing_info: PurchasingInfo
-    grant: Grant!
+    grant: Grant
     maintenance_log: [MaintenanceEvent]
     documents: [Document]!
-    users: [ID]!
-    training_required: String!
+    users: [ID]
+    training_required: String
     registration_event: RegistrationEvent!
   }
 
@@ -54,13 +50,9 @@ const typeDefs = gql`
     name: String!
     description: String!
     category: String!
-    location: Location!
     shared: String!
-    grant: Grant!
     purchase_log: [PurchaseEvent]
     documents: [Document]!
-    users: [ID]!
-    training_required: String!
     registration_event: RegistrationEvent!
   }
 
@@ -194,15 +186,15 @@ const typeDefs = gql`
     name: String!
     description: String!
     category: String!
-    location: LocationInput!
+    location: LocationInput
     serial_number: String
     brand: String
     model: String
     purchasing_info: PurchasingInfoInput
     shared: String!
-    grant: GrantInput!
-    users: [ID]!
-    training_required: String!
+    grant: GrantInput
+    users: [ID]
+    training_required: String
     condition: String
     registration_event: RegistrationEventInput!
   }
@@ -212,15 +204,15 @@ const typeDefs = gql`
     name: String!
     description: String!
     category: String!
-    location: LocationInput!
+    location: LocationInput
     serial_number: String
     brand: String
     model: String
     purchasing_info: PurchasingInfoInput
     shared: String!
-    training_required: String!
-    grant: GrantInput!
-    users: [ID]!
+    training_required: String
+    grant: GrantInput
+    users: [ID]
     condition: String
   }
 

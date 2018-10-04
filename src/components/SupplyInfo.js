@@ -26,10 +26,6 @@ const styles = (theme) => ({
   root: {
     paddingTop: theme.spacing.unit * 2,
   },
-  // container: {
-  //   display: 'flex',
-  //   flexWrap: 'wrap'
-  // },
   assetProfile: {
     padding: theme.spacing.unit * 5,
   },
@@ -102,12 +98,6 @@ class SupplyInfo extends Component {
                       Name: {asset.name}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
-                      Location: {(asset.location.area.name == 'UNASSIGNED') ?
-                      'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}`}
-                  </Typography>
-                </Grid>
                 {
                   asset.description ? (
                     <Grid item xs={12}>
@@ -120,26 +110,6 @@ class SupplyInfo extends Component {
                     </Grid>
                   ) : (null)
                 }
-                <Grid item xs={12}>
-                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
-                  Funding Information
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
-                    Grant No.: {asset.grant.grant_number}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
-                    Project Name: {asset.grant.project_name}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
-                    Funding Agency: {asset.grant.funding_agency}
-                  </Typography>
-                </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subheading" color="textSecondary" align="right">
                       Registered by {asset.registration_event.user} on {dateTimeToString(asset.registration_event.date)}
