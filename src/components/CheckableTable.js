@@ -18,6 +18,9 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import green from '@material-ui/core/colors/green';
+
 
 class CEnhancedTableHead extends Component {
   constructor(props) {
@@ -30,7 +33,7 @@ class CEnhancedTableHead extends Component {
   };
 
   render() {
-    const { cols, order, orderBy, onSelectAllClick, numSelected, rowCount } = this.props;
+    const { cols, order, orderBy, onSelectAllClick, numSelected, rowCount, editMode } = this.props;
 
     return (
       <TableHead>
@@ -40,6 +43,7 @@ class CEnhancedTableHead extends Component {
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}
               onChange={onSelectAllClick}
+              disabled={editMode}
             />
           </TableCell>
           {cols.map(col => {
@@ -78,7 +82,8 @@ CEnhancedTableHead.propTypes = {
   cols: PropTypes.array.isRequired,
   numSelected: PropTypes.number.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
-  rowCount: PropTypes.number.isRequired
+  rowCount: PropTypes.number.isRequired,
+  editMode: PropTypes.bool
 };
 
 const toolbarStyles = theme => ({
@@ -103,10 +108,13 @@ const toolbarStyles = theme => ({
   actions: {
     color: theme.palette.text.secondary,
   },
+  editMode: {
+    color: green[500],
+  },
 });
 
 let CEnhancedTableToolbar = props => {
-  const { classes, title, subheading, numSelected, deleteAction } = props;
+  const { classes, title, subheading, numSelected, deleteAction, updateAction, editMode } = props;
 
   return (
     <div className={classNames({[classes.highlight]: numSelected > 0})}>
@@ -127,10 +135,17 @@ let CEnhancedTableToolbar = props => {
             <Grid item>
               <div className={classes.actions}>
                 <Tooltip title="Delete">
-                  <IconButton aria-label="Delete" onClick={deleteAction}>
+                  <IconButton aria-label="Delete" disabled={editMode} onClick={deleteAction}>
                     <DeleteIcon />
                   </IconButton>
                 </Tooltip>
+                { updateAction ? (
+                  <Tooltip title="Update">
+                    <IconButton aria-label="Update" onClick={updateAction}>
+                      <EditIcon className={classNames({[classes.editMode]: editMode })}/>
+                    </IconButton>
+                  </Tooltip>
+                ) : null }
               </div>
             </Grid>
           </Grid>
@@ -162,7 +177,9 @@ CEnhancedTableToolbar.propTypes = {
   title: PropTypes.string.isRequired,
   subheading: PropTypes.string,
   numSelected: PropTypes.number.isRequired,
-  deleteAction: PropTypes.func.isRequired
+  deleteAction: PropTypes.func.isRequired,
+  updateAction: PropTypes.func,
+  editMode: PropTypes.bool.isRequired,
 };
 
 CEnhancedTableToolbar = withStyles(toolbarStyles)(CEnhancedTableToolbar);
@@ -239,7 +256,7 @@ class CEnhancedTable extends PureComponent {
     this.setState({ selected: [] });
   };
 
-  handleSelect = (event, id) => {
+  handleSelect = id => {
     const { selected } = this.state;
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
@@ -262,7 +279,7 @@ class CEnhancedTable extends PureComponent {
 
   handleClick = (onRowClick, id) => e => {
     if (e.target.checked !== undefined)
-      return this.handleSelect(e, id);
+      return this.handleSelect(id);
     else {
       return onRowClick();
     }
@@ -271,7 +288,7 @@ class CEnhancedTable extends PureComponent {
   isSelected = id => this.state.selected.indexOf(id) !== -1;
 
   render() {
-    const { classes, title, subheading, cols, data, onRowClick, actions } = this.props;
+    const { classes, title, subheading, cols, data, actions, editMode, editable } = this.props;
     const { order, orderBy, rowsPerPage, page, selected } = this.state;
     const queryResults = data.slice();
     // console.log(queryResults.sort(this.getSorting(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage));
@@ -283,10 +300,17 @@ class CEnhancedTable extends PureComponent {
           numSelected={selected.length}
           title={title}
           subheading={subheading}
+          editMode={editMode}
           deleteAction={() => {
             this.setState({selected: []});
             return actions.delete(selected);
           }}
+          updateAction={
+            editable ? (
+              selected.length == 1 ? (
+                () => actions.update(selected[0])
+              ) : null
+            ) : null }
         />
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
@@ -298,6 +322,7 @@ class CEnhancedTable extends PureComponent {
               rowCount={data.length}
               onRequestSort={this.handleRequestSort}
               cols={cols}
+              editMode={editMode}
             />
             <TableBody>
               { queryResults
@@ -310,7 +335,11 @@ class CEnhancedTable extends PureComponent {
                       hover
                       tabIndex={-1}
                       key={n.id}
-                      onClick={this.handleClick(onRowClick(n.id), n.id)}
+                      onClick={
+                        this.props.onRowClick !== undefined ?
+                          this.handleClick(this.props.onRowClick(n.id), n.id) :
+                          editMode ? null : () => this.handleSelect(n.id)
+                      }
                       role="checkbox"
                       aria-checked={isSelected}
                       selected={isSelected}
@@ -318,6 +347,7 @@ class CEnhancedTable extends PureComponent {
                       <TableCell padding="checkbox">
                         <Checkbox
                           checked={isSelected}
+                          disabled={editMode}
                         />
                       </TableCell>
                       {cols.map(col => (
@@ -368,8 +398,10 @@ CEnhancedTable.propTypes = {
   cols: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
   subheading: PropTypes.string,
-  onRowClick: PropTypes.func.isRequired,
-  actions: PropTypes.object.isRequired
+  onRowClick: PropTypes.func,
+  actions: PropTypes.object.isRequired,
+  editable: PropTypes.bool.isRequired,
+  editMode: PropTypes.bool.isRequired
 };
 
 export default withStyles(styles)(CEnhancedTable);

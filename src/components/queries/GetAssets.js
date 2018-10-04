@@ -15,7 +15,7 @@ class GetAssets extends Component {
 
   render() {
     return(
-      <Query query={GET_ASSETS}>
+      <Query query={GET_ASSETS} variables={ { category: this.props.category } }>
         { ({ data, loading, error }) => {
           if (loading) return <LinearProgress />;
           if (error) return `Error!: ${error}`;
@@ -32,7 +32,8 @@ class GetAssets extends Component {
 }
 
 GetAssets.propTypes = {
-  children: PropTypes.func.isRequired
+  children: PropTypes.func.isRequired,
+  category: PropTypes.string.isRequired
 };
 
 export default GetAssets;

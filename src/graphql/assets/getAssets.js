@@ -1,11 +1,10 @@
 import gql from 'graphql-tag';
 
 const GET_ASSETS = gql`
-     {
-      assets {
+     query getAssets($category: String!) {
+      assets(category: $category) {
         id
         name
-        barcode
         location {
           area {
             id
@@ -16,10 +15,16 @@ const GET_ASSETS = gql`
             name
           }
         }
-        brand
-        model
         shared
-        condition
+        ...on Equipment {
+          barcode
+          brand
+          model
+          condition
+        }
+        ...on Supply {
+          description
+        }
       }
     }
 `;

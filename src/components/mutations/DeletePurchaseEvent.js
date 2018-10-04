@@ -5,10 +5,10 @@ import { withRouter } from 'react-router-dom';
 import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
-import ADD_ASSET from '../../graphql/assets/addAsset';
-import GET_ASSETS from '../../graphql/assets/getAssets';
+import DELETE_PURCHASE_EVENT from '../../graphql/assets/deletePurchaseEvent';
+import GET_ASSET from '../../graphql/assets/getAsset';
 
-class AddAsset extends Component {
+class DeletePurchaseEvent extends Component {
   constructor(props) {
     super(props);
     this.state={};
@@ -19,14 +19,14 @@ class AddAsset extends Component {
       <ErrorHandler>
         { (handleError, errors, clearErrors) => (
           <Mutation
-            mutation={ADD_ASSET}
+            mutation={DELETE_PURCHASE_EVENT}
             awaitRefetchQueries={true}
-            onCompleted={ () => this.props.history.push('/assets') }
             onError={ errorObj => handleError(errorObj) }
           >
-            { addAsset => {
-              const callMutation = (input) => addAsset({ variables: { input },
-                refetchQueries: () => [{ query: GET_ASSETS, variables: { category: input.category }}]
+            { deletePurchaseEvent => {
+              const callMutation = assetID => ids => deletePurchaseEvent({
+                variables: { ids, assetID },
+                refetchQueries:() => [{query: GET_ASSET, variables: { id: assetID }}]
               });
               return this.props.children(callMutation, errors, clearErrors);
             }}
@@ -37,9 +37,9 @@ class AddAsset extends Component {
   }
 }
 
-AddAsset.propTypes = {
+DeletePurchaseEvent.propTypes = {
   history: PropTypes.object.isRequired,
   children: PropTypes.func.isRequired
 };
 
-export default withRouter(AddAsset);
+export default withRouter(DeletePurchaseEvent);

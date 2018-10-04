@@ -5,7 +5,6 @@ const GET_ASSET = gql`
       asset(id: $id) {
         id
         name
-        barcode
         description
         category
         location {
@@ -18,29 +17,12 @@ const GET_ASSET = gql`
             name
           }
         }
-        serial_number
-        brand
-        model
-        purchasing_info {
-          date
-          supplier
-          warranty_exp
-          price
-        }
         shared
         training_required
         grant {
           funding_agency
           grant_number
           project_name
-        }
-        maintenance_log {
-          id
-          date
-          service
-          agent
-          scheduled
-          description
         }
         documents {
           id
@@ -51,10 +33,41 @@ const GET_ASSET = gql`
           upload_date
         }
         users
-        condition
         registration_event {
           user
           date
+        }
+        ...on Equipment {
+          barcode
+          serial_number
+          brand
+          model
+          condition
+          purchasing_info {
+            date
+            supplier
+            warranty_exp
+            price
+          }
+          maintenance_log {
+            id
+            date
+            service
+            agent
+            scheduled
+            description
+          }
+        }
+        ... on Supply {
+          purchase_log {
+            id
+            date
+            price
+            catalog_number
+            supplier
+            received
+            quantity
+          }
         }
       }
     }

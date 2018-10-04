@@ -13,8 +13,9 @@ import Tabs from './Tabs';
 
 const styles = (theme) => ({
   addButton: {
-    position: 'absolute',
-    right: theme.spacing.unit,
+    position: 'relative',
+    float: 'right',
+    left: theme.spacing.unit,
     zIndex: 1
   }
 });
@@ -26,49 +27,85 @@ class Assets extends Component {
     this.linkToAssetInfo = this.linkToAssetInfo.bind(this);
   }
 
-  linkToAssetInfo = (id) => () => this.props.history.push(`/assets/${id}`);
+  linkToAssetInfo = (category) => (id) => () => this.props.history.push(`/assets/${category}/${id}`);
 
   render() {
     const { classes } = this.props;
 
     const tabs = [
-      { id: 'equipment', label: 'Equipment', component: null },
-      { id: 'supplies', label: 'Supplies', component: null }
+      {
+        id: 'equipment',
+        label: 'Equipment',
+        component: null,
+        category: 'Lab Equipment',
+        tooltip: 'Add Equipment',
+        cols: [
+          { id: 'name', numeric: false, label: 'Name' },
+          { id: 'barcode', numeric: false, label: 'Barcode' },
+          { id: 'model', numeric: false, label: 'Model' },
+          { id: 'brand', numeric: false, label: 'Brand' },
+          { id: 'location', numeric: false, label: 'Location' },
+          { id: 'shared', numeric: false, label: 'Shared' },
+          { id: 'condition', numeric: false, label: 'Condition' },
+        ]},
+      {
+        id: 'supplies',
+        label: 'Supplies',
+        component: null,
+        category: 'Lab Supplies',
+        tooltip: 'Add Supplies',
+        cols: [
+          { id: 'name', numeric: false, label: 'Name' },
+          { id: 'location', numeric: false, label: 'Location' },
+          { id: 'shared', numeric: false, label: 'Shared' },
+          { id: 'description', numeric: false, label: 'Description' },
+        ]
+      }
     ];
 
-    const equipmentCols = [
-      { id: 'name', numeric: false, label: 'Name' },
-      { id: 'barcode', numeric: false, label: 'Barcode' },
-      { id: 'model', numeric: false, label: 'Model' },
-      { id: 'brand', numeric: false, label: 'Brand' },
-      { id: 'location', numeric: false, label: 'Location' },
-      { id: 'shared', numeric: false, label: 'Shared' },
-      { id: 'condition', numeric: false, label: 'Condition' },
-    ];
-
-    return (
-      <GetAssets>
-        { assets => {
-          tabs[0]['component'] = (
-            <Fragment>
-              <Tooltip title="Add Equipment">
-                <Button
-                  className={classes.addButton}
-                  variant="fab"
-                  color="primary"
-                  aria-label="Add"
-                  component={Link}
-                  to="/assets/new">
-                  <AddIcon />
-                </Button>
-              </Tooltip>
-              <Table cols={equipmentCols} data={assets} title="Lab Equipment" onRowClick={this.linkToAssetInfo}/>
-            </Fragment>
-          );
-          return <Tabs tabs={tabs} />;
-        }}
+    tabs[0].component = (
+      <GetAssets category={tabs[0].category}>
+        { assets => (
+          <Fragment>
+            <Tooltip title={tabs[0].tooltip}>
+              <Button
+                className={classes.addButton}
+                variant="fab"
+                color="primary"
+                aria-label="Add"
+                component={Link}
+                to={`/assets/${tabs[0].id}/new`}>
+                <AddIcon />
+              </Button>
+            </Tooltip>
+            <Table cols={tabs[0].cols} data={assets} title={tabs[0].category} onRowClick={this.linkToAssetInfo(tabs[0].id)}/>
+          </Fragment>
+        )}
       </GetAssets>
     );
+
+    tabs[1].component = (
+      <GetAssets category={tabs[1].category}>
+        { assets => (
+          <Fragment>
+            <Tooltip title={tabs[1].tooltip}>
+              <Button
+                className={classes.addButton}
+                variant="fab"
+                color="primary"
+                aria-label="Add"
+                component={Link}
+                to={`/assets/${tabs[1].id}/new`}>
+                <AddIcon />
+              </Button>
+            </Tooltip>
+            <Table cols={tabs[1].cols} data={assets} title={tabs[1].category} onRowClick={this.linkToAssetInfo(tabs[1].id)}/>
+          </Fragment>
+        )}
+      </GetAssets>
+    );
+    return  <Tabs tabs={tabs} />;
+
   }
 }
 

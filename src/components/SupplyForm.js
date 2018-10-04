@@ -13,12 +13,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import BarcodeIcon from '@material-ui/icons/Memory';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 import AddAsset from './mutations/AddAsset';
 import UpdateAsset from './mutations/UpdateAsset';
@@ -50,52 +46,30 @@ const styles = theme => ({
   }
 });
 
-const formatCurrency = (n) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD' }).format(n);
-
-const formatDate = (d) => {
-  const date = new Date(d);
-  date.setHours(date.getHours() + (date.getTimezoneOffset() / 60));
-  const dateArr = new Intl.DateTimeFormat('en-US',
-    { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date).split('/');
-  const year = dateArr.pop();
-  dateArr.unshift(year);
-  return dateArr.join('-');
-};
-
 const dateTimeToString = (d) => {
   const date = new Date(d);
   date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
   return date.toLocaleDateString('en-US');
 };
 
-const categories = ['Lab Equipment', 'Lab Supplies', 'Computer Hardware', 'Software'];
+const categories = [
+  { id: 'equipment', name: 'Lab Equipment'},
+  { id: 'supplies', name: 'Lab Supplies'},
+  //'Computer Hardware', 'Software'
+];
 
-const conditions = ['To Be Installed', 'Fully Operational', 'Maintenance Due', 'Needs Repair', 'Decommissioned'];
-
-class AssetForm extends Component {
+class SupplyForm extends Component {
   constructor(props) {
     super(props);
     if(this.props.initialState) {
       this.state={
         id: this.props.initialState.id,
         name: this.props.initialState.name,
-        barcode: this.props.initialState.barcode,
         description: this.props.initialState.description,
         category: this.props.initialState.category,
         location: {
           area: this.props.initialState.location.area.id,
           sub_area: this.props.initialState.location.sub_area.id,
-        },
-        serial_number: this.props.initialState.serial_number,
-        model: this.props.initialState.model,
-        brand: this.props.initialState.brand,
-        purchasing_info: {
-          date: formatDate(this.props.initialState.purchasing_info.date),
-          supplier: this.props.initialState.purchasing_info.supplier,
-          warranty_exp: this.props.initialState.purchasing_info.warranty_exp &&
-          formatDate(this.props.initialState.purchasing_info.warranty_exp),
-          price: this.props.initialState.purchasing_info.price,
-          rendered_price: formatCurrency(this.props.initialState.purchasing_info.price).slice(1)
         },
         shared: this.props.initialState.shared,
         training_required: this.props.initialState.training_required,
@@ -105,27 +79,15 @@ class AssetForm extends Component {
           project_name: this.props.initialState.grant.project_name,
         },
         users: this.props.initialState.users,
-        condition: this.props.initialState.condition
       };
     } else {
       this.state={
         name: '',
-        barcode: '',
         description: '',
-        category: 'Lab Equipment',
+        category: 'Lab Supplies',
         location: {
           area: '',
           sub_area: '',
-        },
-        serial_number: '',
-        model: '',
-        brand: '',
-        purchasing_info: {
-          date: '',
-          supplier: '',
-          warranty_exp: '',
-          price: 0.00,
-          rendered_price: '0.00'
         },
         shared: 'Yes',
         training_required: 'Yes',
@@ -135,7 +97,6 @@ class AssetForm extends Component {
           project_name: '',
         },
         users: [],
-        condition: 'To Be Installed',
         registration_event: {
           user: this.props.user.login
         }
@@ -143,23 +104,19 @@ class AssetForm extends Component {
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.syncRenderedPrice = this.syncRenderedPrice.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.linkToCategory = this.linkToCategory.bind(this);
   }
 
   handleChange = e => {
-    if (e.target.name === 'purchasing_info.rendered_price')
-      return this.setState({ purchasing_info: {...this.state.purchasing_info, price: parseFloat(formatCurrency(parseFloat(e.target.value.replace(/,/g, ''))).slice(1).replace(/,/g, '')), rendered_price: e.target.value }});
-
     let keyArray = e.target.name.split('.').reverse();
     const changes = keyArray.slice(1).reduce((obj, key) => ({ [key]: {...this.state[key], ...obj}}), { [keyArray[0]]: e.target.value });
     return this.setState(changes);
-
   }
 
   handleSubmit = callAction => e => {
     e.preventDefault();
-    const { rendered_price, ...purchasing_info } = this.state.purchasing_info;
-    const asset = { ...this.state, purchasing_info };
+    const asset = { ...this.state };
     return callAction(asset);
   }
 
@@ -168,9 +125,7 @@ class AssetForm extends Component {
     return this.props.history.goBack();
   }
 
-  syncRenderedPrice = () => {
-    return this.setState({ purchasing_info: { ...this.state.purchasing_info, rendered_price: isNaN(this.state.purchasing_info.price) ? '' : formatCurrency(this.state.purchasing_info.price).slice(1) }});
-  }
+  linkToCategory = e => this.props.history.push(`/assets/${e.target.value}/new`);
 
   render() {
 
@@ -193,7 +148,7 @@ class AssetForm extends Component {
                       spacing={8}>
                       <Grid item xs={12}>
                         <Typography variant="display1" gutterBottom>
-                          { `${update ? 'Edit' : 'Register'} Lab Equipment` }
+                          { `${update ? 'Edit' : 'Register'} ${this.state.category}` }
                         </Typography>
                       </Grid>
                       <Grid item xs={12}>
@@ -212,23 +167,28 @@ class AssetForm extends Component {
                                   General Information
                                 </Typography>
                               </Grid>
-                              <Grid item sm={4}>
-                                <TextField
-                                  name="category"
-                                  label="Select Category"
-                                  fullWidth
-                                  select
-                                  value={this.state.category}
-                                  onChange={this.handleChange}
-                                  margin="normal"
-                                >
-                                  {categories.map(option => (
-                                    <MenuItem key={option} value={option}>
-                                      {option}
-                                    </MenuItem>
-                                  ))}
-                                </TextField>
-                              </Grid>
+                              { update ? null : (
+                                <Grid item sm={4}>
+                                  <TextField
+                                    name="category"
+                                    label="Select Category"
+                                    fullWidth
+                                    select
+                                    value={this.state.category}
+                                    onChange={this.linkToCategory}
+                                    margin="normal"
+                                    SelectProps={{
+                                      renderValue: () => this.state.category
+                                    }}
+                                  >
+                                    {categories.map( category => (
+                                      <MenuItem key={category.id} value={category.id}>
+                                        {category.name}
+                                      </MenuItem>
+                                    ))}
+                                  </TextField>
+                                </Grid>
+                              )}
                             </Grid>
                             <Grid
                               container
@@ -246,81 +206,7 @@ class AssetForm extends Component {
                                   helperText={errors.name}
                                 />
                               </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="barcode"
-                                  label="Barcode"
-                                  margin="normal"
-                                  fullWidth
-                                  value={this.state.barcode}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.barcode)}
-                                  helperText={errors.barcode}
-                                  InputProps={{
-                                    endAdornment: (
-                                      <InputAdornment position="end">
-                                        <Tooltip id="tooltip-icon" title="Enter RFID Barcode" placement="top">
-                                          <BarcodeIcon />
-                                        </Tooltip>
-                                      </InputAdornment>
-                                    )
-                                  }}
-                                />
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="brand"
-                                  label="Brand"
-                                  fullWidth
-                                  margin="normal"
-                                  value={this.state.brand}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.brand)}
-                                  helperText={errors.brand}
-                                />
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="model"
-                                  label="Model"
-                                  fullWidth
-                                  margin="normal"
-                                  value={this.state.model}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.model)}
-                                  helperText={errors.model}
-                                />
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="serial_number"
-                                  label="Serial No."
-                                  fullWidth
-                                  margin="normal"
-                                  value={this.state.serial_number}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.serial_number)}
-                                  helperText={errors.serial_number}
-                                />
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="condition"
-                                  label="Current Condition"
-                                  fullWidth
-                                  select
-                                  value={this.state.condition}
-                                  onChange={this.handleChange}
-                                  margin="normal"
-                                >
-                                  {conditions.map(option => (
-                                    <MenuItem key={option} value={option}>
-                                      {option}
-                                    </MenuItem>
-                                  ))}
-                                </TextField>
-                              </Grid>
-                              <Grid item md={6} xs={12}>
+                              <Grid item md={9} xs={12}>
                                 <TextField
                                   name="description"
                                   label="Description"
@@ -331,76 +217,6 @@ class AssetForm extends Component {
                                   onChange={this.handleChange}
                                   error={Boolean(errors.description)}
                                   helperText={errors.description}
-                                />
-                              </Grid>
-                              <Grid item xs={12}>
-                                <Typography variant="headline" color="primary" className={classes.sectionTitle}>
-                                  Purchasing Information
-                                </Typography>
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="purchasing_info.date"
-                                  label="Purchase Date"
-                                  type="date"
-                                  fullWidth
-                                  margin="normal"
-                                  value={this.state.purchasing_info.date}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.purchasing_info_date)}
-                                  helperText={errors.purchasing_info_date}
-                                  InputLabelProps={{
-                                    shrink: true,
-                                  }}
-                                />
-                              </Grid>
-                              <Grid item sm={3}>
-                                <ClickAwayListener onClickAway={this.syncRenderedPrice}>
-                                  <TextField
-                                    name="purchasing_info.rendered_price"
-                                    label="Price"
-                                    margin="normal"
-                                    fullWidth
-                                    value={this.state.purchasing_info.rendered_price}
-                                    onChange={this.handleChange}
-                                    error={Boolean(errors.purchasing_info_price)}
-                                    helperText={errors.purchasing_info_price}
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          $
-                                        </InputAdornment>
-                                      )
-                                    }}
-                                  />
-                                </ClickAwayListener>
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="purchasing_info.supplier"
-                                  label="Supplier"
-                                  fullWidth
-                                  margin="normal"
-                                  value={this.state.purchasing_info.supplier}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.purchasing_info_supplier)}
-                                  helperText={errors.purchasing_info_supplier}
-                                />
-                              </Grid>
-                              <Grid item sm={3}>
-                                <TextField
-                                  name="purchasing_info.warranty_exp"
-                                  label="Warranty Expires"
-                                  type="date"
-                                  fullWidth
-                                  margin="normal"
-                                  value={this.state.purchasing_info.warranty_exp}
-                                  onChange={this.handleChange}
-                                  error={Boolean(errors.purchasing_info_warranty_exp)}
-                                  helperText={errors.purchasing_info_warranty_exp}
-                                  InputLabelProps={{
-                                    shrink: true,
-                                  }}
                                 />
                               </Grid>
                               <Grid item xs={12}>
@@ -537,14 +353,16 @@ class AssetForm extends Component {
                                       name: 'users'
                                     }}
                                   >
-                                    {users.map(user => (
-                                      <MenuItem key={user.id} value={user.id}>
-                                        <Checkbox checked={this.state.users.indexOf(user.id) > -1} />
-                                        <ListItemText primary={user.name} />
-                                      </MenuItem>
-                                    ))}
+                                    {
+                                      users.map(user => (
+                                        <MenuItem key={user.id} value={user.id}>
+                                          <Checkbox checked={this.state.users.indexOf(user.id) > -1} />
+                                          <ListItemText primary={user.name} />
+                                        </MenuItem>
+                                      ))
+                                    }
                                   </Select>
-                                  {errors.users ? <FormHelperText error={Boolean(errors.users)}>{errors.users}</FormHelperText> : null}
+                                  { errors.users ? <FormHelperText error={Boolean(errors.users)}>{errors.users}</FormHelperText> : null }
                                 </FormControl>
                               </Grid>
                             </Grid>
@@ -588,11 +406,11 @@ class AssetForm extends Component {
   }
 }
 
-AssetForm.propTypes = {
+SupplyForm.propTypes = {
   classes: PropTypes.object.isRequired,
   initialState: PropTypes.object,
   user: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(withRouter(AssetForm));
+export default withStyles(styles)(withRouter(SupplyForm));

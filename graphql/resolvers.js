@@ -13,6 +13,7 @@ import Location from '../models/Location';
 import Document from '../models/Document';
 import PrinterHub from '../models/PrinterHub';
 import Printer from '../models/Printer';
+import Counter from '../models/Counter';
 
 
 // Load input validation
@@ -21,10 +22,12 @@ import validateLoginInput from '../validation/login';
 import validateLocationInput from '../validation/location';
 import validateAddAssetInput from '../validation/asset';
 import validateAddMaintenanceEventInput from '../validation/maintenance_event';
+import validateAddPurchaseEventInput from '../validation/purchase_event';
 import validateUploadInput from '../validation/upload';
 import validatePrinterHubInput from '../validation/printer_hub';
 import validateAddPrinterInput from '../validation/printer';
 import validatePrinterJobInput from '../validation/printer_job';
+import validateCounterInput from '../validation/counter';
 
 
 const cache = path.normalize(cacheDir);
@@ -49,9 +52,22 @@ const storeFile = ({ stream, id, name }) => {
 };
 
 const resolvers = {
+  Asset: {
+    __resolveType(obj, context, info) {
+      if(obj.barcode){
+        return 'Equipment';
+      }
+
+      if(obj.purchase_log){
+        return 'Supply';
+      }
+
+      return null;
+    },
+  },
   Query: {
     assets: async (root, args, context, info) => {
-      let assets = await Asset.find();
+      let assets = await Asset.find({ category : args.category });
       return assets.map(async asset => {
         const { area: areaID, sub_area: subAreaID } = asset.location;
         let location = await Location.findById(areaID);
@@ -207,6 +223,45 @@ const resolvers = {
     // return {area: 'area', sub_area:'sub_area'};
   },
   Mutation: {
+    updateAssetBarcodes: async (root, args, context, info) => {
+      let assets = await Asset.find();
+      for (const asset of assets) {
+        await Asset.findByIdAndUpdate(asset.id,
+          { barcode : await Counter.getNextSequenceValue('Lab Equipment') });
+      }
+    },
+    addCounter: async (root, args, context, info) => {
+      const input = args.input;
+      const { errors: inputErrors, isValid } = validateCounterInput(input);
+      const errors = { errors: inputErrors };
+
+      // Check validation
+      if (!isValid) {
+        throw new UserInputError('Counter registration failed', errors);
+      }
+
+      let counter;
+
+      try {
+        counter = await Counter.findOne({ $or: [{ name: input.name,  prefix: input.prefix }] });
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+
+      if(counter) {
+        errors.errors.counter = 'A counter already exists with the same name or prefix.';
+        throw new ApolloError('Counter registration failed', 'BAD_REQUEST', errors);
+      } else {
+
+        const newCounter = new Counter({
+          name: input.name,
+          prefix: input.prefix,
+        });
+
+        await newCounter.save();
+        return null;
+      }
+    },
     addUser: async (root, args, context, info) => {
       const input = args.input;
       const { errors: inputErrors, isValid } = validateRegisterInput(input);
@@ -302,34 +357,39 @@ const resolvers = {
         throw new UserInputError('Asset registration failed', errors);
       }
 
-      let asset;
       let allowed_users;
       const allowed_userIDs = input.users.map(userID => mongoose.Types.ObjectId(userID));
 
       try {
-        asset = await Asset.findOne({ barcode: input.barcode });
+        allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
       } catch(err) {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
 
-      if(asset) {
-        errors.errors.barcode = 'Barcode already exists';
+      if(allowed_users.length != input.users.length) {
+        errors.errors.users = 'Selected user(s) no longer exist(s)';
         throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
       } else {
-        try {
-          allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
-        } catch(err) {
-          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+
+        let newAsset = new Asset(input);
+
+        switch (input.category) {
+        case 'Lab Equipment': {
+          let barcode = await Counter.getNextSequenceValue(input.category);
+          newAsset.barcode = barcode;
+          break;
+        }
+        case 'Lab Supplies': {
+          break;
+        }
+        default: {
+          errors.errors.category = 'Category does not exist';
+          throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
+        }
         }
 
-        if(allowed_users.length != input.users.length) {
-          errors.errors.users = 'Selected user(s) no longer exist(s)';
-          throw new ApolloError('Asset registration failed', 'BAD_REQUEST', errors);
-        } else {
-          const newAsset = new Asset({ ...input, maintenance_log: [], documents: [] });
-          await newAsset.save();
-          return null;
-        }
+        await newAsset.save();
+        return null;
       }
     },
     updateAsset: async (root, args, context, info) => {
@@ -342,39 +402,27 @@ const resolvers = {
         throw new UserInputError('Asset registration failed', errors);
       }
 
-      let asset;
       let allowed_users;
       const allowed_userIDs = input.users.map(userID => mongoose.Types.ObjectId(userID));
 
       try {
-        asset = await Asset.findOne({ barcode: input.barcode }).select('id').lean();
+        allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
       } catch(err) {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
 
-      if(asset && asset._id.toString() !== input.id) {
-        errors.errors.barcode = 'Barcode already exists';
+      if(allowed_users.length != input.users.length) {
+        errors.errors.users = 'Selected user(s) no longer exist(s)';
         throw new ApolloError('Asset update failed', 'BAD_REQUEST', errors);
       } else {
         try {
-          allowed_users = await User.find({ '_id': { $in: allowed_userIDs } });
+          const { id, ...update } = input;
+          await Asset.findByIdAndUpdate(mongoose.Types.ObjectId(id), update);
         } catch(err) {
           throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
         }
 
-        if(allowed_users.length != input.users.length) {
-          errors.errors.users = 'Selected user(s) no longer exist(s)';
-          throw new ApolloError('Asset update failed', 'BAD_REQUEST', errors);
-        } else {
-          try {
-            const { id, ...update } = input;
-            await Asset.findByIdAndUpdate(mongoose.Types.ObjectId(id), update);
-          } catch(err) {
-            throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
-          }
-
-          return null;
-        }
+        return null;
       }
     },
 
@@ -427,7 +475,125 @@ const resolvers = {
         return result;
       }
     },
+    updateMaintenanceEvent: async (root, args, context, info) => {
+      const input = args.input;
+      const { errors: inputErrors, isValid } = validateAddMaintenanceEventInput(input);
+      const errors = { errors: inputErrors };
 
+      // Check validation
+      if (!isValid) {
+        throw new UserInputError('Event registration failed', errors);
+      }
+
+      let asset;
+      const { assetID, eventID, ...logEntry } = input;
+
+      try {
+        asset = await Asset.findById(assetID);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+
+      if(!asset) {
+        errors.errors.asset = 'This asset has been removed';
+        throw new ApolloError('Event registration failed', 'BAD_REQUEST', errors);
+      } else {
+        try {
+          const update = {};
+          Object.keys(logEntry).forEach( field => Object.assign(update, { [`maintenance_log.$.${field}`] : logEntry[field]  }));
+          await Asset.updateOne({ _id: assetID, 'maintenance_log._id': eventID },
+            { $set: update });
+          const result = true;
+          return result;
+        } catch(err) {
+          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+        }
+      }
+    },
+    deleteMaintenanceEvent: async (root, args, context, info) => {
+      const event_IDs = args.ids.map(id => mongoose.Types.ObjectId(id));
+      try {
+        await Asset.findByIdAndUpdate(args.assetID,
+          { $pull : { 'maintenance_log' : { '_id': { $in : event_IDs } } } } );
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
+      }
+      return null;
+    },
+    addPurchaseEvent: async (root, args, context, info) => {
+      const input = args.input;
+      const { errors: inputErrors, isValid } = validateAddPurchaseEventInput(input);
+      const errors = { errors: inputErrors };
+
+      // Check validation
+      if (!isValid) {
+        throw new UserInputError('Event registration failed', errors);
+      }
+
+      let asset;
+      const { assetID, ...logEntry } = input;
+
+      try {
+        asset = await Asset.findById(assetID);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+
+      if(!asset) {
+        errors.errors.asset = 'This asset has been removed';
+        throw new ApolloError('Event registration failed', 'BAD_REQUEST', errors);
+      } else {
+        asset.purchase_log.push(logEntry);
+        await asset.save();
+        const result = true;
+        return result;
+      }
+    },
+    updatePurchaseEvent: async (root, args, context, info) => {
+      const input = args.input;
+      const { errors: inputErrors, isValid } = validateAddPurchaseEventInput(input);
+      const errors = { errors: inputErrors };
+
+      // Check validation
+      if (!isValid) {
+        throw new UserInputError('Event registration failed', errors);
+      }
+
+      let asset;
+      const { assetID, eventID, ...logEntry } = input;
+
+      try {
+        asset = await Asset.findById(assetID);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+
+      if(!asset) {
+        errors.errors.asset = 'This asset has been removed';
+        throw new ApolloError('Event registration failed', 'BAD_REQUEST', errors);
+      } else {
+        try {
+          const update = {};
+          Object.keys(logEntry).forEach( field => Object.assign(update, { [`purchase_log.$.${field}`] : logEntry[field]  }));
+          await Asset.updateOne({ _id: assetID, 'purchase_log._id': eventID },
+            { $set: update });
+          const result = true;
+          return result;
+        } catch(err) {
+          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+        }
+      }
+    },
+    deletePurchaseEvent: async (root, args, context, info) => {
+      const event_IDs = args.ids.map(id => mongoose.Types.ObjectId(id));
+      try {
+        await Asset.findByIdAndUpdate(args.assetID,
+          { $pull : { 'purchase_log' : { '_id': { $in : event_IDs } } } } );
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
+      }
+      return null;
+    },
     addLocation: async (root, args, context, info) => {
       const input = args.input;
       const { errors: inputErrors, isValid } = validateLocationInput(input);

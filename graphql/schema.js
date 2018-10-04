@@ -14,21 +14,50 @@ const typeDefs = gql`
     admin: Boolean!
   }
 
-  type Asset {
+  interface Asset {
     id: ID!
     name: String!
-    barcode: String!
     description: String!
     category: String!
     location: Location!
-    serial_number: String!
-    brand: String!
-    model: String!
-    condition: String!
     shared: String!
-    purchasing_info: PurchasingInfo!
     grant: Grant!
-    maintenance_log: [MaintenanceEvent]!
+    documents: [Document]!
+    users: [ID]!
+    training_required: String!
+    registration_event: RegistrationEvent!
+  }
+
+  type Equipment implements Asset {
+    id: ID!
+    name: String!
+    barcode: String
+    description: String!
+    category: String!
+    location: Location!
+    serial_number: String
+    brand: String
+    model: String
+    condition: String
+    shared: String!
+    purchasing_info: PurchasingInfo
+    grant: Grant!
+    maintenance_log: [MaintenanceEvent]
+    documents: [Document]!
+    users: [ID]!
+    training_required: String!
+    registration_event: RegistrationEvent!
+  }
+
+  type Supply implements Asset {
+    id: ID!
+    name: String!
+    description: String!
+    category: String!
+    location: Location!
+    shared: String!
+    grant: Grant!
+    purchase_log: [PurchaseEvent]
     documents: [Document]!
     users: [ID]!
     training_required: String!
@@ -56,6 +85,16 @@ const typeDefs = gql`
     agent: String!
     scheduled: String!
     description: String!
+  }
+
+  type PurchaseEvent {
+    id: ID!
+    date: String!
+    price: Float!
+    supplier: String!
+    catalog_number: String!
+    received: String!
+    quantity: Float!
   }
 
   type Grant {
@@ -138,7 +177,7 @@ const typeDefs = gql`
     date: String!
     supplier: String!
     warranty_exp: String!
-    price: Float!
+    price: Float
   }
 
   input GrantInput {
@@ -153,38 +192,36 @@ const typeDefs = gql`
 
   input AddAssetInput {
     name: String!
-    barcode: String!
     description: String!
     category: String!
     location: LocationInput!
-    serial_number: String!
-    brand: String!
-    model: String!
-    purchasing_info: PurchasingInfoInput!
+    serial_number: String
+    brand: String
+    model: String
+    purchasing_info: PurchasingInfoInput
     shared: String!
     grant: GrantInput!
     users: [ID]!
     training_required: String!
-    condition: String!
+    condition: String
     registration_event: RegistrationEventInput!
   }
 
-  input updateAssetInput {
+  input UpdateAssetInput {
     id: ID!
     name: String!
-    barcode: String!
     description: String!
     category: String!
     location: LocationInput!
-    serial_number: String!
-    brand: String!
-    model: String!
-    purchasing_info: PurchasingInfoInput!
+    serial_number: String
+    brand: String
+    model: String
+    purchasing_info: PurchasingInfoInput
     shared: String!
     training_required: String!
     grant: GrantInput!
     users: [ID]!
-    condition: String!
+    condition: String
   }
 
   input AddMaintenanceEventInput {
@@ -194,6 +231,16 @@ const typeDefs = gql`
     agent: String!
     scheduled: String!
     description: String!
+  }
+
+  input AddPurchaseEventInput {
+    assetID: ID!
+    date: String!
+    price: Float
+    supplier: String!
+    catalog_number: String!
+    received: String!
+    quantity: Float!
   }
 
   input LocationInput {
@@ -235,6 +282,27 @@ const typeDefs = gql`
     reset: Boolean!
   }
 
+  input UpdateMaintenanceEventInput {
+    assetID: ID!
+    eventID: ID!
+    date: String!
+    service: String!
+    agent: String!
+    scheduled: String!
+    description: String!
+  }
+
+  input UpdatePurchaseEventInput {
+    assetID: ID!
+    eventID: ID!
+    date: String!
+    price: Float
+    supplier: String!
+    catalog_number: String!
+    received: String!
+    quantity: Float!
+  }
+
   input AddPrinterJobInput {
     connection_name: String!
     job: PrinterJobInput!
@@ -250,6 +318,11 @@ const typeDefs = gql`
     connection_name: String!
     jobID: ID!
     dequeue: Boolean!
+  }
+
+  input AddCounterInput {
+    name: String!
+    prefix: String!
   }
 
 
@@ -307,7 +380,7 @@ const typeDefs = gql`
     auth: Auth!
     getCurrentUser : UserPayload
     errors: [Error]!
-    assets: [Asset]!
+    assets(category: String!): [Asset]!
     asset(id: ID!): Asset!
     document(id: ID!): String
     locations: [LocationObject]!
@@ -324,25 +397,31 @@ const typeDefs = gql`
     login(input: loginInput!) : loginOutput!
     validateUpload(input: UploadInput!) : Boolean
     registerPrinterHub(input: PrinterHubInput!) : PrinterHubOutput!
+    updateAssetBarcodes : Boolean
 
     #Create Mutations
     addUser(input: AddUserInput!) : Boolean
     addAsset(input: AddAssetInput!) : Boolean
     addLocation(input: AddLocationInput!) : Boolean
     addMaintenanceEvent(input: AddMaintenanceEventInput!) : Boolean
+    addPurchaseEvent(input: AddPurchaseEventInput!) : Boolean
     addDocument(input: AddDocumentInput!) : Boolean
     addPrinter(input: AddPrinterInput!) : Boolean
     addPrinterJob(input: AddPrinterJobInput!) : Boolean
+    addCounter(input: AddCounterInput!) : Boolean
 
     #Update Mutations
-    updateAsset(input: updateAssetInput!) : Boolean
+    updateAsset(input: UpdateAssetInput!) : Boolean
     updatePrinter(input: UpdatePrinterInput!) : Boolean
-
+    updateMaintenanceEvent(input: UpdateMaintenanceEventInput!) : Boolean
+    updatePurchaseEvent(input: UpdatePurchaseEventInput!) : Boolean
 
     #Delete Mutations
     deleteAsset(id: ID!) : Boolean
     deleteDocument(ids: [ID!]!, assetID: ID!) : Boolean
     clearDocuments : Boolean
+    deleteMaintenanceEvent(ids: [ID!]!, assetID: ID!) : Boolean
+    deletePurchaseEvent(ids: [ID!]!, assetID: ID!) : Boolean
     deletePrinterJob(input: DeletePrinterJobInput!) : Boolean
 
     setCurrentUser(payload: Payload!) : Boolean

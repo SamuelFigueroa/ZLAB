@@ -6,7 +6,12 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { withClientState } from 'apollo-link-state';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
+import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
+import introspectionQueryResultData from './fragmentTypes.json';
 
+const fragmentMatcher = new IntrospectionFragmentMatcher({
+  introspectionQueryResultData
+});
 // const httpLink =  new HttpLink({
 //   uri: '/graphql',
 //   credentials: 'include'
@@ -17,7 +22,7 @@ const uploadLink = createUploadLink({
   credentials: 'include'
 });
 
-const cache = new InMemoryCache();
+const cache = new InMemoryCache({ fragmentMatcher });
 
 const defaultState = {
   auth: {

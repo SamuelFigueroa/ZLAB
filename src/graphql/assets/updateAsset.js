@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 const UPDATE_ASSET = gql`
-  mutation updateAsset($input: updateAssetInput!) {
+  mutation updateAsset($input: UpdateAssetInput!) {
     updateAsset(input: $input)
   }
 `;

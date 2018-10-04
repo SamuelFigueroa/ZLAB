@@ -8,10 +8,10 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import green from '@material-ui/core/colors/green';
 
-import Table from './CheckableTable';
-import MaintenanceEventForm from './MaintenanceEventForm';
-import DeleteMaintenanceEvent from './mutations/DeleteMaintenanceEvent';
 
+import Table from './CheckableTable';
+import PurchaseEventForm from './PurchaseEventForm';
+import DeletePurchaseEvent from './mutations/DeletePurchaseEvent';
 
 const styles = (theme) => ({
   fab: {
@@ -35,12 +35,13 @@ const styles = (theme) => ({
   },
 });
 
-const maintenanceCols = [
+const purchaseCols = [
   { id: 'date', numeric: false, label: 'Date' },
-  { id: 'service', numeric: false, label: 'Service' },
-  { id: 'agent', numeric: false, label: 'Agent' },
-  { id: 'description', numeric: false, label: 'Description' },
-  { id: 'scheduled', numeric: false, label: 'Scheduled' }
+  { id: 'supplier', numeric: false, label: 'Supplier' },
+  { id: 'catalog_number', numeric: false, label: 'Catalog No.' },
+  { id: 'price', numeric: false, label: 'Price' },
+  { id: 'quantity', numeric: false, label: 'Quantity' },
+  { id: 'received', numeric: false, label: 'Date Received' },
 ];
 
 const formatDate = (d) => {
@@ -53,7 +54,9 @@ const formatDate = (d) => {
   return dateArr.join('-');
 };
 
-class MaintenanceLog extends PureComponent {
+const formatCurrency = (n) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD' }).format(n);
+
+class PurchaseLog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -89,14 +92,13 @@ class MaintenanceLog extends PureComponent {
       editMode: !this.state.editMode });
   }
 
-
   render() {
     const { classes, theme, events, assetID, assetHeadline } = this.props;
     const { currentEntry } = this.state;
     const fabs = [
       {
         color: 'primary',
-        tooltip: 'Add Maintenance Event',
+        tooltip: 'Add Resupply Event',
         icon: <AddIcon />,
         className: classes.fab
       },
@@ -116,12 +118,14 @@ class MaintenanceLog extends PureComponent {
     const formatted_events = events.map(event => ({
       ...event,
       date: formatDate(event.date),
-      scheduled: event.scheduled && formatDate(event.scheduled)
+      received: event.received && formatDate(event.received),
+      price: formatCurrency(event.price).slice(1),
+      quantity: event.quantity.toString()
     }));
 
     return (
-      <DeleteMaintenanceEvent>
-        { deleteMaintenanceEvent => (
+      <DeletePurchaseEvent>
+        { deletePurchaseEvent => (
           <div>
             {fabs.map((fab, index) => (
               <Zoom
@@ -137,17 +141,17 @@ class MaintenanceLog extends PureComponent {
               </Zoom>
             ))}
             <Table
-              cols={maintenanceCols}
+              cols={purchaseCols}
               data={formatted_events}
-              title="Maintenance Log"
+              title="Purchase Log"
               subheading={assetHeadline}
               editMode={this.state.editMode}
               editable={true}
               actions={{
-                delete: deleteMaintenanceEvent(assetID),
+                delete: deletePurchaseEvent(assetID),
                 update: this.toggleEditMode
               }}/>
-            <MaintenanceEventForm
+            <PurchaseEventForm
               initialState={currentEntry}
               expanded={this.state.expanded}
               assetID={assetID}
@@ -155,12 +159,12 @@ class MaintenanceLog extends PureComponent {
               editMode={this.state.editMode}/>
           </div>
         )}
-      </DeleteMaintenanceEvent>
+      </DeletePurchaseEvent>
     );
   }
 }
 
-MaintenanceLog.propTypes = {
+PurchaseLog.propTypes = {
   classes: PropTypes.object.isRequired,
   events: PropTypes.array.isRequired,
   theme: PropTypes.object.isRequired,
@@ -168,4 +172,4 @@ MaintenanceLog.propTypes = {
   assetHeadline: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(MaintenanceLog);
+export default withStyles(styles, { withTheme: true })(PurchaseLog);

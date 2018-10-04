@@ -128,6 +128,8 @@ class DocumentLog extends PureComponent {
                   subheading={assetHeadline}
                   actions={ { delete: deleteDocument(assetID) } }
                   onRowClick={this.linkToDocument(getDocument)}
+                  editMode={false}
+                  editable={false}
                 />
                 <DocumentForm expanded={this.state.expanded} user={user} model="assets" query={GET_ASSET} objID={assetID} toggleForm={this.toggleEventForm}/>
               </div>

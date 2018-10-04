@@ -20,13 +20,15 @@ class DeleteAsset extends Component {
         { (handleError) => (
           <Mutation
             mutation={DELETE_ASSET}
-            refetchQueries={() => [{query: GET_ASSETS}]}
             awaitRefetchQueries={true}
             onCompleted={ () => this.props.history.push('/assets') }
             onError={ errorObj => handleError(errorObj) }
           >
             { deleteAsset => {
-              const callMutation = (id) => deleteAsset({ variables: { id } });
+              const callMutation = (id, category) => deleteAsset({
+                variables: { id },
+                refetchQueries: () => [ { query: GET_ASSETS, variables: { category } } ]
+              });
               return this.props.children(callMutation);
             }}
           </Mutation>

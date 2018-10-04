@@ -29,16 +29,16 @@ const AssetSchema = new mongoose.Schema({
   purchasing_info: {
     date: {
       type: Date,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     },
     supplier: {
       type: String,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     },
     warranty_exp: String,
     price: {
       type: Number,
-      required: true
+      required: function () {return this.category == 'Lab Equipment';}
     }
   },
   shared: {
@@ -89,9 +89,31 @@ const AssetSchema = new mongoose.Schema({
   },
   condition: {
     type: String,
-    enum: ['Fully Operational', 'Needs Repair', 'Maintenance Due', 'Decommissioned', 'To Be Installed'],
-    required: true
+    enum: ['Fully Operational', 'Needs Repair', 'Maintenance Due', 'Decommissioned', 'To Be Installed', '']
   },
+  purchase_log:[{
+    date: {
+      type: Date,
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    supplier: {
+      type: String,
+      required: true
+    },
+    received: String,
+    catalog_number: {
+      type: String,
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true
+    }
+  }],
   documents: [ObjectId],
   registration_event: {
     user: {

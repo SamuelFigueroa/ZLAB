@@ -68,8 +68,8 @@ class DocumentForm extends PureComponent {
     this.state= {
       user: this.props.user.login,
       model: this.props.model,
-      field: this.props.field,
       objID: this.props.objID,
+      field: this.props.field,
       category: 'SOP',
     };
 
@@ -104,13 +104,32 @@ class DocumentForm extends PureComponent {
     }
   }) => {
     if(validity.valid) {
-      const { name, size } = file;
+      const { name, size, type, lastModified } = file;
       let validationResult = await validateInput({ name, size });
       if(validationResult !== undefined) {
-        let result = await addDocument(
-          { file, name, size, ...this.state },
-          [{query: this.props.query, variables: { id: this.state.objID }}]
-        );
+        let result;
+        if(type == 'application/json')
+        {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const newName = name.replace(/\.json$/, '.txt');
+            let txtFile = new File([reader.result],
+              newName, {
+                type: 'text/plain',
+                lastModified,
+              });
+            result = await addDocument(
+              { file: txtFile, name: newName, size, ...this.state },
+              [{query: this.props.query, variables: { id: this.state.objID }}]
+            );
+          };
+          reader.readAsText(file);
+        } else {
+          result = await addDocument(
+            { file, name, size, ...this.state },
+            [{query: this.props.query, variables: { id: this.state.objID }}]
+          );
+        }
         if(result !== undefined) handleClose();
       }
     }

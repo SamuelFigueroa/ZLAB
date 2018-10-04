@@ -150,6 +150,10 @@ class EnhancedTable extends PureComponent {
     this.context.swipeableViews.slideUpdateHeight();
   }
 
+  componentDidMount() {
+    this.context.swipeableViews.slideUpdateHeight();
+  }
+
   getSorting = (order, orderBy) => {
     return order === 'desc' ? (a, b) => '' + b[orderBy].localeCompare(a[orderBy]) : (a, b) => '' + a[orderBy].localeCompare(b[orderBy]);
   }

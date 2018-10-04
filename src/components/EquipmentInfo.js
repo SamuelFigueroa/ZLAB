@@ -75,7 +75,7 @@ const styles = (theme) => ({
 });
 
 
-class AssetInfo extends Component {
+class EquipmentInfo extends Component {
   constructor(props) {
     super(props);
   }
@@ -97,7 +97,7 @@ class AssetInfo extends Component {
           tabs[0]['component'] = (
             <div className={classes.root}>
               <Tooltip title={`Edit ${asset.category} Information`}>
-                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/${asset.id}/update`}>
+                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/equipment/${asset.id}/update`}>
                   <EditIcon />
                 </Button>
               </Tooltip>
@@ -239,7 +239,7 @@ class AssetInfo extends Component {
                       alignItems="center"
                       justify="center">
                       <Grid item xs={4}>
-                        <Button variant="contained" fullWidth onClick={() => deleteAsset(asset.id)} color="secondary" className={classes.delete}>
+                        <Button variant="contained" fullWidth onClick={() => deleteAsset(asset.id, asset.category)} color="secondary" className={classes.delete}>
                         Delete {`${asset.category}`}
                         </Button>
                       </Grid>
@@ -258,11 +258,11 @@ class AssetInfo extends Component {
   }
 }
 
-AssetInfo.propTypes = {
+EquipmentInfo.propTypes = {
   classes: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
   isAuthenticated: PropTypes.bool.isRequired,
   user: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(AssetInfo);
+export default withStyles(styles)(EquipmentInfo);

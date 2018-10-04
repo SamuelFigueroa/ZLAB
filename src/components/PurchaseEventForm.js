@@ -8,13 +8,14 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
 import TextField from '@material-ui/core/TextField';
-import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
-import AddMaintenanceEvent from './mutations/AddMaintenanceEvent';
-import UpdateMaintenanceEvent from './mutations/UpdateMaintenanceEvent';
+import AddPurchaseEvent from './mutations/AddPurchaseEvent';
+import UpdatePurchaseEvent from './mutations/UpdatePurchaseEvent';
 
 const styles = theme => ({
   root: {
@@ -60,6 +61,8 @@ const styles = theme => ({
   }
 });
 
+const formatCurrency = (n) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD' }).format(n);
+
 const formatDate = (d) => {
   const date = new Date(d);
   date.setHours(date.getHours() + (date.getTimezoneOffset() / 60));
@@ -70,22 +73,24 @@ const formatDate = (d) => {
   return dateArr.join('-');
 };
 
-const services = ['Install', 'Repair', 'Prev. Maintenance', 'Calibration', 'Decommission'];
-
-class MaintenanceEventForm extends PureComponent {
+class PurchaseEventForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state= {
       eventID: '',
       date: '',
-      service: 'Install',
-      agent: '',
-      scheduled: '',
-      description: ''
+      supplier: '',
+      catalog_number: '',
+      price: 0.00,
+      rendered_price: '0.00',
+      quantity: 0,
+      received: ''
     };
+
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.syncRenderedPrice = this.syncRenderedPrice.bind(this);
   }
 
   static contextTypes = {
@@ -98,37 +103,53 @@ class MaintenanceEventForm extends PureComponent {
       this.setState({
         eventID: this.props.initialState.id,
         date: formatDate(this.props.initialState.date),
-        description: this.props.initialState.description,
-        service: this.props.initialState.service,
-        scheduled: this.props.initialState.scheduled &&
-          formatDate(this.props.initialState.scheduled),
-        agent: this.props.initialState.agent
+        supplier: this.props.initialState.supplier,
+        catalog_number: this.props.initialState.catalog_number,
+        price: this.props.initialState.price,
+        rendered_price: formatCurrency(this.props.initialState.price).slice(1),
+        quantity: this.props.initialState.quantity,
+        received: this.props.initialState.received &&
+          formatDate(this.props.initialState.received),
       });
     }
     if(prevProps.editMode && !this.props.editMode) {
       this.setState({
         eventID: '',
         date: '',
-        service: 'Install',
-        agent: '',
-        scheduled: '',
-        description: ''
+        supplier: '',
+        catalog_number: '',
+        price: 0.00,
+        rendered_price: '0.00',
+        quantity: 0,
+        received: ''
       });
     }
   }
 
   handleChange = e => {
+    if(e.target.name == 'quantity') {
+      const quantity = parseInt(e.target.value);
+      return this.setState({ quantity: (isNaN(quantity) || quantity < 0) ? 0 : (
+        quantity ) });
+    }
+
+    if (e.target.name === 'rendered_price')
+      return this.setState({ price: parseFloat(formatCurrency(parseFloat(e.target.value.replace(/,/g, ''))).slice(1).replace(/,/g, '')), rendered_price: e.target.value });
+
     return this.setState({ [e.target.name] : e.target.value });
+
   }
 
   handleClose = (clearErrors, toggleForm) => () => {
     this.setState({
       eventID: '',
       date: '',
-      service: 'Install',
-      agent: '',
-      scheduled: '',
-      description: ''
+      supplier: '',
+      catalog_number: '',
+      price: 0.00,
+      rendered_price: '0.00',
+      quantity: 0,
+      received: ''
     });
     clearErrors();
     return toggleForm();
@@ -136,7 +157,7 @@ class MaintenanceEventForm extends PureComponent {
 
   handleSubmit = (callAction, assetID, handleClose) => async e => {
     e.preventDefault();
-    const { eventID, ...eventInput } = this.state;
+    const { eventID, rendered_price, ...eventInput } = this.state;
     const event = { ...eventInput, assetID };
     if (this.props.editMode)
       event.eventID = eventID;
@@ -144,9 +165,13 @@ class MaintenanceEventForm extends PureComponent {
     if(result !== undefined) handleClose();
   }
 
+  syncRenderedPrice = () => {
+    return this.setState({ rendered_price: isNaN(this.state.price) ? '' : formatCurrency(this.state.price).slice(1) });
+  }
+
   render() {
     const { classes, expanded, theme, assetID, toggleForm, editMode } = this.props;
-    const Action = editMode ? UpdateMaintenanceEvent : AddMaintenanceEvent;
+    const Action = editMode ? UpdatePurchaseEvent : AddPurchaseEvent;
     return (
       <Action>
         { (callAction, errors, clearErrors) => (
@@ -164,12 +189,12 @@ class MaintenanceEventForm extends PureComponent {
                 <ExpansionPanelSummary onClick={toggleForm}>
                   <div className={classes.column}>
                     <Typography className={classes.heading}>
-                      {`${ editMode ? 'Edit' : 'Add' } Maintenance Event`}
+                      {`${ editMode ? 'Edit' : 'Add' } Resupply Event`}
                     </Typography>
                   </div>
                   <div className={classes.column}>
                     <Typography className={classes.secondaryHeading}>
-                      {editMode ? 'Update log entry' : 'Create a new log entry' }
+                    {editMode ? 'Update log entry' : 'Create a new log entry' }
                     </Typography>
                   </div>
                 </ExpansionPanelSummary>
@@ -196,58 +221,73 @@ class MaintenanceEventForm extends PureComponent {
                     </Grid>
                     <Grid item xs={3}>
                       <TextField
-                        name="service"
-                        label="Select Service"
-                        fullWidth
-                        select
-                        value={this.state.service}
-                        onChange={this.handleChange}
-                        margin="normal"
-                      >
-                        {services.map(option => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="agent"
-                        label="Agent"
+                        name="supplier"
+                        label="Supplier"
                         fullWidth
                         margin="normal"
-                        value={this.state.agent}
+                        value={this.state.supplier}
                         onChange={this.handleChange}
-                        error={Boolean(errors.agent)}
-                        helperText={errors.agent}
+                        error={Boolean(errors.supplier)}
+                        helperText={errors.supplier}
                       />
                     </Grid>
                     <Grid item xs={3}>
                       <TextField
-                        name="scheduled"
-                        label="Next Scheduled"
+                        name="catalog_number"
+                        label="Catalog No."
+                        fullWidth
+                        margin="normal"
+                        value={this.state.catalog_number}
+                        onChange={this.handleChange}
+                        error={Boolean(errors.catalog_number)}
+                        helperText={errors.catalog_number}
+                      />
+                    </Grid>
+                    <Grid item xs={3}>
+                      <ClickAwayListener onClickAway={this.syncRenderedPrice}>
+                        <TextField
+                          name="rendered_price"
+                          label="Price"
+                          margin="normal"
+                          fullWidth
+                          value={this.state.rendered_price}
+                          onChange={this.handleChange}
+                          error={Boolean(errors.price)}
+                          helperText={errors.price}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                $
+                              </InputAdornment>
+                            )
+                          }}
+                        />
+                      </ClickAwayListener>
+                    </Grid>
+                    <Grid item xs={3}>
+                      <TextField
+                        name="quantity"
+                        label="Quantity"
+                        fullWidth
+                        margin="normal"
+                        value={this.state.quantity}
+                        onChange={this.handleChange}
+                        error={Boolean(errors.quantity)}
+                        helperText={errors.quantity}
+                      />
+                    </Grid>
+                    <Grid item xs={3}>
+                      <TextField
+                        name="received"
+                        label="Date Received"
                         type="date"
                         fullWidth
                         margin="normal"
-                        value={this.state.scheduled}
+                        value={this.state.received}
                         onChange={this.handleChange}
                         InputLabelProps={{
                           shrink: true,
                         }}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        name="description"
-                        label="Description"
-                        fullWidth
-                        multiline
-                        margin="normal"
-                        value={this.state.description}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.description)}
-                        helperText={errors.description}
                       />
                     </Grid>
                   </Grid>
@@ -283,7 +323,7 @@ class MaintenanceEventForm extends PureComponent {
   }
 }
 
-MaintenanceEventForm.propTypes = {
+PurchaseEventForm.propTypes = {
   classes: PropTypes.object.isRequired,
   expanded: PropTypes.bool.isRequired,
   theme: PropTypes.object.isRequired,
@@ -293,4 +333,4 @@ MaintenanceEventForm.propTypes = {
   editMode: PropTypes.bool.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(MaintenanceEventForm);
+export default withStyles(styles, { withTheme: true })(PurchaseEventForm);
