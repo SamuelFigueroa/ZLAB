@@ -44,7 +44,7 @@ class PrinterHub extends Component {
         .withUrl(this.props.address)
         .configureLogging(signalR.LogLevel.Trace)
         .build(),
-      error: '',
+      status: 'Connecting...',
       printers: [],
       modals: [],
     };
@@ -66,7 +66,7 @@ class PrinterHub extends Component {
         // Define all SignalR event handlers
         await this.state.connection.on('PrintersFound',
           async (printers) => await this.registerPrinters(printers));
-        await this.registerPrinters(['test_connection']);
+        // await this.registerPrinters(['test_connection']);
         // Listen to messages from hub
         await this.state.connection.on('LogMessage',
           (printer, message) => {
@@ -90,14 +90,18 @@ class PrinterHub extends Component {
             this.setState({ printers });
           });
 
+        await this.state.connection.onclose( () => this.setState({
+          status: 'Disconnected', printers: [], modals: [], connection: null
+        }));
+
         // Get USB connected printers
         await this.state.connection.invoke('GetPrinters');
-
+        this.setState({ status: 'Online' });
       } catch (err) {
-        this.setState({ error: 'Failed to establish a connection with this printer hub.' });
+        this.setState({ status: 'Failed to establish a connection with this printer hub.' });
       }
     } else {
-      this.setState({ error: 'This printer hub appears to be offline.' });
+      this.setState({ status: 'This printer hub appears to be offline.' });
     }
   }
 
@@ -201,7 +205,7 @@ class PrinterHub extends Component {
 
   render() {
     const { classes, name, barcode } = this.props;
-    const { printers, error, modals } = this.state;
+    const { printers, status, modals } = this.state;
     return (
       <div className={classes.root}>
         {
@@ -232,7 +236,7 @@ class PrinterHub extends Component {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="title" color="textSecondary" align="right" gutterBottom>
-                    { error || 'Online' }
+                    { status }
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>

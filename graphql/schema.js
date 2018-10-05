@@ -260,7 +260,6 @@ const typeDefs = gql`
     name: String!
     address: String!
     online: Boolean!
-    user: String!
   }
 
   input AddPrinterInput {
