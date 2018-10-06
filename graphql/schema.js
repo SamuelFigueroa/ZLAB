@@ -45,6 +45,23 @@ const typeDefs = gql`
     registration_event: RegistrationEvent!
   }
 
+  type EquipmentHint {
+    brand: [String]!
+    model: [String]!
+    purchasing_info: PurchasingInfoHint!
+    grant: GrantHint!
+  }
+
+  type PurchasingInfoHint {
+    supplier: [String]!
+  }
+
+  type GrantHint {
+    funding_agency: [String]!
+    grant_number: [String]!
+    project_name: [String]!
+  }
+
   type Supply implements Asset {
     id: ID!
     name: String!
@@ -381,6 +398,7 @@ const typeDefs = gql`
     printer(connection_name: String!) : Printer
     nextPrinterJob(connection_name: String!) : PrinterJob
     #location(areaID: ID!, subAreaID: ID!): Location!
+    equipmentHints: EquipmentHint!
   }
 
   # Mutations

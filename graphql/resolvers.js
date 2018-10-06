@@ -243,7 +243,42 @@ const resolvers = {
         errors.errors.HttpRequest = 'Database lookup failed';
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
-    }
+    },
+    equipmentHints: async (root, args, context, info) => {
+
+      const fieldsFromInfo = (info) => {
+        let fields = [];
+        const getFields = (selection, name) => {
+          if (selection.selectionSet === undefined)
+            return fields.push(name);
+          return selection.selectionSet.selections.
+            forEach(selection => getFields(selection,
+              name ? `${name}.${selection.name.value}` : selection.name.value ));
+        };
+        getFields(info.operation.selectionSet.selections[0], null);
+        return fields;
+      };
+
+      const nestedAssign = (target, property, value) => {
+        let propertyArr = property.split('.');
+        if (propertyArr.length == 1)
+          return target[property] = value;
+        else {
+          let firstElem = propertyArr.shift();
+          if (!(firstElem in target))
+            target[firstElem] = {};
+          return nestedAssign(target[firstElem], propertyArr.join('.'), value);
+        }
+      };
+
+      let hints = {};
+      let fields = fieldsFromInfo(info);
+      for (const field of fields) {
+        let value = await Asset.distinct(field, { category: 'Lab Equipment' });
+        nestedAssign(hints, field, value);
+      }
+      return hints;
+    },
 
     // location: async (root, args, context, info) => {
     //   console.log('Executed');
