@@ -12,12 +12,12 @@ import MenuList from '@material-ui/core/MenuList';
 
 const styles = theme => ({
   paper: {
-  //   position: 'absolute',
-  //   zIndex: 1,
-  //   marginTop: 0,
-  //   left: 0,
-    // right: 0,
+    overflow: 'auto',
+    maxHeight: 200,
   },
+  root: {
+    zIndex: 1,
+  }
 });
 
 class Autocomplete extends Component {
@@ -66,8 +66,19 @@ class Autocomplete extends Component {
           onClick={this.handleToggle}
           {...textFieldProps}
         />
-        <div style={{ position: 'relative' }}>
-          <Popper open={open} style={{ left: 0, right: 0, position: 'absolute' }} anchorEl={this.textField.anchorEl} transition disablePortal>
+        <div className={classes.root} style={{ position: 'relative' }}>
+          <Popper
+            open={open}
+            style={{ left: 0, right: 0, position: 'absolute' }}
+            anchorEl={this.textField.anchorEl}
+            transition
+            disablePortal
+            modifiers={{
+              preventOverflow: {
+                enabled: true,
+                boundariesElement: 'scrollParent'
+              }
+            }}>
             {({ TransitionProps, placement }) => (
               <Grow
                 {...TransitionProps}

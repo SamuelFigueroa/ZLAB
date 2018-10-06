@@ -14,10 +14,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import BarcodeIcon from '@material-ui/icons/Memory';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Autocomplete from './Autocomplete';
 import AddAsset from './mutations/AddAsset';
@@ -276,16 +274,18 @@ class EquipmentForm extends Component {
                                     </Autocomplete>
                                   </Grid>
                                   <Grid item sm={3}>
-                                    <TextField
-                                      name="model"
-                                      label="Model"
-                                      fullWidth
-                                      margin="normal"
-                                      value={this.state.model}
-                                      onChange={this.handleChange}
-                                      error={Boolean(errors.model)}
-                                      helperText={errors.model}
-                                    />
+                                    <Autocomplete
+                                      options={equipmentHints.model}
+                                      textFieldProps={{
+                                        name: 'model',
+                                        label: 'Model',
+                                        margin: 'normal',
+                                        value: this.state.model,
+                                        onChange: this.handleChange,
+                                        error: Boolean(errors.model),
+                                        helperText: errors.model
+                                      }}>
+                                    </Autocomplete>
                                   </Grid>
                                   <Grid item sm={3}>
                                     <TextField
@@ -372,16 +372,18 @@ class EquipmentForm extends Component {
                                     </ClickAwayListener>
                                   </Grid>
                                   <Grid item sm={3}>
-                                    <TextField
-                                      name="purchasing_info.supplier"
-                                      label="Supplier"
-                                      fullWidth
-                                      margin="normal"
-                                      value={this.state.purchasing_info.supplier}
-                                      onChange={this.handleChange}
-                                      error={Boolean(errors.purchasing_info_supplier)}
-                                      helperText={errors.purchasing_info_supplier}
-                                    />
+                                    <Autocomplete
+                                      options={equipmentHints.purchasing_info.supplier}
+                                      textFieldProps={{
+                                        name: 'purchasing_info.supplier',
+                                        label: 'Supplier',
+                                        margin: 'normal',
+                                        value: this.state.purchasing_info.supplier,
+                                        onChange: this.handleChange,
+                                        error: Boolean(errors.purchasing_info_supplier),
+                                        helperText: errors.purchasing_info_supplier
+                                      }}>
+                                    </Autocomplete>
                                   </Grid>
                                   <Grid item sm={3}>
                                     <TextField
@@ -405,40 +407,46 @@ class EquipmentForm extends Component {
                                     </Typography>
                                   </Grid>
                                   <Grid item sm={4}>
-                                    <TextField
-                                      name="grant.grant_number"
-                                      label="Grant No."
-                                      fullWidth
-                                      margin="normal"
-                                      value={this.state.grant.grant_number}
-                                      onChange={this.handleChange}
-                                      error={Boolean(errors.grant_grant_number)}
-                                      helperText={errors.grant_grant_number}
-                                    />
+                                    <Autocomplete
+                                      options={equipmentHints.grant.grant_number}
+                                      textFieldProps={{
+                                        name: 'grant.grant_number',
+                                        label: 'Grant No.',
+                                        margin: 'normal',
+                                        value: this.state.grant.grant_number,
+                                        onChange: this.handleChange,
+                                        error: Boolean(errors.grant_grant_number),
+                                        helperText: errors.grant_grant_number
+                                      }}>
+                                    </Autocomplete>
                                   </Grid>
                                   <Grid item sm={4}>
-                                    <TextField
-                                      name="grant.funding_agency"
-                                      label="Funding Agency"
-                                      fullWidth
-                                      margin="normal"
-                                      value={this.state.grant.funding_agency}
-                                      onChange={this.handleChange}
-                                      error={Boolean(errors.grant_funding_agency)}
-                                      helperText={errors.grant_funding_agency}
-                                    />
+                                    <Autocomplete
+                                      options={equipmentHints.grant.funding_agency}
+                                      textFieldProps={{
+                                        name: 'grant.funding_agency',
+                                        label: 'Funding Agency',
+                                        margin: 'normal',
+                                        value: this.state.grant.funding_agency,
+                                        onChange: this.handleChange,
+                                        error: Boolean(errors.grant_funding_agency),
+                                        helperText: errors.grant_funding_agency
+                                      }}>
+                                    </Autocomplete>
                                   </Grid>
                                   <Grid item sm={4}>
-                                    <TextField
-                                      name="grant.project_name"
-                                      label="Project Name"
-                                      fullWidth
-                                      margin="normal"
-                                      value={this.state.grant.project_name}
-                                      onChange={this.handleChange}
-                                      error={Boolean(errors.grant_project_name)}
-                                      helperText={errors.grant_project_name}
-                                    />
+                                    <Autocomplete
+                                      options={equipmentHints.grant.project_name}
+                                      textFieldProps={{
+                                        name: 'grant.project_name',
+                                        label: 'Project Name',
+                                        margin: 'normal',
+                                        value: this.state.grant.project_name,
+                                        onChange: this.handleChange,
+                                        error: Boolean(errors.grant_project_name),
+                                        helperText: errors.grant_project_name
+                                      }}>
+                                    </Autocomplete>
                                   </Grid>
                                   <Grid item xs={12}>
                                     <Typography variant="headline" color="primary" className={classes.sectionTitle}>

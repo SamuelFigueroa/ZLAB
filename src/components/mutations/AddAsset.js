@@ -7,6 +7,7 @@ import ErrorHandler from './ErrorHandler';
 
 import ADD_ASSET from '../../graphql/assets/addAsset';
 import GET_ASSETS from '../../graphql/assets/getAssets';
+import GET_EQUIPMENT_HINTS from '../../graphql/assets/getEquipmentHints';
 
 class AddAsset extends Component {
   constructor(props) {
@@ -26,7 +27,10 @@ class AddAsset extends Component {
           >
             { addAsset => {
               const callMutation = (input) => addAsset({ variables: { input },
-                refetchQueries: () => [{ query: GET_ASSETS, variables: { category: input.category }}]
+                refetchQueries: () => [
+                  { query: GET_ASSETS, variables: { category: input.category }},
+                  { query: GET_EQUIPMENT_HINTS }
+                ]
               });
               return this.props.children(callMutation, errors, clearErrors);
             }}
