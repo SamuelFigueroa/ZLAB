@@ -7,7 +7,7 @@ export default data => {
   // Coerce all empty fields submitted by user to type string
   data.data = !isEmpty(data.data) ? data.data : '';
 
-  if(!Validator.isLength(data.data, { min: 2, max: 30 })){
+  if(!Validator.isLength(data.data, { min: 2 })){
     errors.barcode = 'Barcode must be between 2 and 30 characters.';
   }
 
