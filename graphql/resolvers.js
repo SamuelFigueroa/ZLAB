@@ -28,6 +28,7 @@ import validatePrinterHubInput from '../validation/printer_hub';
 import validateAddPrinterInput from '../validation/printer';
 import validatePrinterJobInput from '../validation/printer_job';
 import validateCounterInput from '../validation/counter';
+import validateAssetFilter from '../validation/asset_filter';
 
 
 const cache = path.normalize(cacheDir);
@@ -65,11 +66,53 @@ const resolvers = {
       return null;
     },
   },
+
+
   Query: {
     assets: async (root, args, context, info) => {
-      let assets = await Asset.find({ category : args.category });
+      const { errors: inputErrors, isValid } = validateAssetFilter(args.input);
+      const errors = { errors: inputErrors };
+      // Check validation
+      if (!isValid) {
+        throw new UserInputError('Asset filtering failed', errors);
+      }
+
+      const { category, location, ...other } = args.input;
+
+      let conditions = {};
+
+      conditions.category = category;
+      if (location)
+        conditions['location.sub_area'] = { $in: location };
+
+      const conditionsFromInput = (target, input) => {
+        const buildConditions = (target, input, key, parent) => {
+          if (Array.isArray(input[key]))
+            return target[parent.concat([key]).join('.')] = { $in: input[key] };
+          if(input[key].length || !isNaN(input[key])) {
+            if (target[parent.join('.')] === undefined)
+              target[parent.join('.')] = {};
+            if (key == 'min')
+              return target[parent.join('.')]['$gte'] = input[key];
+            else {
+              return target[parent.join('.')]['$lte'] = input[key];
+            }
+          }
+          else {
+            return Object.keys(input[key]).forEach(k => {
+              let p = parent.slice();
+              p.push(key);
+              return buildConditions(target, input[key], k, p);
+            });
+          }
+        };
+        Object.keys(input).forEach(key => buildConditions(target, input, key, []));
+        return target;
+      };
+
+      let assets = await Asset.find(conditionsFromInput(conditions, other));
       let result;
-      switch (args.category) {
+      switch (category) {
       case 'Lab Equipment': {
         result = assets.map(async asset => {
           const { area: areaID, sub_area: subAreaID } = asset.location;
@@ -83,10 +126,6 @@ const resolvers = {
               ret.location = {};
               ret.location.area = {id: areaID, name: area};
               ret.location.sub_area = {id: subAreaID, name: sub_area};
-              // area == 'UNASSIGNED' ?
-              //   ret.location = `${area}`
-              //   :
-              //   ret.location = `${area} / ${sub_area}`;
               return ret;
             }
           });
@@ -244,7 +283,9 @@ const resolvers = {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
     },
-    equipmentHints: async (root, args, context, info) => {
+    assetHints: async (root, args, context, info) => {
+
+      const { category } = args;
 
       const fieldsFromInfo = (info) => {
         let fields = [];
@@ -274,7 +315,7 @@ const resolvers = {
       let hints = {};
       let fields = fieldsFromInfo(info);
       for (const field of fields) {
-        let value = await Asset.distinct(field, { category: 'Lab Equipment' });
+        let value = await Asset.distinct(field, { category, [field]: { $not: /^$/ } });
         nestedAssign(hints, field, value);
       }
       return hints;
@@ -296,6 +337,32 @@ const resolvers = {
       for (const asset of assets) {
         await Asset.findByIdAndUpdate(asset.id,
           { barcode : await Counter.getNextSequenceValue('Lab Equipment') });
+      }
+    },
+    updateDates: async (root, args, context, info) => {
+      let assets = await Asset.find();
+      for (const asset of assets) {
+        if (asset.category == 'Lab Equipment') {
+          let warranty_exp = asset.purchasing_info.warranty_exp;
+          let log = asset.maintenance_log;
+          if (log.length) {
+            for (const event of log) {
+              const update = { 'maintenance_log.$.scheduled': event.scheduled };
+              await Asset.updateOne({ _id: asset.id, 'maintenance_log._id': event.id },
+                { $set: update });
+            }
+          }
+          await Asset.findByIdAndUpdate(asset.id, { 'purchasing_info.warranty_exp' : warranty_exp });
+        } else {
+          let log = asset.purchase_log;
+          if (log.length) {
+            for (const event of log) {
+              const update = { 'purchase_log.$.received': event.received };
+              await Asset.updateOne({ _id: asset.id, 'purchase_log._id': event.id },
+                { $set: update });
+            }
+          }
+        }
       }
     },
     addCounter: async (root, args, context, info) => {

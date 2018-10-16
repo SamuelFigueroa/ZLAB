@@ -35,7 +35,7 @@ const AssetSchema = new mongoose.Schema({
       type: String,
       required: function () {return this.category == 'Lab Equipment';}
     },
-    warranty_exp: String,
+    warranty_exp: Date,
     price: {
       type: Number,
       required: function () {return this.category == 'Lab Equipment';}
@@ -70,9 +70,7 @@ const AssetSchema = new mongoose.Schema({
       type: Date,
       required: true
     },
-    scheduled: {
-      type: String
-    },
+    scheduled: Date,
     agent: {
       type: String,
       required: true
@@ -101,7 +99,7 @@ const AssetSchema = new mongoose.Schema({
       type: String,
       required: true
     },
-    received: String,
+    received: Date,
     catalog_number: {
       type: String,
       required: true

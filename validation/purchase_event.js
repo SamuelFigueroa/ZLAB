@@ -35,6 +35,10 @@ export default data => {
     errors.quantity = 'Quantity is required';
   }
 
+  if(data.quantity == 0) {
+    errors.quantity = 'Quantity should be greater than 0';
+  }
+
   if(isNaN(data.price)) {
     errors.price = 'Price is required';
   }

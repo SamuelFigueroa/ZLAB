@@ -5,6 +5,8 @@ import { withRouter } from 'react-router-dom';
 import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
+import GET_ASSET_HINTS from '../../graphql/assets/getAssetHints';
+
 import ADD_PURCHASE_EVENT from '../../graphql/assets/addPurchaseEvent';
 import GET_ASSET from '../../graphql/assets/getAsset';
 
@@ -26,7 +28,9 @@ class AddPurchaseEvent extends Component {
             { addPurchaseEvent => {
               const callMutation = (input) => addPurchaseEvent({
                 variables: { input },
-                refetchQueries:() => [{query: GET_ASSET, variables: { id: input.assetID }}]
+                refetchQueries:() => [
+                  {query: GET_ASSET, variables: { id: input.assetID }},
+                  { query: GET_ASSET_HINTS, variables: { category: 'Lab Supplies' } }]
               });
               return this.props.children(callMutation, errors, clearErrors);
             }}

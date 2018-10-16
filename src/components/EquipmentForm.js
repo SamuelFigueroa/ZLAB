@@ -22,7 +22,7 @@ import AddAsset from './mutations/AddAsset';
 import UpdateAsset from './mutations/UpdateAsset';
 import GetLocations from './queries/GetLocations';
 import GetUsers from './queries/GetUsers';
-import GetEquipmentHints from './queries/GetEquipmentHints';
+import GetAssetHints from './queries/GetAssetHints';
 
 
 const styles = theme => ({
@@ -95,8 +95,8 @@ class EquipmentForm extends Component {
         purchasing_info: {
           date: formatDate(this.props.initialState.purchasing_info.date),
           supplier: this.props.initialState.purchasing_info.supplier,
-          warranty_exp: this.props.initialState.purchasing_info.warranty_exp &&
-          formatDate(this.props.initialState.purchasing_info.warranty_exp),
+          warranty_exp: this.props.initialState.purchasing_info.warranty_exp ?
+            formatDate(this.props.initialState.purchasing_info.warranty_exp) : '',
           price: this.props.initialState.purchasing_info.price,
           rendered_price: formatCurrency(this.props.initialState.purchasing_info.price).slice(1)
         },
@@ -188,7 +188,7 @@ class EquipmentForm extends Component {
         { users => (
           <GetLocations>
             { locations => (
-              <GetEquipmentHints>
+              <GetAssetHints category="Lab Equipment">
                 { equipmentHints => (
                   <Action>
                     { (callAction, errors, clearErrors) => (
@@ -585,7 +585,7 @@ class EquipmentForm extends Component {
                     )}
                   </Action>
                 )}
-              </GetEquipmentHints>
+              </GetAssetHints>
             )}
           </GetLocations>
         )}

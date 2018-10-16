@@ -118,7 +118,7 @@ class PurchaseLog extends PureComponent {
     const formatted_events = events.map(event => ({
       ...event,
       date: formatDate(event.date),
-      received: event.received && formatDate(event.received),
+      received: event.received ? formatDate(event.received) : '',
       price: formatCurrency(event.price).slice(1),
       quantity: event.quantity.toString()
     }));

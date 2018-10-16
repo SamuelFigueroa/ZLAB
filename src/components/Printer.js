@@ -17,6 +17,9 @@ import DeleteIcon from '@material-ui/icons/RemoveCircle';
 import PlayIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
 import Paper from '@material-ui/core/Paper';
+import MenuItem from '@material-ui/core/MenuItem';
+import AddIcon from '@material-ui/icons/Add';
+import Tooltip from '@material-ui/core/Tooltip';
 
 
 import UpdatePrinter from './mutations/UpdatePrinter';
@@ -78,7 +81,7 @@ const styles = theme => ({
     position: 'relative',
     right: 0
   },
-  logQSection: {
+  section: {
     paddingTop: theme.spacing.unit * 3
   },
   subheader: {
@@ -92,7 +95,8 @@ class Printer extends Component {
     this.state = {
       barcode: this.props.barcode,
       status: '',
-      logEntries: this.props.printer.log.length
+      logEntries: this.props.printer.log.length,
+      format: this.props.format
     };
     this.handleChange = this.handleChange.bind(this);
     this.formatLog = this.formatLog.bind(this);
@@ -106,9 +110,7 @@ class Printer extends Component {
     this.messages = el;
   }
 
-  handleChange = e => {
-    return this.setState({ [e.target.name] : e.target.value });
-  }
+  handleChange = e => this.setState({ [e.target.name] : e.target.value });
 
   formatLog = (arr) => arr.join('\n');
 
@@ -156,8 +158,8 @@ class Printer extends Component {
                     container
                     alignItems="center"
                     spacing={8}>
-                    <Grid item xs={12} md={2}>
-                      <Grid container alignItems="center" spacing={8}>
+                    <Grid item xs={12} sm={5}>
+                      <Grid container alignItems="center" spacing={8} >
                         <Grid item>
                           <PrintIcon fontSize="large" color="primary"/>
                         </Grid>
@@ -168,7 +170,40 @@ class Printer extends Component {
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid item xs={12} sm={7}>
+                      <Grid container alignItems="flex-end" justify="flex-end">
+                        <Grid item xs={12} sm={7} md={5}>
+                          <TextField
+                            name="format"
+                            label="Select Format"
+                            fullWidth
+                            select
+                            value={this.state.format}
+                            onChange={this.handleChange}
+                            margin="none"
+                            SelectProps={{
+                              renderValue: () => this.state.format
+                            }}
+                          >
+                            {
+                              // this.props.formats.map( format => (
+                              //   <MenuItem key={format.id} value={format.id}>
+                              //     {format.name}
+                              //   </MenuItem>
+                              // ))
+                            }
+                          </TextField>
+                        </Grid>
+                        <Grid item xs={12} sm={2}>
+                          <Tooltip title="Create new format" placement="top">
+                            <Button fullWidth variant="contained" color="primary" aria-label="Add" size="small" className={classes.printButton}>
+                              <AddIcon />
+                            </Button>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         name="barcode"
@@ -254,7 +289,7 @@ class Printer extends Component {
                     <Grid
                       container
                       alignItems="flex-start"
-                      className={classes.logQSection}
+                      className={classes.section}
                     >
                       <Grid item xs={12} md={8}>
                         <TextField

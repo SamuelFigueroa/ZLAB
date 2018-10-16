@@ -116,7 +116,7 @@ class MaintenanceLog extends PureComponent {
     const formatted_events = events.map(event => ({
       ...event,
       date: formatDate(event.date),
-      scheduled: event.scheduled && formatDate(event.scheduled)
+      scheduled: event.scheduled ? formatDate(event.scheduled) : ''
     }));
 
     return (

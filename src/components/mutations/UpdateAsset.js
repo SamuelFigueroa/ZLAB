@@ -7,6 +7,7 @@ import ErrorHandler from './ErrorHandler';
 
 import UPDATE_ASSET from '../../graphql/assets/updateAsset';
 import GET_ASSET from '../../graphql/assets/getAsset';
+import GET_ASSET_HINTS from '../../graphql/assets/getAssetHints';
 
 class UpdateAsset extends Component {
   constructor(props) {
@@ -26,7 +27,10 @@ class UpdateAsset extends Component {
           >
             { updateAsset => {
               const callMutation = (input) => updateAsset({ variables: { input },
-                refetchQueries:() => [{query: GET_ASSET, variables: { id: input.id }}]
+                refetchQueries:() => [
+                  { query: GET_ASSET, variables: { id: input.id } },
+                  { query: GET_ASSET_HINTS, variables: { category: input.category } }
+                ]
               });
               return this.props.children(callMutation, errors, clearErrors);
             }}

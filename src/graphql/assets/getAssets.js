@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 const GET_ASSETS = gql`
-     query getAssets($category: String!) {
-      assets(category: $category) {
+     query getAssets($input: AssetFilter!) {
+      assets(input: $input) {
         id
         name
         shared
@@ -20,6 +20,28 @@ const GET_ASSETS = gql`
               id
               name
             }
+          }
+          purchasing_info {
+            date
+            supplier
+            warranty_exp
+            price
+          }
+          grant {
+            funding_agency
+            grant_number
+            project_name
+          }
+          maintenance_log {
+            service
+            agent
+            scheduled
+            date
+          }
+          training_required
+          registration_event {
+            user
+            date
           }
         }
         ...on Supply {

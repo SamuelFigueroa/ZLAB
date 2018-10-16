@@ -13,7 +13,9 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Autocomplete from './Autocomplete';
 
+import GetAssetHints from './queries/GetAssetHints';
 import AddPurchaseEvent from './mutations/AddPurchaseEvent';
 import UpdatePurchaseEvent from './mutations/UpdatePurchaseEvent';
 
@@ -108,8 +110,8 @@ class PurchaseEventForm extends PureComponent {
         price: this.props.initialState.price,
         rendered_price: formatCurrency(this.props.initialState.price).slice(1),
         quantity: this.props.initialState.quantity,
-        received: this.props.initialState.received &&
-          formatDate(this.props.initialState.received),
+        received: this.props.initialState.received ?
+          formatDate(this.props.initialState.received) : '',
       });
     }
     if(prevProps.editMode && !this.props.editMode) {
@@ -173,152 +175,158 @@ class PurchaseEventForm extends PureComponent {
     const { classes, expanded, theme, assetID, toggleForm, editMode } = this.props;
     const Action = editMode ? UpdatePurchaseEvent : AddPurchaseEvent;
     return (
-      <Action>
-        { (callAction, errors, clearErrors) => (
-          <form className={classes.container}
-            onSubmit={this.handleSubmit(callAction, assetID, this.handleClose(clearErrors, toggleForm) )}
-            noValidate
-            autoComplete="off">
-            <div className={classes.root}>
-              <ExpansionPanel expanded={expanded} CollapseProps={{
-                timeout: {
-                  enter: 0,
-                  exit: theme.transitions.duration.shortest
-                }
-              }}>
-                <ExpansionPanelSummary onClick={toggleForm}>
-                  <div className={classes.column}>
-                    <Typography className={classes.heading}>
-                      {`${ editMode ? 'Edit' : 'Add' } Resupply Event`}
-                    </Typography>
-                  </div>
-                  <div className={classes.column}>
-                    <Typography className={classes.secondaryHeading}>
-                    {editMode ? 'Update log entry' : 'Create a new log entry' }
-                    </Typography>
-                  </div>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails className={classes.details}>
-                  <Grid
-                    container
-                    alignItems="flex-start"
-                    spacing={16}>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="date"
-                        label="Date"
-                        type="date"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.date}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.date)}
-                        helperText={errors.date}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="supplier"
-                        label="Supplier"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.supplier}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.supplier)}
-                        helperText={errors.supplier}
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="catalog_number"
-                        label="Catalog No."
-                        fullWidth
-                        margin="normal"
-                        value={this.state.catalog_number}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.catalog_number)}
-                        helperText={errors.catalog_number}
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <ClickAwayListener onClickAway={this.syncRenderedPrice}>
-                        <TextField
-                          name="rendered_price"
-                          label="Price"
-                          margin="normal"
-                          fullWidth
-                          value={this.state.rendered_price}
-                          onChange={this.handleChange}
-                          error={Boolean(errors.price)}
-                          helperText={errors.price}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            )
-                          }}
-                        />
-                      </ClickAwayListener>
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="quantity"
-                        label="Quantity"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.quantity}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.quantity)}
-                        helperText={errors.quantity}
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="received"
-                        label="Date Received"
-                        type="date"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.received}
-                        onChange={this.handleChange}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                </ExpansionPanelDetails>
-                <Divider />
-                <ExpansionPanelActions>
-                  <Grid
-                    container
-                    justify="flex-start"
-                    alignItems="center"
-                    spacing={16}>
-                    <Grid item>
-                      <input type="submit" id="register-button" className={classes.input}/>
-                      <label htmlFor="register-button">
-                        <Button variant="contained" color="primary" component="span">
-                          Save
-                        </Button>
-                      </label>
-                    </Grid>
-                    <Grid item>
-                      <Button variant="contained" color="secondary" onClick={this.handleClose(clearErrors, toggleForm)}>
-                        Cancel
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </ExpansionPanelActions>
-              </ExpansionPanel>
-            </div>
-          </form>
+      <GetAssetHints category="Lab Supplies">
+        { supplyHints => (
+          <Action>
+            { (callAction, errors, clearErrors) => (
+              <form className={classes.container}
+                onSubmit={this.handleSubmit(callAction, assetID, this.handleClose(clearErrors, toggleForm) )}
+                noValidate
+                autoComplete="off">
+                <div className={classes.root}>
+                  <ExpansionPanel expanded={expanded} CollapseProps={{
+                    timeout: {
+                      enter: 0,
+                      exit: theme.transitions.duration.shortest
+                    }
+                  }}>
+                    <ExpansionPanelSummary onClick={toggleForm}>
+                      <div className={classes.column}>
+                        <Typography className={classes.heading}>
+                          {`${ editMode ? 'Edit' : 'Add' } Resupply Event`}
+                        </Typography>
+                      </div>
+                      <div className={classes.column}>
+                        <Typography className={classes.secondaryHeading}>
+                          {editMode ? 'Update log entry' : 'Create a new log entry' }
+                        </Typography>
+                      </div>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails className={classes.details}>
+                      <Grid
+                        container
+                        alignItems="flex-start"
+                        spacing={16}>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="date"
+                            label="Date"
+                            type="date"
+                            fullWidth
+                            margin="normal"
+                            value={this.state.date}
+                            onChange={this.handleChange}
+                            error={Boolean(errors.date)}
+                            helperText={errors.date}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            options={supplyHints.purchase_log.supplier}
+                            textFieldProps={{
+                              name: 'supplier',
+                              label: 'Supplier',
+                              margin: 'normal',
+                              value: this.state.supplier,
+                              onChange: this.handleChange,
+                              error: Boolean(errors.supplier),
+                              helperText: errors.supplier
+                            }}>
+                          </Autocomplete>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="catalog_number"
+                            label="Catalog No."
+                            fullWidth
+                            margin="normal"
+                            value={this.state.catalog_number}
+                            onChange={this.handleChange}
+                            error={Boolean(errors.catalog_number)}
+                            helperText={errors.catalog_number}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <ClickAwayListener onClickAway={this.syncRenderedPrice}>
+                            <TextField
+                              name="rendered_price"
+                              label="Price"
+                              margin="normal"
+                              fullWidth
+                              value={this.state.rendered_price}
+                              onChange={this.handleChange}
+                              error={Boolean(errors.price)}
+                              helperText={errors.price}
+                              InputProps={{
+                                startAdornment: (
+                                  <InputAdornment position="start">
+                                    $
+                                  </InputAdornment>
+                                )
+                              }}
+                            />
+                          </ClickAwayListener>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="quantity"
+                            label="Quantity"
+                            fullWidth
+                            margin="normal"
+                            value={this.state.quantity}
+                            onChange={this.handleChange}
+                            error={Boolean(errors.quantity)}
+                            helperText={errors.quantity}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="received"
+                            label="Date Received"
+                            type="date"
+                            fullWidth
+                            margin="normal"
+                            value={this.state.received}
+                            onChange={this.handleChange}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </ExpansionPanelDetails>
+                    <Divider />
+                    <ExpansionPanelActions>
+                      <Grid
+                        container
+                        justify="flex-start"
+                        alignItems="center"
+                        spacing={16}>
+                        <Grid item>
+                          <input type="submit" id="register-button" className={classes.input}/>
+                          <label htmlFor="register-button">
+                            <Button variant="contained" color="primary" component="span">
+                              Save
+                            </Button>
+                          </label>
+                        </Grid>
+                        <Grid item>
+                          <Button variant="contained" color="secondary" onClick={this.handleClose(clearErrors, toggleForm)}>
+                            Cancel
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </ExpansionPanelActions>
+                  </ExpansionPanel>
+                </div>
+              </form>
+            )}
+          </Action>
         )}
-      </Action>
+      </GetAssetHints>
     );
   }
 }

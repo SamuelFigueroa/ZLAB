@@ -45,11 +45,21 @@ const typeDefs = gql`
     registration_event: RegistrationEvent!
   }
 
-  type EquipmentHint {
+  type AssetHint {
     brand: [String]!
     model: [String]!
     purchasing_info: PurchasingInfoHint!
     grant: GrantHint!
+    maintenance_log: MaintenanceLogHint!
+    purchase_log: PurchaseLogHint!
+  }
+
+  type MaintenanceLogHint {
+    agent:[String]!
+  }
+
+  type PurchaseLogHint {
+    supplier:[String]!
   }
 
   type PurchasingInfoHint {
@@ -92,7 +102,7 @@ const typeDefs = gql`
     date: String!
     service: String!
     agent: String!
-    scheduled: String!
+    scheduled: String
     description: String!
   }
 
@@ -102,7 +112,7 @@ const typeDefs = gql`
     price: Float!
     supplier: String!
     catalog_number: String!
-    received: String!
+    received: String
     quantity: Float!
   }
 
@@ -140,7 +150,7 @@ const typeDefs = gql`
   type PurchasingInfo {
     date: String!
     supplier: String!
-    warranty_exp: String!
+    warranty_exp: String
     price: Float!
   }
 
@@ -166,6 +176,63 @@ const typeDefs = gql`
     data: String!
     time_added: String!
     status: String!
+  }
+
+  input AssetFilter {
+    category: String!
+    location: [ID]
+    brand: [String]
+    model: [String]
+    condition: [String]
+    shared: [String]
+    purchasing_info: PurchasingInfoFilter
+    grant: GrantFilter
+    maintenance_log: MaintenanceEventFilter
+    purchase_log: PurchaseEventFilter
+    users: [ID]
+    training_required: [String]
+    registration_event: RegistrationEventFilter
+  }
+
+  input PurchasingInfoFilter {
+    supplier: [String]
+    price: Range
+    date: DateRange
+    warranty_exp: DateRange
+  }
+
+  input DateRange {
+    min: String,
+    max: String
+  }
+  input Range {
+    min: Float
+    max: Float
+  }
+
+  input GrantFilter {
+    funding_agency: [String]
+    grant_number: [String]
+    project_name: [String]
+  }
+
+  input MaintenanceEventFilter {
+    service: [String]
+    agent: [String]
+    date: DateRange
+    scheduled: DateRange
+  }
+
+  input PurchaseEventFilter {
+    price: Range
+    supplier: [String]
+    date: DateRange
+    received: DateRange
+  }
+
+  input RegistrationEventFilter {
+    user: [String]
+    date: DateRange
   }
 
   input AddUserInput {
@@ -388,7 +455,7 @@ const typeDefs = gql`
     auth: Auth!
     getCurrentUser : UserPayload
     errors: [Error]!
-    assets(category: String!): [Asset]!
+    assets(input: AssetFilter!): [Asset]!
     asset(id: ID!): Asset!
     document(id: ID!): String
     locations: [LocationObject]!
@@ -398,7 +465,7 @@ const typeDefs = gql`
     printer(connection_name: String!) : Printer
     nextPrinterJob(connection_name: String!) : PrinterJob
     #location(areaID: ID!, subAreaID: ID!): Location!
-    equipmentHints: EquipmentHint!
+    assetHints(category: String): AssetHint!
   }
 
   # Mutations
@@ -407,6 +474,7 @@ const typeDefs = gql`
     validateUpload(input: UploadInput!) : Boolean
     registerPrinterHub(input: PrinterHubInput!) : PrinterHubOutput!
     updateAssetBarcodes : Boolean
+    updateDates : Boolean
 
     #Create Mutations
     addUser(input: AddUserInput!) : Boolean

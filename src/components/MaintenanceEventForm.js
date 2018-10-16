@@ -12,6 +12,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import GetAssetHints from './queries/GetAssetHints';
+import Autocomplete from './Autocomplete';
 
 import AddMaintenanceEvent from './mutations/AddMaintenanceEvent';
 import UpdateMaintenanceEvent from './mutations/UpdateMaintenanceEvent';
@@ -100,8 +102,8 @@ class MaintenanceEventForm extends PureComponent {
         date: formatDate(this.props.initialState.date),
         description: this.props.initialState.description,
         service: this.props.initialState.service,
-        scheduled: this.props.initialState.scheduled &&
-          formatDate(this.props.initialState.scheduled),
+        scheduled: this.props.initialState.scheduled ?
+          formatDate(this.props.initialState.scheduled) : '',
         agent: this.props.initialState.agent
       });
     }
@@ -148,137 +150,143 @@ class MaintenanceEventForm extends PureComponent {
     const { classes, expanded, theme, assetID, toggleForm, editMode } = this.props;
     const Action = editMode ? UpdateMaintenanceEvent : AddMaintenanceEvent;
     return (
-      <Action>
-        { (callAction, errors, clearErrors) => (
-          <form className={classes.container}
-            onSubmit={this.handleSubmit(callAction, assetID, this.handleClose(clearErrors, toggleForm) )}
-            noValidate
-            autoComplete="off">
-            <div className={classes.root}>
-              <ExpansionPanel expanded={expanded} CollapseProps={{
-                timeout: {
-                  enter: 0,
-                  exit: theme.transitions.duration.shortest
-                }
-              }}>
-                <ExpansionPanelSummary onClick={toggleForm}>
-                  <div className={classes.column}>
-                    <Typography className={classes.heading}>
-                      {`${ editMode ? 'Edit' : 'Add' } Maintenance Event`}
-                    </Typography>
-                  </div>
-                  <div className={classes.column}>
-                    <Typography className={classes.secondaryHeading}>
-                      {editMode ? 'Update log entry' : 'Create a new log entry' }
-                    </Typography>
-                  </div>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails className={classes.details}>
-                  <Grid
-                    container
-                    alignItems="flex-start"
-                    spacing={16}>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="date"
-                        label="Date"
-                        type="date"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.date}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.date)}
-                        helperText={errors.date}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="service"
-                        label="Select Service"
-                        fullWidth
-                        select
-                        value={this.state.service}
-                        onChange={this.handleChange}
-                        margin="normal"
-                      >
-                        {services.map(option => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="agent"
-                        label="Agent"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.agent}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.agent)}
-                        helperText={errors.agent}
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        name="scheduled"
-                        label="Next Scheduled"
-                        type="date"
-                        fullWidth
-                        margin="normal"
-                        value={this.state.scheduled}
-                        onChange={this.handleChange}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        name="description"
-                        label="Description"
-                        fullWidth
-                        multiline
-                        margin="normal"
-                        value={this.state.description}
-                        onChange={this.handleChange}
-                        error={Boolean(errors.description)}
-                        helperText={errors.description}
-                      />
-                    </Grid>
-                  </Grid>
-                </ExpansionPanelDetails>
-                <Divider />
-                <ExpansionPanelActions>
-                  <Grid
-                    container
-                    justify="flex-start"
-                    alignItems="center"
-                    spacing={16}>
-                    <Grid item>
-                      <input type="submit" id="register-button" className={classes.input}/>
-                      <label htmlFor="register-button">
-                        <Button variant="contained" color="primary" component="span">
-                          Save
-                        </Button>
-                      </label>
-                    </Grid>
-                    <Grid item>
-                      <Button variant="contained" color="secondary" onClick={this.handleClose(clearErrors, toggleForm)}>
-                        Cancel
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </ExpansionPanelActions>
-              </ExpansionPanel>
-            </div>
-          </form>
+      <GetAssetHints category="Lab Equipment">
+        { equipmentHints => (
+          <Action>
+            { (callAction, errors, clearErrors) => (
+              <form className={classes.container}
+                onSubmit={this.handleSubmit(callAction, assetID, this.handleClose(clearErrors, toggleForm) )}
+                noValidate
+                autoComplete="off">
+                <div className={classes.root}>
+                  <ExpansionPanel expanded={expanded} CollapseProps={{
+                    timeout: {
+                      enter: 0,
+                      exit: theme.transitions.duration.shortest
+                    }
+                  }}>
+                    <ExpansionPanelSummary onClick={toggleForm}>
+                      <div className={classes.column}>
+                        <Typography className={classes.heading}>
+                          {`${ editMode ? 'Edit' : 'Add' } Maintenance Event`}
+                        </Typography>
+                      </div>
+                      <div className={classes.column}>
+                        <Typography className={classes.secondaryHeading}>
+                          {editMode ? 'Update log entry' : 'Create a new log entry' }
+                        </Typography>
+                      </div>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails className={classes.details}>
+                      <Grid
+                        container
+                        alignItems="flex-start"
+                        spacing={16}>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="date"
+                            label="Date"
+                            type="date"
+                            fullWidth
+                            margin="normal"
+                            value={this.state.date}
+                            onChange={this.handleChange}
+                            error={Boolean(errors.date)}
+                            helperText={errors.date}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="service"
+                            label="Select Service"
+                            fullWidth
+                            select
+                            value={this.state.service}
+                            onChange={this.handleChange}
+                            margin="normal"
+                          >
+                            {services.map(option => (
+                              <MenuItem key={option} value={option}>
+                                {option}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            options={equipmentHints.maintenance_log.agent}
+                            textFieldProps={{
+                              name: 'agent',
+                              label: 'Agent',
+                              margin: 'normal',
+                              value: this.state.agent,
+                              onChange: this.handleChange,
+                              error: Boolean(errors.agent),
+                              helperText: errors.agent
+                            }}>
+                          </Autocomplete>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            name="scheduled"
+                            label="Next Scheduled"
+                            type="date"
+                            fullWidth
+                            margin="normal"
+                            value={this.state.scheduled}
+                            onChange={this.handleChange}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            name="description"
+                            label="Description"
+                            fullWidth
+                            multiline
+                            margin="normal"
+                            value={this.state.description}
+                            onChange={this.handleChange}
+                            error={Boolean(errors.description)}
+                            helperText={errors.description}
+                          />
+                        </Grid>
+                      </Grid>
+                    </ExpansionPanelDetails>
+                    <Divider />
+                    <ExpansionPanelActions>
+                      <Grid
+                        container
+                        justify="flex-start"
+                        alignItems="center"
+                        spacing={16}>
+                        <Grid item>
+                          <input type="submit" id="register-button" className={classes.input}/>
+                          <label htmlFor="register-button">
+                            <Button variant="contained" color="primary" component="span">
+                              Save
+                            </Button>
+                          </label>
+                        </Grid>
+                        <Grid item>
+                          <Button variant="contained" color="secondary" onClick={this.handleClose(clearErrors, toggleForm)}>
+                            Cancel
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </ExpansionPanelActions>
+                  </ExpansionPanel>
+                </div>
+              </form>
+            )}
+          </Action>
         )}
-      </Action>
+      </GetAssetHints>
     );
   }
 }

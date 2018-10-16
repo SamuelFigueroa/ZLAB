@@ -27,7 +27,7 @@ class DeleteAsset extends Component {
             { deleteAsset => {
               const callMutation = (id, category) => deleteAsset({
                 variables: { id },
-                refetchQueries: () => [ { query: GET_ASSETS, variables: { category } } ]
+                refetchQueries: () => [ { query: GET_ASSETS, variables: { input: { category } } } ]
               });
               return this.props.children(callMutation);
             }}
