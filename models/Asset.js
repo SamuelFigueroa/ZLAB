@@ -122,6 +122,7 @@ const AssetSchema = new mongoose.Schema({
   }
 });
 
+AssetSchema.index({'$**': 'text'});
 const Asset = mongoose.model('assets', AssetSchema);
 
 export default Asset;

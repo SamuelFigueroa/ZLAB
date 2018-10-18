@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { secretOrKey, storageDir, cacheDir } from '../config';
 import path from 'path';
-
+import stringify from 'csv-stringify';
 //Load models
 import User from '../models/User';
 import Asset from '../models/Asset';
@@ -29,7 +29,7 @@ import validateAddPrinterInput from '../validation/printer';
 import validatePrinterJobInput from '../validation/printer_job';
 import validateCounterInput from '../validation/counter';
 import validateAssetFilter from '../validation/asset_filter';
-
+import validateFilename from '../validation/filename';
 
 const cache = path.normalize(cacheDir);
 const storage = path.normalize(storageDir);
@@ -50,6 +50,84 @@ const storeFile = ({ stream, id, name }) => {
         return resolve({ id, dstPath });
       })
   );
+};
+
+const cacheFile = ({ stream, name }) => {
+  const dstPath = path.join(cache, `${name}`);
+  return new Promise((resolve, reject) =>
+    stream
+      .on('error', error => {
+        if (stream.truncated)
+          // Delete the truncated file
+          fse.unlinkSync(dstPath);
+        reject(error);
+      })
+      .pipe(fse.createWriteStream(dstPath))
+      .on('error', error => reject(error))
+      .on('finish', () => {
+        return resolve({ dstPath });
+      })
+  );
+};
+
+const conditionsFromInput = (target, input) => {
+  const buildConditions = (target, input, key, parent) => {
+    if (Array.isArray(input[key]))
+      return target[parent.concat([key]).join('.')] = { $in: input[key] };
+    if(input[key].length || !isNaN(input[key])) {
+      if (target[parent.join('.')] === undefined)
+        target[parent.join('.')] = {};
+      if (key == 'min')
+        return target[parent.join('.')]['$gte'] = input[key];
+      else {
+        return target[parent.join('.')]['$lte'] = input[key];
+      }
+    }
+    else {
+      return Object.keys(input[key]).forEach(k => {
+        let p = parent.slice();
+        p.push(key);
+        return buildConditions(target, input[key], k, p);
+      });
+    }
+  };
+  Object.keys(input).forEach(key => buildConditions(target, input, key, []));
+  return target;
+};
+
+JSON.flatten = (data, delimiter) => {
+  const result = {};
+  const recurse = (cur, prop) => {
+    if (Object(cur) !== cur) {
+      result[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      result[prop] = cur;
+      // for(var i=0, l=cur.length; i<l; i++)
+      //   recurse(cur[i], prop ? prop+'.'+i : ''+i);
+      // if (l == 0)
+      //   result[prop] = [];
+    } else {
+      let isEmpty = true;
+      Object.keys(cur).forEach(p => {
+        isEmpty = false;
+        recurse(cur[p], prop ? prop+delimiter+p : p);
+      });
+      if (isEmpty)
+        result[prop] = {};
+    }
+  };
+  recurse(data, '');
+  return result;
+};
+
+const formatDate = (d) => {
+  const date = new Date(d);
+  date.setHours(date.getHours() + (date.getTimezoneOffset() / 60));
+  const dateArr = new Intl.DateTimeFormat('en-US',
+    { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date).split('/');
+  const year = dateArr.pop();
+  dateArr.unshift(year);
+  return dateArr.join('-');
 };
 
 const resolvers = {
@@ -84,31 +162,6 @@ const resolvers = {
       conditions.category = category;
       if (location)
         conditions['location.sub_area'] = { $in: location };
-
-      const conditionsFromInput = (target, input) => {
-        const buildConditions = (target, input, key, parent) => {
-          if (Array.isArray(input[key]))
-            return target[parent.concat([key]).join('.')] = { $in: input[key] };
-          if(input[key].length || !isNaN(input[key])) {
-            if (target[parent.join('.')] === undefined)
-              target[parent.join('.')] = {};
-            if (key == 'min')
-              return target[parent.join('.')]['$gte'] = input[key];
-            else {
-              return target[parent.join('.')]['$lte'] = input[key];
-            }
-          }
-          else {
-            return Object.keys(input[key]).forEach(k => {
-              let p = parent.slice();
-              p.push(key);
-              return buildConditions(target, input[key], k, p);
-            });
-          }
-        };
-        Object.keys(input).forEach(key => buildConditions(target, input, key, []));
-        return target;
-      };
 
       let assets = await Asset.find(conditionsFromInput(conditions, other));
       let result;
@@ -320,6 +373,36 @@ const resolvers = {
       }
       return hints;
     },
+    searchAssets: async (root, args, context, info) => {
+      const { search } = args;
+      const re = new RegExp(search, 'i');
+      const paths = Object.keys(Asset.schema.paths).filter(path => Asset.schema.paths[path].instance == 'String');
+      let conditions = paths.map( path => ({ [path]: { $regex: re } }));
+      let assets = await Asset.find({ '$or': conditions });
+      let results = [];
+      for (const asset of assets) {
+        if (asset.category == 'Lab Equipment') {
+          const { area: areaID, sub_area: subAreaID } = asset.location;
+          let location = await Location.findById(areaID);
+          const area = location.area.name;
+          const sub_area = location.area.sub_areas.id(subAreaID).name;
+
+          results.push(asset.toObject({
+            virtuals: true,
+            transform: (doc, ret) => {
+              ret.location = {};
+              ret.location.area = {id: areaID, name: area};
+              ret.location.sub_area = {id: subAreaID, name: sub_area};
+              return ret;
+            }
+          }));
+        }
+        else {
+          results.push(asset);
+        }
+      }
+      return results;
+    }
 
     // location: async (root, args, context, info) => {
     //   console.log('Executed');
@@ -721,6 +804,133 @@ const resolvers = {
         } catch(err) {
           throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
         }
+      }
+    },
+    exportAssetData: async (root, args, context, info) => {
+      const { errors: inputErrors, isValid } = validateFilename(args.input);
+      const errors = { errors: inputErrors };
+      // Check validation
+      if (!isValid) {
+        throw new UserInputError('Data export failed', errors);
+      }
+
+      const { search, searchCategories, filter, name } = args.input;
+      const { category, location, ...other } = filter;
+
+      let conditions = {};
+
+      conditions.category = category;
+      if (location)
+        conditions['location.sub_area'] = { $in: location };
+
+      const projection = { maintenance_log: 0, users: 0, purchase_log: 0, documents: 0 };
+      let assets = await Asset.find(conditionsFromInput(conditions, other), projection);
+      let records = [];
+      let columns = [];
+      switch (category) {
+      case 'Lab Equipment': {
+        for (const asset of assets) {
+          const { area: areaID, sub_area: subAreaID } = asset.location;
+          let location = await Location.findById(areaID);
+          const area = location.area.name;
+          const sub_area = location.area.sub_areas.id(subAreaID).name;
+
+          let record = JSON.flatten(asset.toObject({
+            virtuals: false,
+            transform: (doc, ret) => {
+              ret['location'] = (area == 'UNASSIGNED') ?
+                'UNASSIGNED' : `${area} / ${sub_area}`;
+              ret.id = doc.id;
+              ret.purchasing_info.date = formatDate(ret.purchasing_info.date);
+              ret.purchasing_info.warranty_exp = ret.purchasing_info.warranty_exp ? formatDate(ret.purchasing_info.warranty_exp) : '';
+              ret.registration_event.date = formatDate(ret.registration_event.date);
+              delete ret['_id'];
+              delete ret['__v'];
+              return ret;
+            }
+          }), '.');
+          records.push(record);
+        }
+        columns = [
+          { key: 'name', header: 'Name'},
+          { key: 'barcode', header: 'Barcode'},
+          { key: 'brand', header: 'Brand'},
+          { key: 'model', header: 'Model'},
+          { key: 'serial_number', header: 'Serial No.'},
+          { key: 'location', header: 'Location'},
+          { key: 'category', header: 'Category'},
+          { key: 'condition', header: 'Condition'},
+          { key: 'purchasing_info.date', header: 'Purchase Date'},
+          { key: 'purchasing_info.supplier', header: 'Supplier'},
+          { key: 'purchasing_info.warranty_exp', header: 'Warranty Expires'},
+          { key: 'purchasing_info.price', header: 'Purchase Price'},
+          { key: 'grant.funding_agency', header: 'Funding Agency'},
+          { key: 'grant.grant_number', header: 'Grant No.'},
+          { key: 'grant.project_name', header: 'Project Name'},
+          { key: 'registration_event.user', header: 'Registered By'},
+          { key: 'registration_event.date', header: 'Registration Date'},
+          { key: 'shared', header: 'Shared'},
+          { key: 'training_required', header: 'Training Req.'},
+          { key: 'description', header: 'Description'},
+          { key: 'id', header: 'ID'},
+        ];
+
+        break;
+      }
+      case 'Lab Supplies': {
+        for (const asset of assets) {
+          let record = asset.toObject({
+            virtuals: false,
+            transform: (doc, ret) => {
+              ret.id = doc.id;
+              ret.registration_event.date = formatDate(ret.registration_event.date);
+              delete ret['_id'];
+              delete ret['__v'];
+              return ret;
+            }
+          });
+          records.push(record);
+        }
+        columns = [
+          { key: 'name', header: 'Name'},
+          { key: 'description', header: 'Description'},
+          { key: 'shared', header: 'Shared'},
+          { key: 'registration_event.user', header: 'Registered By'},
+          { key: 'registration_event.date', header: 'Registration Date'},
+          { key: 'category', header: 'Category'},
+          { key: 'id', header: 'ID'},
+        ];
+
+        break;
+      }
+      default: {
+        throw new ApolloError('Category does not exist', 'BAD_REQUEST');
+      }}
+
+      await fse.ensureDir(cache);
+
+      let data = records.slice()
+        .filter( result => !searchCategories.length ||
+        searchCategories.some( cat =>
+          result[cat].toLowerCase().indexOf(search.toLowerCase()) > -1));
+      try {
+        let stream = await stringify( data, {
+          header: true,
+          columns
+        });
+        await cacheFile({ stream, name });
+      } catch(err) {
+        throw new ApolloError('Document upload failed', 'FILE_UPLOAD_ERROR');
+      }
+
+      const dstPath = path.join(cache, name);
+      try {
+        const p = dstPath.split('/');
+        const result = p.slice(p.indexOf('public') + 1);
+        result.unshift('/');
+        return path.join.apply(this, result);
+      } catch(err) {
+        throw new ApolloError('Document retrieval failed', 'FILE_CACHE_ERROR');
       }
     },
     deletePurchaseEvent: async (root, args, context, info) => {

@@ -400,6 +400,12 @@ const typeDefs = gql`
     prefix: String!
   }
 
+  input ExportAssetDataInput {
+    filter: AssetFilter!
+    searchCategories: [String]!
+    search: String!
+    name: String!
+  }
 
   type loginOutput {
     success: Boolean
@@ -465,7 +471,8 @@ const typeDefs = gql`
     printer(connection_name: String!) : Printer
     nextPrinterJob(connection_name: String!) : PrinterJob
     #location(areaID: ID!, subAreaID: ID!): Location!
-    assetHints(category: String): AssetHint!
+    assetHints(category: String!): AssetHint!
+    searchAssets(search: String!): [Asset]!
   }
 
   # Mutations
@@ -475,6 +482,7 @@ const typeDefs = gql`
     registerPrinterHub(input: PrinterHubInput!) : PrinterHubOutput!
     updateAssetBarcodes : Boolean
     updateDates : Boolean
+    exportAssetData(input: ExportAssetDataInput!) : String
 
     #Create Mutations
     addUser(input: AddUserInput!) : Boolean

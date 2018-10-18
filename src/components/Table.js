@@ -16,8 +16,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import IconButton from '@material-ui/core/IconButton';
-import FilterModal from './FilterModal'
-// import Button from '@material-ui/core/Button';
+import TableExport from './TableExport';
+import FilterModal from './FilterModal';
+import TableSearchBar from './TableSearchBar';
 
 class EnhancedTableHead extends Component {
   constructor(props) {
@@ -91,7 +92,8 @@ class EnhancedTableToolbar extends Component {
   openFilterModal = openFilter => () => openFilter();
 
   render() {
-    const { classes, title, subheading } = this.props;
+    const { classes, title, subheading, actions } = this.props;
+    const { filter, search, download } = actions;
 
     return (
       <Toolbar
@@ -99,18 +101,27 @@ class EnhancedTableToolbar extends Component {
       >
         <Grid container
           alignItems="center"
-          justify="space-between"
+          justify="flex-start"
+          spacing={16}
           className={classes.title}
         >
           <Grid item>
             <Typography variant="headline" color="primary" id="tableTitle">
               {title}
-              <Tooltip title="Filter">
-                <IconButton aria-label="Filter list" onClick={this.openFilterModal(this.props.filter.open)}>
-                  <FilterListIcon color={this.props.filter.on ? 'primary' : 'inherit'}/>
-                </IconButton>
-              </Tooltip>
             </Typography>
+          </Grid>
+          <Grid item>
+            <TableSearchBar value={search.value} selected={search.selectedCategories} categories={search.categories} onChange={search.handleChange} />
+          </Grid>
+          <Grid item>
+            <Tooltip title="Filter">
+              <IconButton style={{ padding: '4px' }} aria-label="Filter list" onClick={this.openFilterModal(filter.open)}>
+                <FilterListIcon color={filter.on ? 'primary' : 'inherit'}/>
+              </IconButton>
+            </Tooltip>
+          </Grid>
+          <Grid item>
+            <TableExport exportData={download} />
           </Grid>
           <Grid item>
             <Typography variant="headline" color="textSecondary">
@@ -127,7 +138,7 @@ EnhancedTableToolbar.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   subheading: PropTypes.string,
-  filter: PropTypes.object.isRequired
+  actions: PropTypes.object.isRequired
 };
 
 const SEnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar);
@@ -155,7 +166,10 @@ class EnhancedTable extends PureComponent {
       rowsPerPage: 5,
       filterModalOpen: false,
       filterOn: false,
-      filter: JSON.stringify(this.props.defaultFilter),
+      filterState: JSON.stringify(this.props.defaultFilter),
+      filter: this.props.defaultFilter,
+      searchCategories: this.props.cols.map(c => c.id),
+      search: '',
       data: []
     };
     this.getSorting = this.getSorting.bind(this);
@@ -166,7 +180,9 @@ class EnhancedTable extends PureComponent {
     this.closeFilter = this.closeFilter.bind(this);
     this.filterData = this.filterData.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
-    this.setFilter = this.setFilter.bind(this);
+    this.setFilterState = this.setFilterState.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
+    this.exportData = this.exportData.bind(this);
   }
   static contextTypes = {
     swipeableViews: PropTypes.object.isRequired,
@@ -190,17 +206,17 @@ class EnhancedTable extends PureComponent {
     let data = await this.props.data.query(filter);
     if (data) {
       this.props.data.clearErrors();
-      return this.setState({ filter: state, filterOn: true, filterModalOpen: false, data });
+      return this.setState({ filter, filterState: state, filterOn: true, filterModalOpen: false, data });
     }
   };
 
-  resetFilters = async (filter) => {
+  resetFilters = async state => {
     this.props.data.clearErrors();
     let data = await this.props.data.query(this.props.defaultFilter);
-    this.setState({ filter, data, filterOn: false });
+    this.setState({ filter: this.props.defaultFilter, filterState: state, data, filterOn: false });
   };
 
-  setFilter = filter => this.setState({ filter });
+  setFilterState = filterState => this.setState({ filterState });
 
   getSorting = (order, orderBy) => {
     return order === 'desc' ? (a, b) => '' + b[orderBy].localeCompare(a[orderBy]) : (a, b) => '' + a[orderBy].localeCompare(b[orderBy]);
@@ -217,6 +233,40 @@ class EnhancedTable extends PureComponent {
     this.setState({ order, orderBy });
   };
 
+  handleSearch = (name, value) => {
+    if (name == 'search')
+      return this.setState({ search: value });
+    if (Array.isArray(value))
+      return this.setState({ searchCategories: this.state.searchCategories.length == value.length ? [] : value });
+    const { searchCategories } = this.state;
+    const selectedIndex = searchCategories.indexOf(value);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(searchCategories, value);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(searchCategories.slice(1));
+    } else if (selectedIndex === searchCategories.length - 1) {
+      newSelected = newSelected.concat(searchCategories.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        searchCategories.slice(0, selectedIndex),
+        searchCategories.slice(selectedIndex + 1),
+      );
+    }
+
+    return this.setState({ searchCategories: newSelected });
+  }
+  exportData = async (name, closeDialog) => {
+    const { search, searchCategories, filter } = this.state;
+    let response = await this.props.exportData.mutate({ filter, search, searchCategories, name });
+    let fileURL = response !== undefined ? response.data[this.props.exportData.mutate.name] : null;
+    if(fileURL) {
+      closeDialog();
+      window.open(fileURL);
+    }
+  };
+
   handleChangePage = (event, page) => {
     this.setState({ page });
   };
@@ -227,9 +277,9 @@ class EnhancedTable extends PureComponent {
 
   render() {
     const { classes, title, subheading, cols, withToolbar, onRowClick, filters } = this.props;
-    const { order, orderBy, rowsPerPage, page, filterModalOpen, filter, data } = this.state;
+    const { order, orderBy, rowsPerPage, page, filterModalOpen, filterState, data, search, searchCategories } = this.state;
     const queryResults = data.slice();
-    
+
     return (
       <Paper className={classes.root}>
         <FilterModal
@@ -238,13 +288,22 @@ class EnhancedTable extends PureComponent {
           actions={{
             filterData: this.filterData,
             resetFilters: this.resetFilters,
-            setFilter: this.setFilter,
+            setFilter: this.setFilterState,
           }}
           errors={this.props.data.errors}
-          filter={filter}
+          filter={filterState}
           onClose={this.closeFilter}
           filterPanels={filters} />
-        { withToolbar === false ? null : <SEnhancedTableToolbar title={title} subheading={subheading} filter={{ open: this.openFilter, on: this.state.filterOn }}/> }
+        { withToolbar === false ? null :
+          <SEnhancedTableToolbar
+            title={title}
+            subheading={subheading}
+            actions={{
+              filter: { open: this.openFilter, on: this.state.filterOn },
+              search: { value: search, categories: cols, selectedCategories: searchCategories, handleChange: this.handleSearch },
+              download: { handleDownload: async (filename, closeDialog) => await this.exportData(filename, closeDialog), errors: this.props.exportData.errors, clearErrors: this.props.exportData.clearErrors}
+            }}/>
+        }
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <EnhancedTableHead
@@ -255,6 +314,10 @@ class EnhancedTable extends PureComponent {
             />
             <TableBody>
               { queryResults
+                .filter( result => !searchCategories.length ||
+                  searchCategories.some( cat =>
+                    result[cat].toLowerCase().indexOf(search.toLowerCase()) > -1)
+                )
                 .sort(this.getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(n => {
@@ -315,7 +378,8 @@ EnhancedTable.propTypes = {
   onRowClick: PropTypes.func.isRequired,
   withToolbar: PropTypes.bool,
   filters: PropTypes.array,
-  defaultFilter: PropTypes.object.isRequired
+  defaultFilter: PropTypes.object.isRequired,
+  exportData: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(EnhancedTable);

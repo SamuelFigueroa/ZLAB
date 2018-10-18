@@ -9,6 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Table from './Table';
 
 import GetAssets from './queries/GetAssets';
+import ExportAssetData from './mutations/ExportAssetData';
 import Tabs from './Tabs';
 
 const styles = (theme) => ({
@@ -146,7 +147,19 @@ class Assets extends Component {
                 <AddIcon />
               </Button>
             </Tooltip>
-            <Table cols={tabs[0].cols} data={{ query: getAssets, errors, clearErrors, filterType: { type: 'asset', category: tabs[0].category } }} defaultFilter={{category: tabs[0].category }} filters={tabs[0].filters} title={tabs[0].category} onRowClick={this.linkToAssetInfo(tabs[0].id)}/>
+            <ExportAssetData>
+              {
+                (mutate, errors, clearErrors) =>
+                  <Table
+                    cols={tabs[0].cols}
+                    data={{ query: getAssets, errors,clearErrors, filterType: { type: 'asset', category: tabs[0].category } }}
+                    defaultFilter={{category: tabs[0].category }}
+                    filters={tabs[0].filters} title={tabs[0].category}
+                    onRowClick={this.linkToAssetInfo(tabs[0].id)}
+                    exportData={{ mutate, errors, clearErrors }}
+                  />
+              }
+            </ExportAssetData>
           </Fragment>
         )}
       </GetAssets>
@@ -167,7 +180,18 @@ class Assets extends Component {
                 <AddIcon />
               </Button>
             </Tooltip>
-            <Table cols={tabs[1].cols} data={{ query: getAssets, errors, clearErrors, filterType: { type: 'asset', category: tabs[1].category } }} defaultFilter={{category: tabs[1].category }} filters={tabs[1].filters} title={tabs[1].category} onRowClick={this.linkToAssetInfo(tabs[1].id)}/>
+            <ExportAssetData>
+              {
+                (mutate, errors, clearErrors) =>
+                  <Table
+                    cols={tabs[1].cols}
+                    data={{ query: getAssets, errors, clearErrors, filterType: { type: 'asset', category: tabs[1].category } }}
+                    defaultFilter={{category: tabs[1].category }} filters={tabs[1].filters} title={tabs[1].category}
+                    onRowClick={this.linkToAssetInfo(tabs[1].id)}
+                    exportData={{ mutate, errors, clearErrors }}
+                  />
+              }
+            </ExportAssetData>
           </Fragment>
         )}
       </GetAssets>
