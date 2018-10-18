@@ -71,7 +71,7 @@ class DocumentLog extends PureComponent {
 
   linkToDocument = getDocument => id => async () => {
     let docURL = await getDocument(id);
-    window.open(docURL, '_blank');
+    window.open(docURL, '');
   };
 
   render() {
