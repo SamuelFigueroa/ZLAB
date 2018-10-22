@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -63,21 +63,60 @@ const dateTimeToString = (d) => {
   return date.toLocaleDateString('en-US');
 };
 
+const tabs = [
+  { id: 'profile', label: 'Profile', component: null },
+  { id: 'documents', label: 'Documents', component: null},
+  { id: 'purchasing', label: 'Purchasing Log', component: null },
+  { id: 'actions', label: 'Actions', component: null }
+];
+
 class SupplyInfo extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      value: 0
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeIndex = this.handleChangeIndex.bind(this);
   }
+
+  componentDidMount() {
+    let location = this.props.history.location;
+    if(!location.hash) {
+      location.hash = tabs[this.state.value].id;
+      return this.props.history.push(location);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.section !== this.props.section) {
+      const index = tabs.map(tab => tab.id).indexOf(this.props.section);
+      if(index == -1)
+      {
+        let location = this.props.history.location;
+        location.hash = tabs[0].id;
+        this.props.history.push(location);
+      }
+      this.setState({ value:  index == -1 ? 0 : index });
+    }
+  }
+
+  handleChange = (event, value) => {
+    this.setState({ value });
+    let location = this.props.history.location;
+    location.hash = tabs[value].id;
+    return this.props.history.push(location);
+  };
+
+  handleChangeIndex = index => {
+    this.setState({ value: index });
+    let location = this.props.history.location;
+    location.hash = tabs[index].id;
+    return this.props.history.push(location);
+  };
 
   render() {
     const { classes, id, user, isAuthenticated } = this.props;
-
-    const tabs = [
-      { id: 'profile', label: 'Profile', component: null },
-      { id: 'documents', label: 'Documents', component: null},
-      { id: 'purchasing', label: 'Purchasing Log', component: null },
-    ];
-
-    isAuthenticated && tabs.push({ id: 'actions', label: 'Actions', component: null });
 
     return (
       <GetAsset id={id}>
@@ -145,7 +184,7 @@ class SupplyInfo extends Component {
             );
           }
           return (
-            <Tabs tabs={tabs}/>
+            <Tabs tabs={tabs} value={this.state.value} onChange={this.handleChange} onChangeIndex={this.handleChangeIndex}/>
           );
         }}
       </GetAsset>
@@ -158,6 +197,8 @@ SupplyInfo.propTypes = {
   id: PropTypes.string.isRequired,
   isAuthenticated: PropTypes.bool.isRequired,
   user: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
+  section: PropTypes.string.isRequired
 };
 
-export default withStyles(styles)(SupplyInfo);
+export default withStyles(styles)(withRouter(SupplyInfo));

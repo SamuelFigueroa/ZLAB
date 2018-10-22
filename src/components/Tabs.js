@@ -6,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
+import { withRouter } from 'react-router-dom';
 
 class TabContainer extends PureComponent {
   constructor(props) {
@@ -50,30 +51,17 @@ const styles = theme => ({
 class SwipeableTabs extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      value: 0,
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleChangeIndex = this.handleChangeIndex.bind(this);
   }
 
-  handleChange = (event, value) => {
-    this.setState({ value });
-  };
-
-  handleChangeIndex = index => {
-    this.setState({ value: index });
-  };
-
   render() {
-    const { classes, theme, tabs } = this.props;
+    const { classes, theme, tabs, onChange, onChangeIndex, value } = this.props;
 
     return (
       <div className={classes.root}>
         <AppBar position="static" color="default">
           <Tabs
-            value={this.state.value}
-            onChange={this.handleChange}
+            value={value}
+            onChange={onChange}
             indicatorColor="primary"
             textColor="primary"
             fullWidth
@@ -84,8 +72,8 @@ class SwipeableTabs extends Component {
         </AppBar>
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={this.state.value}
-          onChangeIndex={this.handleChangeIndex}
+          index={value}
+          onChangeIndex={onChangeIndex}
           animateHeight={true}
         >{
             tabs.map(tab => (
@@ -104,6 +92,10 @@ SwipeableTabs.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   tabs: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onChangeIndex: PropTypes.func.isRequired,
+  value: PropTypes.number.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(SwipeableTabs);
+export default withRouter(withStyles(styles, { withTheme: true })(SwipeableTabs));
