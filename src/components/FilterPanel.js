@@ -28,11 +28,12 @@ class FilterPanel extends PureComponent {
   }
 
   static contextTypes = {
-    swipeableViews: PropTypes.object.isRequired,
+    swipeableViews: PropTypes.object,
   };
 
   componentDidUpdate() {
-    setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.shortest);
+    if(this.context.swipeableViews !== undefined)
+      setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.shortest);
   }
 
   render() {

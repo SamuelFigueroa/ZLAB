@@ -111,7 +111,7 @@ class FilterModal extends PureComponent {
   }
 
   static contextTypes = {
-    swipeableViews: PropTypes.object.isRequired,
+    swipeableViews: PropTypes.object,
   };
 
   componentDidMount() {
@@ -119,7 +119,8 @@ class FilterModal extends PureComponent {
   }
 
   componentDidUpdate() {
-    setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.shortest);
+    if(this.context.swipeableViews !== undefined)
+      setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.shortest);
   }
 
   restoreFilterState = () => {
