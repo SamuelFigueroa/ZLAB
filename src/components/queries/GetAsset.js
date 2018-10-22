@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import ProgressIndicator from '../ProgressIndicator';
 
 import GET_ASSET from '../../graphql/assets/getAsset';
 
@@ -16,7 +16,7 @@ class GetAsset extends Component {
     return(
       <Query query={GET_ASSET} variables={{ id }}>
         { ({ data, loading, error }) => {
-          if (loading) return <LinearProgress />;
+          if (loading) return <ProgressIndicator />;
           if (error) return `Error!: ${error}`;
 
           const { asset } = data;

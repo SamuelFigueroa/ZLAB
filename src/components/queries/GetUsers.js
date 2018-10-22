@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import ProgressIndicator from '../ProgressIndicator';
 
 import GET_USERS from '../../graphql/users/getUsers';
 
@@ -14,7 +15,7 @@ class GetUsers extends Component {
     return(
       <Query query={GET_USERS}>
         { ({ data, loading, error }) => {
-          if (loading) return null;
+          if (loading) return <ProgressIndicator />;
           if (error) return `Error!: ${error}`;
 
           const { users } = data;

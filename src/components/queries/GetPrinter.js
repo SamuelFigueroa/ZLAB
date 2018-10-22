@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import ProgressIndicator from '../ProgressIndicator';
 
 import GET_PRINTER from '../../graphql/printers/getPrinter';
 
@@ -21,7 +21,7 @@ class GetPrinter extends Component {
               variables: { connection_name },
               fetchPolicy: 'network-only'
             });
-            if (loading) return <LinearProgress />;
+            if (loading) return <ProgressIndicator />;
             if (error) return `Error!: ${error}`;
             return data.printer;
           };

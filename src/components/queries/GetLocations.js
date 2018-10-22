@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import ProgressIndicator from '../ProgressIndicator';
 
 import GET_LOCATIONS from '../../graphql/locations/getLocations';
 
@@ -15,7 +15,7 @@ class GetLocations extends Component {
     return(
       <Query query={GET_LOCATIONS}>
         { ({ data, loading, error }) => {
-          if (loading) return <LinearProgress />;
+          if (loading) return <ProgressIndicator />;
           if (error) return `Error!: ${error}`;
 
           const { locations } = data;

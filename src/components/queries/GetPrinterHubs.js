@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import ProgressIndicator from '../ProgressIndicator';
 
 import GET_ONLINE_PRINTER_HUBS from '../../graphql/printers/getOnlinePrinterHubs';
 
@@ -15,7 +15,7 @@ class GetPrinterHubs extends Component {
     return(
       <Query query={GET_ONLINE_PRINTER_HUBS}>
         { ({ data, loading, error }) => {
-          if (loading) return <LinearProgress />;
+          if (loading) return <ProgressIndicator />;
           if (error) return `Error!: ${error}`;
 
           const { onlinePrinterHubs } = data;

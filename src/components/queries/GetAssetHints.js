@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import ProgressIndicator from '../ProgressIndicator';
 
 import GET_ASSET_HINTS from '../../graphql/assets/getAssetHints';
 
@@ -15,7 +16,7 @@ class GetAssetHints extends Component {
     return(
       <Query query={GET_ASSET_HINTS} variables={{ category }}>
         { ({ data, loading, error }) => {
-          if (loading) return null;
+          if (loading) return <ProgressIndicator />;
           if (error) return error;
 
           const { assetHints } = data;
