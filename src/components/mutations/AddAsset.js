@@ -22,7 +22,7 @@ class AddAsset extends Component {
           <Mutation
             mutation={ADD_ASSET}
             awaitRefetchQueries={true}
-            onCompleted={ () => this.props.history.push('/assets') }
+            onCompleted={ () => this.props.history.goBack() }
             onError={ errorObj => handleError(errorObj) }
           >
             { addAsset => {
