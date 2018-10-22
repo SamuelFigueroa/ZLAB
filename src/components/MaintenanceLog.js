@@ -18,14 +18,14 @@ const styles = (theme) => ({
     float: 'right',
     position: 'relative',
     left: theme.spacing.unit * 2,
-    bottom: theme.spacing.unit * 3,
+    bottom: theme.spacing.unit * 2,
     zIndex: 10
   },
   fabGreen: {
     float: 'right',
     position: 'relative',
     left: theme.spacing.unit * 2,
-    bottom: theme.spacing.unit * 3,
+    bottom: theme.spacing.unit * 2,
     zIndex: 10,
     color: theme.palette.common.white,
     backgroundColor: green[500],
