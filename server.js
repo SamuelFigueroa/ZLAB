@@ -7,8 +7,8 @@ import mongoose from 'mongoose';
 // import passport from 'passport';
 import jwt_decode from 'jwt-decode';
 import { ApolloServer } from 'apollo-server-express';
-import typeDefs from './graphql/schema';
-import resolvers from './graphql/resolvers';
+import { typeDefs, resolvers } from './graphql/schema';
+// import resolvers from './graphql/resolvers';
 import path from 'path';
 import fs from 'fs-extra';
 import fetch from 'node-fetch';
@@ -50,6 +50,7 @@ const server = new ApolloServer({
   // These will be defined for both new or existing servers
   typeDefs,
   resolvers,
+  introspection: true,
   context: async ({ req }) => {
 
     const context = {};
