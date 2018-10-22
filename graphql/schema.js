@@ -54,6 +54,11 @@ const typeDefs = gql`
     purchase_log: PurchaseLogHint!
   }
 
+  type AssetSearchResult {
+    category: String!
+    results: [Asset]!
+  }
+
   type MaintenanceLogHint {
     agent:[String]!
   }
@@ -179,7 +184,7 @@ const typeDefs = gql`
   }
 
   input AssetFilter {
-    category: String!
+    category: String
     location: [ID]
     brand: [String]
     model: [String]
@@ -402,8 +407,9 @@ const typeDefs = gql`
 
   input ExportAssetDataInput {
     filter: AssetFilter!
+    search: String
+    search2: String!
     searchCategories: [String]!
-    search: String!
     name: String!
   }
 
@@ -461,7 +467,7 @@ const typeDefs = gql`
     auth: Auth!
     getCurrentUser : UserPayload
     errors: [Error]!
-    assets(input: AssetFilter!): [Asset]!
+    assets(filter: AssetFilter, search: String): [AssetSearchResult]!
     asset(id: ID!): Asset!
     document(id: ID!): String
     locations: [LocationObject]!
@@ -472,7 +478,6 @@ const typeDefs = gql`
     nextPrinterJob(connection_name: String!) : PrinterJob
     #location(areaID: ID!, subAreaID: ID!): Location!
     assetHints(category: String!): AssetHint!
-    searchAssets(search: String!): [Asset]!
   }
 
   # Mutations

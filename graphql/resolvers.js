@@ -120,6 +120,20 @@ JSON.flatten = (data, delimiter) => {
   return result;
 };
 
+const getFilterConditions = flatFilter =>
+  Object.keys(flatFilter).map(key => {
+    const value = flatFilter[key];
+    if (Array.isArray(value))
+      return { [key]: { $in: value } };
+    const keyArr = key.split('.');
+    let lastKey = keyArr.pop();
+    if( lastKey == 'min')
+      return { [keyArr.join('.')]: { $gte: typeof value == 'string' ? new Date(value) : value } };
+    if( lastKey == 'max')
+      return { [keyArr.join('.')]: { $lte: typeof value == 'string' ? new Date(value) : value } };
+    return { [key]: value };
+  });
+
 const formatDate = (d) => {
   const date = new Date(d);
   date.setHours(date.getHours() + (date.getTimezoneOffset() / 60));
@@ -148,51 +162,94 @@ const resolvers = {
 
   Query: {
     assets: async (root, args, context, info) => {
-      const { errors: inputErrors, isValid } = validateAssetFilter(args.input);
-      const errors = { errors: inputErrors };
-      // Check validation
-      if (!isValid) {
-        throw new UserInputError('Asset filtering failed', errors);
+      const { filter, search } = args;
+      let searchPipelineIndex = 3;
+
+      let pipeline = [
+        {
+          $lookup: {
+            from: 'locations',
+            localField: 'location.area',
+            foreignField: '_id',
+            as: 'locArray'
+          }
+        },
+        {
+          $addFields: {
+            'id': '$_id',
+            'location.area.id': '$location.area',
+            'location.sub_area.id': '$location.sub_area',
+            'location.area.name': {
+              $let: {
+                vars: { loc: { $arrayElemAt: ['$locArray', 0] }},
+                in: '$$loc.area.name'
+              }
+            },
+            'location.sub_area.name': {
+              $let: {
+                vars: { loc: { $arrayElemAt: ['$locArray', 0] }},
+                in: {
+                  $let: {
+                    vars: { sub: { $arrayElemAt: [{
+                      $filter: {
+                        input: '$$loc.area.sub_areas',
+                        as: 'sub_area',
+                        cond: { $eq: ['$$sub_area._id', '$location.sub_area']}
+                      }}, 0]}},
+                    in: '$$sub.name'
+                  }}
+              }}
+          }
+        },
+        { $project: { _id: 0, locArray: 0, 'location.area._id': 0, 'location.sub_area._id': 0 } },
+        { $group: { _id: '$category', results: { $push: '$$ROOT' } } },
+        { $addFields: { category: '$_id' } },
+        { $project: { _id: 0 } },
+      ];
+
+      let assets = [];
+      if(filter && Object.keys(filter).length) {
+        const { errors: inputErrors, isValid } = validateAssetFilter(filter);
+        const errors = { errors: inputErrors };
+        // Check validation
+        if (!isValid) {
+          throw new UserInputError('Asset filtering failed', errors);
+        }
+
+        const { location, users, ...other } = filter;
+        const flatFilter = JSON.flatten(other, '.');
+        const filterConditions = {
+          $and: getFilterConditions(flatFilter)
+        };
+        if (location)
+          filterConditions['$and'].unshift({ 'location.sub_area': { $in: location.map(locID => mongoose.Types.ObjectId(locID)) } });
+        if (users)
+          filterConditions['$and'].unshift({ 'users': { $in: users.map(userID => mongoose.Types.ObjectId(userID)) } });
+
+        pipeline.unshift({ $match:  filterConditions });
+        searchPipelineIndex++;
       }
 
-      const { category, location, ...other } = args.input;
+      if(search) {
+        const wordRe = /\w?[\w-]+/gi;
+        const words = search.match(wordRe);
+        const excludedFields = ['shared', 'training_required'];
 
-      let conditions = {};
-
-      conditions.category = category;
-      if (location)
-        conditions['location.sub_area'] = { $in: location };
-
-      let assets = await Asset.find(conditionsFromInput(conditions, other));
-      let result;
-      switch (category) {
-      case 'Lab Equipment': {
-        result = assets.map(async asset => {
-          const { area: areaID, sub_area: subAreaID } = asset.location;
-          let location = await Location.findById(areaID);
-          const area = location.area.name;
-          const sub_area = location.area.sub_areas.id(subAreaID).name;
-
-          return asset.toObject({
-            virtuals: true,
-            transform: (doc, ret) => {
-              ret.location = {};
-              ret.location.area = {id: areaID, name: area};
-              ret.location.sub_area = {id: subAreaID, name: sub_area};
-              return ret;
-            }
-          });
-        });
-        break;
+        if(words) {
+          let paths = Object.keys(Asset.schema.paths).filter(path =>
+            Asset.schema.paths[path].instance == 'String' && excludedFields.indexOf(path) == -1
+          );
+          paths.push('location.area.name','location.sub_area.name');
+          let searchConditions = {
+            $and: words.map( word => ({ '$or': paths.map( path => ({ [path]: { $regex: new RegExp(word, 'i') } })) }))
+          };
+          pipeline.splice(searchPipelineIndex, 0, { $match: searchConditions });
+        } else {
+          return assets;
+        }
       }
-      case 'Lab Supplies': {
-        result = assets;
-        break;
-      }
-      default: {
-        throw new ApolloError('Category does not exist', 'BAD_REQUEST');
-      }}
-      return result;
+      assets = await Asset.aggregate(pipeline);
+      return assets;
     },
     // location: async (root, args, context, info) => {
     //   const { areaID, subAreaID } = args;
@@ -373,37 +430,6 @@ const resolvers = {
       }
       return hints;
     },
-    searchAssets: async (root, args, context, info) => {
-      const { search } = args;
-      const re = new RegExp(search, 'i');
-      const paths = Object.keys(Asset.schema.paths).filter(path => Asset.schema.paths[path].instance == 'String');
-      let conditions = paths.map( path => ({ [path]: { $regex: re } }));
-      let assets = await Asset.find({ '$or': conditions });
-      let results = [];
-      for (const asset of assets) {
-        if (asset.category == 'Lab Equipment') {
-          const { area: areaID, sub_area: subAreaID } = asset.location;
-          let location = await Location.findById(areaID);
-          const area = location.area.name;
-          const sub_area = location.area.sub_areas.id(subAreaID).name;
-
-          results.push(asset.toObject({
-            virtuals: true,
-            transform: (doc, ret) => {
-              ret.location = {};
-              ret.location.area = {id: areaID, name: area};
-              ret.location.sub_area = {id: subAreaID, name: sub_area};
-              return ret;
-            }
-          }));
-        }
-        else {
-          results.push(asset);
-        }
-      }
-      return results;
-    }
-
     // location: async (root, args, context, info) => {
     //   console.log('Executed');
     //   const {areaID, subAreaID} = args.input;
@@ -814,42 +840,100 @@ const resolvers = {
         throw new UserInputError('Data export failed', errors);
       }
 
-      const { search, searchCategories, filter, name } = args.input;
-      const { category, location, ...other } = filter;
+      const { filter, search, searchCategories, search2, name } = args.input;
+      let searchPipelineIndex = 4;
 
-      let conditions = {};
+      let pipeline = [
+        {
+          $lookup: {
+            from: 'locations',
+            localField: 'location.area',
+            foreignField: '_id',
+            as: 'locArray'
+          }
+        },
+        {
+          $addFields: {
+            'id': '$_id',
+            'location.area.id': '$location.area',
+            'location.sub_area.id': '$location.sub_area',
+            'location.area.name': {
+              $let: {
+                vars: { loc: { $arrayElemAt: ['$locArray', 0] }},
+                in: '$$loc.area.name'
+              }
+            },
+            'location.sub_area.name': {
+              $let: {
+                vars: { loc: { $arrayElemAt: ['$locArray', 0] }},
+                in: {
+                  $let: {
+                    vars: { sub: { $arrayElemAt: [{
+                      $filter: {
+                        input: '$$loc.area.sub_areas',
+                        as: 'sub_area',
+                        cond: { $eq: ['$$sub_area._id', '$location.sub_area']}
+                      }}, 0]}},
+                    in: '$$sub.name'
+                  }}
+              }}
+          }
+        },
+        { $project: { _id: 0, locArray: 0, 'location.area._id': 0, 'location.sub_area._id': 0, maintenance_log: 0, users: 0, purchase_log: 0, documents: 0 } },
+        { $group: { _id: '$category', results: { $push: '$$ROOT' } } },
+        { $addFields: { category: '$_id' } },
+        { $project: { _id: 0 } },
+      ];
 
-      conditions.category = category;
+      let assets = [];
+
+      const { location, users, ...other } = filter;
+      const flatFilter = JSON.flatten(other, '.');
+      const filterConditions = {
+        $and: getFilterConditions(flatFilter)
+      };
       if (location)
-        conditions['location.sub_area'] = { $in: location };
+        filterConditions['$and'].unshift({ 'location.sub_area': { $in: location.map(locID => mongoose.Types.ObjectId(locID)) } });
+      if (users)
+        filterConditions['$and'].unshift({ 'users': { $in: users.map(userID => mongoose.Types.ObjectId(userID)) } });
 
-      const projection = { maintenance_log: 0, users: 0, purchase_log: 0, documents: 0 };
-      let assets = await Asset.find(conditionsFromInput(conditions, other), projection);
-      let records = [];
+      pipeline.unshift({ $match:  filterConditions });
+
+      if(search) {
+        const wordRe = /\w?[\w-]+/gi;
+        const words = search.match(wordRe);
+        const excludedFields = ['shared', 'training_required'];
+
+        if(words) {
+          let paths = Object.keys(Asset.schema.paths).filter(path =>
+            Asset.schema.paths[path].instance == 'String' && excludedFields.indexOf(path) == -1
+          );
+          paths.push('location.area.name','location.sub_area.name');
+          let searchConditions = {
+            $and: words.map( word => ({ '$or': paths.map( path => ({ [path]: { $regex: new RegExp(word, 'i') } })) }))
+          };
+          pipeline.splice(searchPipelineIndex, 0, { $match: searchConditions });
+        } else {
+          return assets;
+        }
+      }
+      assets = await Asset.aggregate(pipeline);
+
       let columns = [];
-      switch (category) {
+      let records = [];
+      switch (filter.category) {
       case 'Lab Equipment': {
-        for (const asset of assets) {
-          const { area: areaID, sub_area: subAreaID } = asset.location;
-          let location = await Location.findById(areaID);
-          const area = location.area.name;
-          const sub_area = location.area.sub_areas.id(subAreaID).name;
-
-          let record = JSON.flatten(asset.toObject({
-            virtuals: false,
-            transform: (doc, ret) => {
-              ret['location'] = (area == 'UNASSIGNED') ?
-                'UNASSIGNED' : `${area} / ${sub_area}`;
-              ret.id = doc.id;
-              ret.purchasing_info.date = formatDate(ret.purchasing_info.date);
-              ret.purchasing_info.warranty_exp = ret.purchasing_info.warranty_exp ? formatDate(ret.purchasing_info.warranty_exp) : '';
-              ret.registration_event.date = formatDate(ret.registration_event.date);
-              delete ret['_id'];
-              delete ret['__v'];
-              return ret;
-            }
-          }), '.');
-          records.push(record);
+        if (assets.length) {
+          for (const asset of assets[0].results) {
+            let record = JSON.flatten(asset, '.');
+            record.id = asset.id.toString();
+            record['location'] = (asset.location.area.name == 'UNASSIGNED') ?
+              'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}`;
+            record['purchasing_info.date'] = formatDate(asset.purchasing_info.date);
+            record['purchasing_info.warranty_exp'] = asset.purchasing_info.warranty_exp ? formatDate(asset.purchasing_info.warranty_exp) : '';
+            record['registration_event.date'] = formatDate(asset.registration_event.date);
+            records.push(record);
+          }
         }
         columns = [
           { key: 'name', header: 'Name'},
@@ -878,18 +962,13 @@ const resolvers = {
         break;
       }
       case 'Lab Supplies': {
-        for (const asset of assets) {
-          let record = asset.toObject({
-            virtuals: false,
-            transform: (doc, ret) => {
-              ret.id = doc.id;
-              ret.registration_event.date = formatDate(ret.registration_event.date);
-              delete ret['_id'];
-              delete ret['__v'];
-              return ret;
-            }
-          });
-          records.push(record);
+        if (assets.length) {
+          for (const asset of assets[0].results) {
+            let record = asset;
+            record.id = asset.id.toString();
+            record['registration_event.date'] = formatDate(asset.registration_event.date);
+            records.push(record);
+          }
         }
         columns = [
           { key: 'name', header: 'Name'},
@@ -907,12 +986,105 @@ const resolvers = {
         throw new ApolloError('Category does not exist', 'BAD_REQUEST');
       }}
 
+      // const { search, searchCategories, filter, name } = args.input;
+      // const { category, location, ...other } = filter;
+      //
+      // let conditions = {};
+      //
+      // conditions.category = category;
+      // if (location)
+      //   conditions['location.sub_area'] = { $in: location };
+      //
+      // const projection = { maintenance_log: 0, users: 0, purchase_log: 0, documents: 0 };
+      // let assets = await Asset.find(conditionsFromInput(conditions, other), projection);
+      // let records = [];
+      // let columns = [];
+      // switch (category) {
+      // case 'Lab Equipment': {
+      //   for (const asset of assets) {
+      //     const { area: areaID, sub_area: subAreaID } = asset.location;
+      //     let location = await Location.findById(areaID);
+      //     const area = location.area.name;
+      //     const sub_area = location.area.sub_areas.id(subAreaID).name;
+      //
+      //     let record = JSON.flatten(asset.toObject({
+      //       virtuals: false,
+      //       transform: (doc, ret) => {
+      //         ret['location'] = (area == 'UNASSIGNED') ?
+      //           'UNASSIGNED' : `${area} / ${sub_area}`;
+      //         ret.id = doc.id;
+      //         ret.purchasing_info.date = formatDate(ret.purchasing_info.date);
+      //         ret.purchasing_info.warranty_exp = ret.purchasing_info.warranty_exp ? formatDate(ret.purchasing_info.warranty_exp) : '';
+      //         ret.registration_event.date = formatDate(ret.registration_event.date);
+      //         delete ret['_id'];
+      //         delete ret['__v'];
+      //         return ret;
+      //       }
+      //     }), '.');
+      //     records.push(record);
+      //   }
+      //   columns = [
+      //     { key: 'name', header: 'Name'},
+      //     { key: 'barcode', header: 'Barcode'},
+      //     { key: 'brand', header: 'Brand'},
+      //     { key: 'model', header: 'Model'},
+      //     { key: 'serial_number', header: 'Serial No.'},
+      //     { key: 'location', header: 'Location'},
+      //     { key: 'category', header: 'Category'},
+      //     { key: 'condition', header: 'Condition'},
+      //     { key: 'purchasing_info.date', header: 'Purchase Date'},
+      //     { key: 'purchasing_info.supplier', header: 'Supplier'},
+      //     { key: 'purchasing_info.warranty_exp', header: 'Warranty Expires'},
+      //     { key: 'purchasing_info.price', header: 'Purchase Price'},
+      //     { key: 'grant.funding_agency', header: 'Funding Agency'},
+      //     { key: 'grant.grant_number', header: 'Grant No.'},
+      //     { key: 'grant.project_name', header: 'Project Name'},
+      //     { key: 'registration_event.user', header: 'Registered By'},
+      //     { key: 'registration_event.date', header: 'Registration Date'},
+      //     { key: 'shared', header: 'Shared'},
+      //     { key: 'training_required', header: 'Training Req.'},
+      //     { key: 'description', header: 'Description'},
+      //     { key: 'id', header: 'ID'},
+      //   ];
+      //
+      //   break;
+      // }
+      // case 'Lab Supplies': {
+      //   for (const asset of assets) {
+      //     let record = asset.toObject({
+      //       virtuals: false,
+      //       transform: (doc, ret) => {
+      //         ret.id = doc.id;
+      //         ret.registration_event.date = formatDate(ret.registration_event.date);
+      //         delete ret['_id'];
+      //         delete ret['__v'];
+      //         return ret;
+      //       }
+      //     });
+      //     records.push(record);
+      //   }
+      //   columns = [
+      //     { key: 'name', header: 'Name'},
+      //     { key: 'description', header: 'Description'},
+      //     { key: 'shared', header: 'Shared'},
+      //     { key: 'registration_event.user', header: 'Registered By'},
+      //     { key: 'registration_event.date', header: 'Registration Date'},
+      //     { key: 'category', header: 'Category'},
+      //     { key: 'id', header: 'ID'},
+      //   ];
+      //
+      //   break;
+      // }
+      // default: {
+      //   throw new ApolloError('Category does not exist', 'BAD_REQUEST');
+      // }}
+
       await fse.ensureDir(cache);
 
       let data = records.slice()
         .filter( result => !searchCategories.length ||
         searchCategories.some( cat =>
-          result[cat].toLowerCase().indexOf(search.toLowerCase()) > -1));
+          result[cat].toLowerCase().indexOf(search2.toLowerCase()) > -1));
       try {
         let stream = await stringify( data, {
           header: true,
@@ -920,7 +1092,7 @@ const resolvers = {
         });
         await cacheFile({ stream, name });
       } catch(err) {
-        throw new ApolloError('Document upload failed', 'FILE_UPLOAD_ERROR');
+        throw new ApolloError('Data export failed', 'DATA_EXPORT_ERROR');
       }
 
       const dstPath = path.join(cache, name);

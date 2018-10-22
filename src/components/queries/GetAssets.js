@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LinearProgress from '@material-ui/core/LinearProgress';
-
+import ProgressIndicator from '../ProgressIndicator';
 import GET_ASSETS from '../../graphql/assets/getAssets';
 
 import { Query } from 'react-apollo';
@@ -22,21 +21,29 @@ class GetAssets extends Component {
             skip={true}
           >
             { ({ client }) => {
-              const callQuery = async input => {
+              const callQuery = async (filter, search) => {
                 try {
                   const { data, loading, error } = await client.query({
                     query: GET_ASSETS,
-                    variables: { input },
+                    variables: { filter, search },
                     fetchPolicy: 'network-only'
                   });
-                  if (loading) return <LinearProgress />;
+                  if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;
                   const { assets } = data;
-                  let formatted_assets = assets;
-                  if (input.category == 'Lab Equipment') {
-                    formatted_assets = assets.map(asset => ({...asset,
-                      location: (asset.location.area.name == 'UNASSIGNED') ?
-                        'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}` }));
+                  let formatted_assets = [];
+                  for (const item of assets) {
+                    if (item.category == 'Lab Equipment') {
+                      let formatted_item = {
+                        category: item.category,
+                        results: item.results.map(equipment => ({...equipment,
+                          location: (equipment.location.area.name == 'UNASSIGNED') ?
+                            'UNASSIGNED' : `${equipment.location.area.name} / ${equipment.location.sub_area.name}` }))
+                      };
+                      formatted_assets.push(formatted_item);
+                    } else {
+                      formatted_assets.push(item);
+                    }
                   }
                   return formatted_assets;
                 } catch(errorObj) {

@@ -163,7 +163,7 @@ class EnhancedTable extends PureComponent {
       order: 'asc',
       orderBy: this.props.cols[0].id,
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 25,
       filterModalOpen: false,
       filterOn: false,
       filterState: JSON.stringify(this.props.defaultFilter),
@@ -185,16 +185,18 @@ class EnhancedTable extends PureComponent {
     this.exportData = this.exportData.bind(this);
   }
   static contextTypes = {
-    swipeableViews: PropTypes.object.isRequired,
+    swipeableViews: PropTypes.object,
   };
 
   componentDidUpdate() {
-    this.context.swipeableViews.slideUpdateHeight();
+    if(this.context.swipeableViews !== undefined)
+      this.context.swipeableViews.slideUpdateHeight();
   }
 
   async componentDidMount() {
-    this.context.swipeableViews.slideUpdateHeight();
-    let data = await this.props.data.query(this.props.defaultFilter);
+    if(this.context.swipeableViews !== undefined)
+      this.context.swipeableViews.slideUpdateHeight();
+    let data = await this.props.data.query.execute(this.props.defaultFilter);
     this.setState({ data });
   }
 
@@ -203,7 +205,7 @@ class EnhancedTable extends PureComponent {
   closeFilter = () => this.setState({ filterModalOpen: false });
 
   filterData = async (filter, state) => {
-    let data = await this.props.data.query(filter);
+    let data = await this.props.data.query.execute(filter);
     if (data) {
       this.props.data.clearErrors();
       return this.setState({ filter, filterState: state, filterOn: true, filterModalOpen: false, data });
@@ -212,7 +214,7 @@ class EnhancedTable extends PureComponent {
 
   resetFilters = async state => {
     this.props.data.clearErrors();
-    let data = await this.props.data.query(this.props.defaultFilter);
+    let data = await this.props.data.query.execute(this.props.defaultFilter);
     this.setState({ filter: this.props.defaultFilter, filterState: state, data, filterOn: false });
   };
 
@@ -259,8 +261,7 @@ class EnhancedTable extends PureComponent {
   }
   exportData = async (name, closeDialog) => {
     const { search, searchCategories, filter } = this.state;
-    let response = await this.props.exportData.mutate({ filter, search, searchCategories, name });
-    let fileURL = response !== undefined ? response.data[this.props.exportData.mutate.name] : null;
+    let fileURL = await this.props.exportData.mutate({ filter, search, searchCategories, name });
     if(fileURL) {
       closeDialog();
       window.open(fileURL);
@@ -354,6 +355,7 @@ class EnhancedTable extends PureComponent {
           component="div"
           count={data.length}
           rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[5, 25, 50, 100]}
           page={page}
           backIconButtonProps={{
             'aria-label': 'Previous Page',

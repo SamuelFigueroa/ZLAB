@@ -1,6 +1,37 @@
 import gql from 'graphql-tag';
 
 const GET_ASSETS = gql`
+  query getAssets($filter: AssetFilter, $search: String) {
+    assets(filter: $filter, search: $search) {
+      category
+      results {
+        id
+        name
+        shared
+        ...on Equipment {
+          barcode
+          brand
+          model
+          condition
+          location {
+            area {
+              id
+              name
+            }
+            sub_area {
+              id
+              name
+            }
+          }
+        }
+        ...on Supply {
+          description
+        }
+      }
+    }
+  }
+`;
+/*const GET_ASSETS = gql`
      query getAssets($input: AssetFilter!) {
       assets(input: $input) {
         id
@@ -52,5 +83,5 @@ const GET_ASSETS = gql`
 `;
 
 
-
+*/
 export default GET_ASSETS;
