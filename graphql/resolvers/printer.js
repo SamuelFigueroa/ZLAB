@@ -1,7 +1,5 @@
 import { ApolloError, UserInputError } from 'apollo-server-express';
 import mongoose from 'mongoose';
-import fetch from 'node-fetch';
-import { URLSearchParams } from 'url';
 import * as signalR from '@aspnet/signalr';
 import ZPLFormatter from '../../src/components/Printer/ZPLFormatter';
 
