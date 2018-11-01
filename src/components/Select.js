@@ -89,6 +89,7 @@ function Control(props) {
   return (
     <TextField
       fullWidth
+      disabled={props.selectProps.isDisabled}
       InputProps={{
         inputComponent,
         inputProps: {
@@ -205,7 +206,7 @@ class IntegrationReactSelect extends Component {
   }
 
   render() {
-    const { classes, theme, value, label, onChange, isMulti, options } = this.props;
+    const { classes, theme, value, label, onChange, isMulti, options, disabled } = this.props;
 
     const selectStyles = {
       input: base => ({
@@ -229,6 +230,7 @@ class IntegrationReactSelect extends Component {
       <div className={classes.root}>
         <NoSsr>
           <Select
+            isDisabled={disabled}
             classes={classes}
             styles={selectStyles}
             textFieldProps={{

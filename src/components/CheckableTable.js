@@ -218,11 +218,17 @@ class CEnhancedTable extends PureComponent {
     this.handleClick = this.handleClick.bind(this);
   }
   static contextTypes = {
-    swipeableViews: PropTypes.object.isRequired,
+    swipeableViews: PropTypes.object,
   };
 
   componentDidUpdate() {
-    this.context.swipeableViews.slideUpdateHeight();
+    if(this.context.swipeableViews !== undefined)
+      this.context.swipeableViews.slideUpdateHeight();
+  }
+
+  componentDidMount() {
+    if(this.context.swipeableViews !== undefined)
+      this.context.swipeableViews.slideUpdateHeight();
   }
 
   getSorting = (order, orderBy) => {
@@ -291,7 +297,6 @@ class CEnhancedTable extends PureComponent {
     const { classes, title, subheading, cols, data, actions, editMode, editable } = this.props;
     const { order, orderBy, rowsPerPage, page, selected } = this.state;
     const queryResults = data.slice();
-    // console.log(queryResults.sort(this.getSorting(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage));
     // const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
     return (

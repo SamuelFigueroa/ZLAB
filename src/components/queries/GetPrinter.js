@@ -21,7 +21,7 @@ class GetPrinter extends Component {
               variables: { connection_name },
               fetchPolicy: 'network-only'
             });
-            if (loading) return <ProgressIndicator />;
+            if (loading) return null;
             if (error) return `Error!: ${error}`;
             return data.printer;
           };

@@ -1,33 +1,32 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ProgressIndicator from '../ProgressIndicator';
 
-import GET_ONLINE_PRINTER_HUBS from '../../graphql/printers/getOnlinePrinterHubs';
+import GET_PRINTERS from '../../graphql/printers/getPrinters';
 
 import { Query } from 'react-apollo';
 
-class GetPrinterHubs extends Component {
+class GetPrinters extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
     return(
-      <Query query={GET_ONLINE_PRINTER_HUBS}>
+      <Query query={GET_PRINTERS}>
         { ({ data, loading, error }) => {
           if (loading) return null;
           if (error) return `Error!: ${error}`;
 
-          const { onlinePrinterHubs } = data;
-          return this.props.children(onlinePrinterHubs);
+          const { printers } = data;
+          return this.props.children(printers);
         }}
       </Query>
     );
   }
 }
 
-GetPrinterHubs.propTypes = {
+GetPrinters.propTypes = {
   children: PropTypes.func.isRequired
 };
 
-export default GetPrinterHubs;
+export default GetPrinters;

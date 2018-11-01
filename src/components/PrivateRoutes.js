@@ -11,8 +11,8 @@ import EquipmentInfo from './EquipmentInfo';
 import SupplyInfo from './SupplyInfo';
 import GetAsset from './queries/GetAsset';
 import GetAssets from './queries/GetAssets';
-import Printers from './Printers';
 import AssetSearch from './AssetSearch';
+import PrinterRoutes from './Printer/PrinterRoutes';
 
 const assetForms = {
   equipment: EquipmentForm,
@@ -65,7 +65,7 @@ const PrivateRoutes = ({ auth }) => {
           </GetAsset>
         )}/>
       </Switch>
-      <Route exact path="/printers" render={()=><Printers />} />
+      <PrinterRoutes />
       {
         user.admin ? (
           <Route exact path="/register" component={Register} />

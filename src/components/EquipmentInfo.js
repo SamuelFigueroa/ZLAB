@@ -9,13 +9,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import green from '@material-ui/core/colors/green';
 import EditIcon from '@material-ui/icons/Edit';
+import IconButton from '@material-ui/core/IconButton';
+import PrintIcon from '@material-ui/icons/Print';
 
 import GetAsset from './queries/GetAsset';
 import DeleteAsset from './mutations/DeleteAsset';
 import Tabs from './Tabs';
 import MaintenanceLog from './MaintenanceLog';
 import DocumentLog from './DocumentLog';
-
+import QuickPrintModal from './Printer/QuickPrintModal';
 
 const formatCurrency = (n) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD' }).format(n);
 const dateToString = (d) => {
@@ -85,10 +87,13 @@ class EquipmentInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 0
+      value: 0,
+      printModalOpen: false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeIndex = this.handleChangeIndex.bind(this);
+    this.openPrintModal = this.openPrintModal.bind(this);
+    this.handlePrintModalClose = this.handlePrintModalClose.bind(this);
   }
 
   componentDidMount() {
@@ -126,6 +131,9 @@ class EquipmentInfo extends Component {
     return this.props.history.push(location);
   };
 
+  openPrintModal = () => this.setState({ printModalOpen: true });
+  handlePrintModalClose = () => this.setState({ printModalOpen: false });
+
   render() {
     const { classes, id, user, isAuthenticated } = this.props;
 
@@ -134,6 +142,11 @@ class EquipmentInfo extends Component {
         { asset => {
           tabs[0]['component'] = (
             <div className={classes.root}>
+              <QuickPrintModal
+                open={this.state.printModalOpen}
+                onClose={this.handlePrintModalClose}
+                data={asset.barcode}
+              />
               <Tooltip title={`Edit ${asset.category} Information`}>
                 <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/equipment/${asset.id}/update`}>
                   <EditIcon />
@@ -157,6 +170,11 @@ class EquipmentInfo extends Component {
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subheading">
                       Barcode: {asset.barcode}
+                    <Tooltip title="Print barcode" placement="right">
+                      <IconButton aria-label="Print" onClick={this.openPrintModal}>
+                        <PrintIcon />
+                      </IconButton>
+                    </Tooltip>
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
