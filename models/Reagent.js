@@ -6,8 +6,6 @@ const ReagentSchema = new mongoose.Schema({
     type: [String],
     required: true
   },
-  source: ObjectId,  //Will hold the ID of a registered source
-  catalog_id: String,
   structure: String,  //SMILES structure
   reagent_id: String,  //e.g. R012345 (internal ID, Base64 of reagent's oid, will not change upon structure curation) CAS_NO
   name: {
@@ -20,8 +18,11 @@ const ReagentSchema = new mongoose.Schema({
     enum: ['L', 'S', 'Soln', 'G', 'Susp']
   },
   comment: String,
-  collection: ObjectId,
-  safety: String,
+  attributes: [String],
+  safety: Document,
+  flags: [String],
+  storage: String,
+  cas: String,
   // history: [{
   //   src_container: {
   //     type: ObjectId,

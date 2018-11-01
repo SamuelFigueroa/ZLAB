@@ -6,15 +6,18 @@ const ContainerSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  sample: {
+  content: {
     type: ObjectId,
     required: true
   },
-  state: {
-    type: String,
-    required: true,
-    enum: ['L', 'S', 'Soln', 'Susp']
-  },
+  source: String,  //Will hold the ID of a registered source
+  catalog_id: String,
+  chemist: String,
+  // state: {
+  //   type: String,
+  //   required: true,
+  //   enum: ['L', 'S', 'Soln', 'Susp']
+  // },
   empty_weight: {
     weight: {
       type: Number
