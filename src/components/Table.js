@@ -72,17 +72,6 @@ EnhancedTableHead.propTypes = {
   cols: PropTypes.array.isRequired,
 };
 
-const toolbarStyles = theme => ({
-  root: {
-    paddingRight: theme.spacing.unit,
-    width: '80%'
-  },
-  title: {
-    flex: '0 0 auto',
-    zIndex: 1,
-  },
-});
-
 class EnhancedTableToolbar extends Component {
   constructor(props) {
     super(props);
@@ -92,25 +81,22 @@ class EnhancedTableToolbar extends Component {
   openFilterModal = openFilter => () => openFilter();
 
   render() {
-    const { classes, title, subheading, actions } = this.props;
+    const { title, subheading, actions } = this.props;
     const { filter, search, download } = actions;
 
     return (
-      <Toolbar
-        className={classes.root}
-      >
+      <Toolbar>
         <Grid container
           alignItems="center"
           justify="flex-start"
           spacing={16}
-          className={classes.title}
         >
           <Grid item>
             <Typography variant="headline" color="primary" id="tableTitle">
               {title}
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid item sm={4} xs={6}>
             <TableSearchBar value={search.value} selected={search.selectedCategories} categories={search.categories} onChange={search.handleChange} />
           </Grid>
           <Grid item>
@@ -123,11 +109,15 @@ class EnhancedTableToolbar extends Component {
           <Grid item>
             <TableExport exportData={download} />
           </Grid>
-          <Grid item>
-            <Typography variant="headline" color="textSecondary">
-              {subheading}
-            </Typography>
-          </Grid>
+          {
+            subheading ? (
+              <Grid item xs={4}>
+                <Typography variant="headline" color="textSecondary">
+                  {subheading}
+                </Typography>
+              </Grid>
+            ): null
+          }
         </Grid>
       </Toolbar>
     );
@@ -141,18 +131,12 @@ EnhancedTableToolbar.propTypes = {
   actions: PropTypes.object.isRequired
 };
 
-const SEnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar);
-
 const styles = theme => ({
   root: {
-    // width: '100%',
     marginTop: theme.spacing.unit * 3,
   },
-  table: {
-    // minWidth: 1020,
-  },
   tableWrapper: {
-    // overflowX: 'auto',
+    overflowX: 'auto',
   },
 });
 
@@ -296,7 +280,7 @@ class EnhancedTable extends PureComponent {
           onClose={this.closeFilter}
           filterPanels={filters} />
         { withToolbar === false ? null :
-          <SEnhancedTableToolbar
+          <EnhancedTableToolbar
             title={title}
             subheading={subheading}
             actions={{

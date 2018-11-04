@@ -21,12 +21,13 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar,
   content: {
     flex: '1 1 100%',
-    //margin: '0 auto',
+    [theme.breakpoints.up('md')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+    },
+    width: '100%',
     paddingLeft: theme.spacing.unit * 5,
     paddingRight: theme.spacing.unit * 5,
     paddingTop: theme.spacing.unit * 10
-    // backgroundColor: theme.palette.background.default,
-    // padding: theme.spacing.unit * 3,
   },
   guestContent: {
     flex: '1 1 100%',
