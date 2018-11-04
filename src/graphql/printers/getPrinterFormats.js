@@ -51,6 +51,7 @@ const GET_PRINTER_FORMATS = gql`
         format
 
         graphic
+        width
         thickness
         color
         roundness

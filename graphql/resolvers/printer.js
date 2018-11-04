@@ -1,7 +1,5 @@
 import { ApolloError, UserInputError } from 'apollo-server-express';
 import mongoose from 'mongoose';
-import * as signalR from '@aspnet/signalr';
-import ZPLFormatter from '../../src/components/Printer/ZPLFormatter';
 
 import PrinterHub from '../../models/PrinterHub';
 import Printer from '../../models/Printer';
@@ -11,7 +9,6 @@ import validatePrinterHubInput from '../../validation/printer_hub';
 import validateAddPrinterInput from '../../validation/printer';
 import validatePrinterJobInput from '../../validation/printer_job';
 import validatePrinterFormatInput from '../../validation/printer_format';
-import validateQuickPrintInput from '../../validation/quick_print';
 
 const resolvers = {
   Query: {
@@ -255,98 +252,6 @@ const resolvers = {
             return false;
           }
         }
-      }
-    },
-    quickPrint: async (root, args) => {
-      const { input } = args;
-      const { errors: inputErrors, isValid } = validateQuickPrintInput(input);
-      const errors = { errors: inputErrors };
-      // Check validation
-      if (!isValid) {
-        throw new UserInputError('Failed to print.', errors);
-      }
-
-      const { formatID, data } = input;
-
-      let format = await PrinterFormat.findById(formatID);
-      if(!format) {
-        errors.errors.format = 'Can\'t find format.';
-        throw new ApolloError('Quick print failed', 'BAD_REQUEST', errors);
-      }
-      const { defaults, fields, name } = format;
-      const { format: formatFn, vars } = ZPLFormatter(defaults, fields, false);
-      const variableArray = Object.keys(vars);
-      if (variableArray.length > 1) {
-        errors.errors.format = 'Invalid format';
-        throw new ApolloError('Quick print failed', 'BAD_REQUEST', errors);
-      }
-      if (variableArray.length == 1) {
-        vars[variableArray[0]] = data;
-      }
-
-      let onlineHubs = await PrinterHub.find({ online: true });
-      if (!(onlineHubs && onlineHubs.length)) {
-        errors.errors.printer = 'No online printer hubs were found.';
-        throw new ApolloError('Quick print failed', 'BAD_REQUEST', errors);
-      }
-
-      let connection;
-      let printer;
-      for (const hub of onlineHubs) {
-        let c = new signalR.HubConnectionBuilder().withUrl(hub.address).build();
-        if (c !== null) {
-          try {
-            await c.start();
-            await c.on('PrintersFound',
-              async connection_names => {
-                for (const connection_name of connection_names) {
-                  let p = await Printer.findOne({ connection_name });
-                  if(p && p.name == input.printer) {
-                    printer = p;
-                    connection = c;
-                    return;
-                  }
-                }
-              });
-            await c.invoke('GetPrinters');
-          } catch (err) {
-            continue;
-          }
-        }
-      }
-      if (connection && printer) {
-        const { connection_name } = printer;
-        const time_added = new Date();
-        const job = {
-          name,
-          data: formatFn(vars),
-          time_added: time_added.toLocaleString()
-        };
-
-        try {
-          await Printer.updateOne({ connection_name }, { $push: { 'jobs' : {...job, status: 'Queued' } } });
-        } catch (err) {
-          errors.errors.printer = 'Failed to add printer job.';
-          await connection.stop();
-          throw new ApolloError('Quick print failed', 'BAD_REQUEST', errors);
-        }
-        await connection.invoke('RefreshQueue', connection_name);
-        let updatedPrinter;
-        try {
-          updatedPrinter = await Printer.findOne({ connection_name });
-        } catch(err) {
-          errors.errors.printer = 'Printer job added, but queue failed to start.';
-          await connection.stop();
-          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
-        }
-        if (updatedPrinter && updatedPrinter.queue == false) {
-          await Printer.updateOne({ connection_name }, { $set: { 'queue': true, 'jobs.0.status': 'InProgress'} });
-          await connection.invoke('StartQueue', connection_name);
-          await connection.stop();
-        }
-      } else {
-        errors.errors.printer = 'Failed to connect to the printer.';
-        throw new ApolloError('Quick print failed', 'BAD_REQUEST', errors);
       }
     },
     addPrinterFormat: async (root, args) => {

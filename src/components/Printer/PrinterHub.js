@@ -8,6 +8,10 @@ import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 
 import Printer from './Printer';
+import GetPrinterFormats from '../queries/GetPrinterFormats';
+import UpdatePrinter from '../mutations/UpdatePrinter';
+import AddPrinterJob from '../mutations/AddPrinterJob';
+import DeletePrinterJob from '../mutations/DeletePrinterJob';
 
 const styles = theme => ({
   root: {
@@ -90,7 +94,7 @@ class PrinterHub extends PureComponent {
 
 
   render() {
-    const { classes, name, printers, status } = this.props;
+    const { classes, name, printers, status, print } = this.props;
     return (
       <div className={classes.root}>
         <Grid
@@ -120,16 +124,42 @@ class PrinterHub extends PureComponent {
                     { printers.length ? (
                       printers.map( printer =>
                         <div key={printer.id}>
-                          <Printer
-                            printer={printer}
-                            actions={{
-                              startQueue: this.startQueue(printer.connection_name),
-                              pauseQueue: this.pauseQueue(printer.connection_name),
-                              queueJob: this.queueJob(printer.connection_name),
-                              deleteJob: this.deleteJob(printer.connection_name),
-                              previewLabel: this.previewLabel(printer.connection_name)
-                            }}
-                          />
+                          <GetPrinterFormats withFields={true}>
+                            { printerFormats => (
+                              <AddPrinterJob>
+                                { (addPrinterJob, addErrors) => (
+                                  <DeletePrinterJob>
+                                    { (deletePrinterJob, deleteErrors) => (
+                                      <UpdatePrinter>
+                                        { (updatePrinter, updateErrors) => (
+                                          <Printer
+                                            printer={printer}
+                                            mutations={{
+                                              addPrinterJob, addErrors,
+                                              updatePrinter, updateErrors,
+                                              deletePrinterJob, deleteErrors
+                                            }}
+                                            printerFormats={printerFormats}
+                                            print={
+                                              (print !== undefined && print.printer == printer.name) ?
+                                                print : null
+                                            }
+                                            actions={{
+                                              startQueue: this.startQueue(printer.connection_name),
+                                              pauseQueue: this.pauseQueue(printer.connection_name),
+                                              queueJob: this.queueJob(printer.connection_name),
+                                              deleteJob: this.deleteJob(printer.connection_name),
+                                              previewLabel: this.previewLabel(printer.connection_name)
+                                            }}
+                                          />
+                                        )}
+                                      </UpdatePrinter>
+                                    )}
+                                  </DeletePrinterJob>
+                                )}
+                              </AddPrinterJob>
+                            )}
+                          </GetPrinterFormats>
                           <Divider className={classes.divider}/>
                         </div>
                       )
@@ -153,7 +183,8 @@ PrinterHub.propTypes = {
   theme: PropTypes.object.isRequired,
   printers: PropTypes.array.isRequired,
   status: PropTypes.string.isRequired,
-  connection: PropTypes.object
+  connection: PropTypes.object,
+  print: PropTypes.object
 };
 
 export default withStyles(styles, { withTheme: true })(PrinterHub);

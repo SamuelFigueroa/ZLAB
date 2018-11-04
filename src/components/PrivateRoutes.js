@@ -13,7 +13,7 @@ import GetAsset from './queries/GetAsset';
 import GetAssets from './queries/GetAssets';
 import AssetSearch from './AssetSearch';
 import PrinterRoutes from './Printer/PrinterRoutes';
-
+import ChemicalEditor from './ChemicalEditor';
 const assetForms = {
   equipment: EquipmentForm,
   supplies: SupplyForm,

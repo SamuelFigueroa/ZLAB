@@ -63,6 +63,7 @@ const FieldSchema = new mongoose.Schema({
     enum: ['box', 'circle', 'diagonal', 'ellipse', 'upload'],
     required: function() {return this.kind == 'graphic';},
   },
+  width: Number,
   thickness: Number,
   color: String,
   roundness: Number,

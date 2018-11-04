@@ -227,8 +227,8 @@ const getZPLFormatter = (defaults, fields, preview) =>  {
     // });
     let zpl =`
     ^XA
-    ^PW${labelWidth * 203.2}
-    ^LL${labelLength * 203.2}
+    ^PW${Math.round(labelWidth * 203.2)}
+    ^LL${Math.round(labelLength * 203.2)}
     ^FW${fieldOrientation},${fieldJustify}
     ^JM${dotsPerMm}
     ${reverse ? '^LRY' : ''}
@@ -240,7 +240,7 @@ const getZPLFormatter = (defaults, fields, preview) =>  {
     ${mirror ? '^PMN' : ''}
     ^XZ
     `;
-    return zpl.replace(/\s+/g, '\n');
+    return zpl.replace(/(\s+)?(?:(\^FD[^^]+\^FS))?/g, (match, p1, p2) =>  [p2].join(''));
   };
 
   return {vars, format};

@@ -65,7 +65,7 @@ class HubTabs extends Component {
   };
 
   render() {
-    tabs[0].component = <PrinterHub {...this.props.hubProps}/>;
+    tabs[0].component = this.props.print !== undefined ? <PrinterHub print={this.props.print} {...this.props.hubProps}/> :  <PrinterHub {...this.props.hubProps}/>;
     tabs[1].component = <PrinterFormats {...this.props.hubProps}/>;
     return  <Tabs tabs={tabs} value={this.state.value} onChange={this.handleChange} onChangeIndex={this.handleChangeIndex}/>;
 
@@ -75,7 +75,8 @@ class HubTabs extends Component {
 HubTabs.propTypes = {
   history: PropTypes.object.isRequired,
   tabID: PropTypes.string.isRequired,
-  hubProps:PropTypes.object.isRequired
+  hubProps:PropTypes.object.isRequired,
+  print: PropTypes.object
 };
 
 export default withRouter(HubTabs);

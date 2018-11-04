@@ -85,6 +85,7 @@ const Printer = gql`
     color: String
     roundness: Int
     diameter: Int
+    width: Int
     diagonalOrientation: String
     compression: String
     byteCount: Int
@@ -113,12 +114,6 @@ const Printer = gql`
   input AddPrinterJobInput {
     connection_name: String!
     job: PrinterJobInput!
-  }
-
-  input QuickPrintInput {
-    printer: String!
-    formatID: ID!
-    data: String!
   }
 
   input PrinterJobInput {
@@ -186,6 +181,7 @@ const Printer = gql`
     format: String
 
     graphic: String
+    width: Int
     thickness: Int
     color: String
     roundness: Int
@@ -223,7 +219,6 @@ const Printer = gql`
   # Mutations
   extend type Mutation {
     registerPrinterHub(input: PrinterHubInput!) : PrinterHubOutput!
-    quickPrint(input: QuickPrintInput!) : Boolean
 
     #Create Mutations
     addPrinter(input: AddPrinterInput!) : Boolean

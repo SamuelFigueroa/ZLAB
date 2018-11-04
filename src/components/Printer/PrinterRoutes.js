@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { Route, Switch } from 'react-router-dom';
+import queryString from 'query-string';
 
 import GetPrinterHubs from '../queries/GetPrinterHubs';
 import GetPrinter from '../queries/GetPrinter';
@@ -28,7 +29,14 @@ const PrinterRoutes = () => {
                   const { connection, printers } = hubProps;
                   return (
                     <Fragment>
-                      <Route exact path={`/printers/${hub.name}`} render={({ location })=><HubTabs hubProps={hubProps} tabID={location.hash.slice(1)}/>} />
+                      <Route exact path={`/printers/${hub.name}`} render={({ location })=> {
+                        const search = queryString.parse(location.search);
+                        const { data, printer, format } = search;
+                        if(data && printer && format)
+                          return <HubTabs print={{ data, printer, format }} hubProps={hubProps} tabID={location.hash.slice(1)}/>;
+                        return <HubTabs hubProps={hubProps} tabID={location.hash.slice(1)}/>;
+                      }}
+                      />
                       <Switch>
                         <Route exact path={`/printers/${hub.name}/formats/new`} render={()=>{
                           return <FormatEditor printers={printers} hubConnection={connection} />;

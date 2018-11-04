@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -10,7 +11,7 @@ import Modal from '@material-ui/core/Modal';
 import MenuItem from '@material-ui/core/MenuItem';
 import GetPrinterFormats from '../queries/GetPrinterFormats';
 import GetPrinters from '../queries/GetPrinters';
-import QuickPrint from '../mutations/QuickPrint';
+import GetPrinterHubs from '../queries/GetPrinterHubs';
 
 const styles = theme => ({
   root: {
@@ -41,6 +42,7 @@ class QuickPrintModal extends Component {
   constructor(props) {
     super(props);
     this.state={
+      hub: '',
       printer: '',
       formatID: ''
     };
@@ -56,29 +58,30 @@ class QuickPrintModal extends Component {
 
   handleChange = e => this.setState({ [e.target.name]: e.target.value });
 
-  handleSubmit = quickPrint => async e => {
+  handleSubmit = e => {
     e.preventDefault();
-    const { printer, formatID } = this.state;
-    const { data } = this.props;
-    let response = await quickPrint({ printer, formatID, data });
-    let success = response !== undefined;
-    if(success)
-      this.handleClose();
+    // const { printer, formatID } = this.state;
+    // const { data } = this.props;
+    // let response = await quickPrint({ printer, formatID, data });
+    // let success = response !== undefined;
+    // if(success)
+    //   this.handleClose();
+    return this.props.history.push(`/printers/2199F_DELL?data=${this.props.data}&format=${this.state.formatID}&printer=${this.state.printer}`);
   }
 
 
   render() {
     const { classes, open } = this.props;
     return(
-      <QuickPrint>
-        { (quickPrint, errors, clearErrors) => (
+      <GetPrinterHubs>
+        { hubs => (
           <GetPrinters>
             { printers => (
               <GetPrinterFormats withFields={false}>
                 { printerFormats => (
                   <Modal
                     open={open}
-                    onClose={this.handleClose(clearErrors)}
+                    onClose={this.handleClose}
                   >
                     <div className={classes.root}>
                       <Grid
@@ -93,7 +96,7 @@ class QuickPrintModal extends Component {
                           </Typography>
                           <Grid item>
                             <form className={classes.container}
-                              onSubmit={this.handleSubmit(quickPrint)}
+                              onSubmit={this.handleSubmit}
                               noValidate
                               autoComplete="off">
                               <Grid
@@ -111,6 +114,29 @@ class QuickPrintModal extends Component {
                                 </Grid>
                                 <Grid item>
                                   {
+                                    hubs ?
+                                      <TextField
+                                        name="hub"
+                                        label="Select Hub"
+                                        fullWidth
+                                        select
+                                        value={this.state.hub}
+                                        onChange={this.handleChange}
+                                        margin="none"
+                                      >
+                                        {
+                                          hubs.map(h => (
+                                            <MenuItem key={h.name} value={h.name}>
+                                              {h.name}
+                                            </MenuItem>
+                                          ))
+                                        }
+                                      </TextField>
+                                      : null
+                                  }
+                                </Grid>
+                                <Grid item>
+                                  {
                                     printers ?
                                       <TextField
                                         name="printer"
@@ -120,8 +146,6 @@ class QuickPrintModal extends Component {
                                         value={this.state.printer}
                                         onChange={this.handleChange}
                                         margin="none"
-                                        error={Boolean(errors.printer)}
-                                        helperText={errors.printer}
                                       >
                                         {
                                           printers.map(p => (
@@ -144,8 +168,6 @@ class QuickPrintModal extends Component {
                                         select
                                         value={this.state.formatID}
                                         onChange={this.handleChange}
-                                        error={Boolean(errors.formatID)}
-                                        helperText={errors.formatID}
                                         margin="none"
                                         SelectProps={{
                                           renderValue: () => this.state.formatID.length ? printerFormats.find(f=>f.id==this.state.formatID).name : ''
@@ -165,7 +187,9 @@ class QuickPrintModal extends Component {
                                 <Grid item>
                                   <input type="submit" id="print-button" className={classes.input}/>
                                   <label htmlFor="print-button">
-                                    <Button className={classes.printButton} variant="contained"  component="span" color="primary" fullWidth>
+                                    <Button
+                                      disabled={!(this.state.hub && this.state.printer && this.state.formatID)} 
+                                      className={classes.printButton} variant="contained"  component="span" color="primary" fullWidth>
                                       Print
                                     </Button>
                                   </label>
@@ -182,7 +206,7 @@ class QuickPrintModal extends Component {
             )}
           </GetPrinters>
         )}
-      </QuickPrint>
+      </GetPrinterHubs>
     );
   }
 }
@@ -191,7 +215,8 @@ QuickPrintModal.propTypes = {
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  data: PropTypes.string.isRequired
+  data: PropTypes.string.isRequired,
+  history: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(QuickPrintModal);
+export default withStyles(styles)(withRouter(QuickPrintModal));
