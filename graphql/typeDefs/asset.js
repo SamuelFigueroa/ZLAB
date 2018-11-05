@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server-express';
-import Document from './Document';
-import Location from './Location';
+import Document from './document';
+import Location from './location';
 
 const Asset = gql`
 
