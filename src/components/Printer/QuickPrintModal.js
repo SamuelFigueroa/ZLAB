@@ -48,30 +48,18 @@ class QuickPrintModal extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-  }
-
-  handleClose = clearErrors => () => {
-    clearErrors();
-    this.props.onClose();
   }
 
   handleChange = e => this.setState({ [e.target.name]: e.target.value });
 
   handleSubmit = e => {
     e.preventDefault();
-    // const { printer, formatID } = this.state;
-    // const { data } = this.props;
-    // let response = await quickPrint({ printer, formatID, data });
-    // let success = response !== undefined;
-    // if(success)
-    //   this.handleClose();
-    return this.props.history.push(`/printers/2199F_DELL?data=${this.props.data}&format=${this.state.formatID}&printer=${this.state.printer}`);
+    return this.props.history.push(`/printers/${this.state.hub}?data=${this.props.data}&format=${this.state.formatID}&printer=${this.state.printer}`);
   }
 
 
   render() {
-    const { classes, open } = this.props;
+    const { classes, open, onClose } = this.props;
     return(
       <GetPrinterHubs>
         { hubs => (
@@ -81,7 +69,7 @@ class QuickPrintModal extends Component {
                 { printerFormats => (
                   <Modal
                     open={open}
-                    onClose={this.handleClose}
+                    onClose={onClose}
                   >
                     <div className={classes.root}>
                       <Grid
@@ -188,7 +176,7 @@ class QuickPrintModal extends Component {
                                   <input type="submit" id="print-button" className={classes.input}/>
                                   <label htmlFor="print-button">
                                     <Button
-                                      disabled={!(this.state.hub && this.state.printer && this.state.formatID)} 
+                                      disabled={!(this.state.hub && this.state.printer && this.state.formatID)}
                                       className={classes.printButton} variant="contained"  component="span" color="primary" fullWidth>
                                       Print
                                     </Button>
