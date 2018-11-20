@@ -223,12 +223,12 @@ class CEnhancedTable extends PureComponent {
 
   componentDidUpdate() {
     if(this.context.swipeableViews !== undefined)
-      this.context.swipeableViews.slideUpdateHeight();
+      setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.complex);
   }
 
   componentDidMount() {
     if(this.context.swipeableViews !== undefined)
-      this.context.swipeableViews.slideUpdateHeight();
+      setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.complex);
   }
 
   getSorting = (order, orderBy) => {
@@ -399,6 +399,7 @@ class CEnhancedTable extends PureComponent {
 
 CEnhancedTable.propTypes = {
   classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   cols: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
@@ -409,4 +410,4 @@ CEnhancedTable.propTypes = {
   editMode: PropTypes.bool.isRequired
 };
 
-export default withStyles(styles)(CEnhancedTable);
+export default withStyles(styles, { withTheme: true })(CEnhancedTable);
