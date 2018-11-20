@@ -12,7 +12,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
-import UserAvatar from '../components/UserAvatar'
+import UserAvatar from './UserAvatar'
 
 const styles = theme => ({
   avatarButton: {
@@ -47,7 +47,7 @@ const UserProfile = (props) => {
   return (
     <div>
       <ButtonBase className={classes.avatarButton}>
-        <span className={classes.imageSrc} style={{backgroundImage: `url('/Sam_photo.jpg')`}} />
+        <span className={classes.imageSrc} style={{ backgroundImage: 'url()' }} />
       </ButtonBase>
       <Typography variant='title' className={classes.fullName}>
         {user.firstName + ' ' + user.lastName}

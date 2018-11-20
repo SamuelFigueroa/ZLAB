@@ -16,7 +16,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Hidden from '@material-ui/core/Hidden';
 import MenuIcon from '@material-ui/icons/Menu';
 
-import UserAvatarMenu from '../containers/UserAvatarMenu';
+import UserAvatarMenu from './UserAvatarMenu';
 import { drawerWidth } from './Layout';
 
 // import GetCurrentUser from './queries/GetCurrentUser';
