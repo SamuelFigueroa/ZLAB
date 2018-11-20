@@ -16,6 +16,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import IconButton from '@material-ui/core/IconButton';
+import Chip from '@material-ui/core/Chip';
 import TableExport from './TableExport';
 import FilterModal from './FilterModal';
 import TableSearchBar from './TableSearchBar';
@@ -43,19 +44,21 @@ class EnhancedTableHead extends Component {
                 numeric={col.numeric}
                 sortDirection={orderBy === col.id ? order : false}
               >
-                <Tooltip
-                  title="Sort"
-                  placement={col.numeric ? 'bottom-end' : 'bottom-start'}
-                  enterDelay={300}
-                >
-                  <TableSortLabel
-                    active={orderBy === col.id}
-                    direction={order}
-                    onClick={this.createSortHandler(col.id)}
+                { col.exclude === undefined || !col.exclude ? (
+                  <Tooltip
+                    title="Sort"
+                    placement={col.numeric ? 'bottom-end' : 'bottom-start'}
+                    enterDelay={300}
                   >
-                    {col.label}
-                  </TableSortLabel>
-                </Tooltip>
+                    <TableSortLabel
+                      active={orderBy === col.id}
+                      direction={order}
+                      onClick={this.createSortHandler(col.id)}
+                    >
+                      {col.label}
+                    </TableSortLabel>
+                  </Tooltip>
+                ) : col.label }
               </TableCell>
             );
           }, this)}
@@ -125,7 +128,6 @@ class EnhancedTableToolbar extends Component {
 }
 
 EnhancedTableToolbar.propTypes = {
-  classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   subheading: PropTypes.string,
   actions: PropTypes.object.isRequired
@@ -138,6 +140,9 @@ const styles = theme => ({
   tableWrapper: {
     overflowX: 'auto',
   },
+  chip: {
+    margin: theme.spacing.unit
+  }
 });
 
 class EnhancedTable extends PureComponent {
@@ -145,14 +150,14 @@ class EnhancedTable extends PureComponent {
     super(props);
     this.state = {
       order: 'asc',
-      orderBy: this.props.cols[0].id,
+      orderBy: this.props.cols.filter(c => c.exclude === undefined || !c.exclude)[0].id,
       page: 0,
       rowsPerPage: 25,
       filterModalOpen: false,
       filterOn: false,
       filterState: JSON.stringify(this.props.defaultFilter),
       filter: this.props.defaultFilter,
-      searchCategories: this.props.cols.map(c => c.id),
+      searchCategories: this.props.cols.filter(c => c.exclude === undefined || !c.exclude).map(c => c.id),
       search: '',
       data: []
     };
@@ -261,7 +266,7 @@ class EnhancedTable extends PureComponent {
   };
 
   render() {
-    const { classes, title, subheading, cols, withToolbar, onRowClick, filters } = this.props;
+    const { classes, title, subheading, cols, withToolbar, onRowClick, filters, filterOptions } = this.props;
     const { order, orderBy, rowsPerPage, page, filterModalOpen, filterState, data, search, searchCategories } = this.state;
     const queryResults = data.slice();
 
@@ -269,12 +274,12 @@ class EnhancedTable extends PureComponent {
       <Paper className={classes.root}>
         <FilterModal
           open={filterModalOpen}
-          type={this.props.data.filterType}
           actions={{
             filterData: this.filterData,
             resetFilters: this.resetFilters,
             setFilter: this.setFilterState,
           }}
+          options={filterOptions}
           errors={this.props.data.errors}
           filter={filterState}
           onClose={this.closeFilter}
@@ -285,7 +290,7 @@ class EnhancedTable extends PureComponent {
             subheading={subheading}
             actions={{
               filter: { open: this.openFilter, on: this.state.filterOn },
-              search: { value: search, categories: cols, selectedCategories: searchCategories, handleChange: this.handleSearch },
+              search: { value: search, categories: cols.filter(c => c.exclude === undefined || !c.exclude), selectedCategories: searchCategories, handleChange: this.handleSearch },
               download: { handleDownload: async (filename, closeDialog) => await this.exportData(filename, closeDialog), errors: this.props.exportData.errors, clearErrors: this.props.exportData.clearErrors}
             }}/>
         }
@@ -320,7 +325,12 @@ class EnhancedTable extends PureComponent {
                           scope={col.id == 'name' ? 'row' : 'col'}
                           numeric={col.numeric}
                           key={col.id}>
-                          {n[col.id] == '' ? 'N/A' : n[col.id]}
+                          {n[col.id] == '' ? 'N/A' : (
+                            Array.isArray(n[col.id]) ? (
+                              Array.from(new Set(n[col.id])).map(tableData =>
+                                <Chip className={classes.chip} key={tableData} label={tableData} />)
+                            ) : n[col.id]
+                          )}
                         </TableCell>
                       )
                       )}
@@ -364,6 +374,7 @@ EnhancedTable.propTypes = {
   onRowClick: PropTypes.func.isRequired,
   withToolbar: PropTypes.bool,
   filters: PropTypes.array,
+  filterOptions: PropTypes.func,
   defaultFilter: PropTypes.object.isRequired,
   exportData: PropTypes.object.isRequired
 };
