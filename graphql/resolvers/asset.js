@@ -179,13 +179,37 @@ const resolvers = {
         const excludedFields = ['shared', 'training_required'];
 
         if(words) {
+
           let paths = Object.keys(Asset.schema.paths).filter(path =>
-            Asset.schema.paths[path].instance == 'String' && excludedFields.indexOf(path) == -1
+            ( Asset.schema.paths[path].instance == 'String' ||
+            (
+              Asset.schema.paths[path].instance == 'Array' &&
+              Asset.schema.paths[path].caster.instance == 'String'
+            ))
+            && excludedFields.indexOf(path) == -1
           );
+
+          let childSchemas = Asset.schema.childSchemas;
+
+          Object.keys(childSchemas).forEach(childSchema => {
+            let parent = childSchemas[childSchema].model.path;
+            let p = Object.keys(childSchemas[childSchema].model.schema.paths)
+              .filter( path =>
+                childSchemas[childSchema].model.schema.paths[path].instance == 'String' ||
+              (
+                childSchemas[childSchema].model.schema.paths[path].instance == 'Array' &&
+                childSchemas[childSchema].model.schema.paths[path].caster.instance == 'String'
+              ))
+              .map( path => `${parent}.${path}`);
+
+            paths = paths.concat(p);
+          });
+
           paths.push('location.area.name','location.sub_area.name');
           let searchConditions = {
             $and: words.map( word => ({ '$or': paths.map( path => ({ [path]: { $regex: new RegExp(word, 'i') } })) }))
           };
+
           pipeline.splice(searchPipelineIndex, 0, { $match: searchConditions });
         } else {
           return assets;
@@ -602,13 +626,37 @@ const resolvers = {
         const excludedFields = ['shared', 'training_required'];
 
         if(words) {
+          
           let paths = Object.keys(Asset.schema.paths).filter(path =>
-            Asset.schema.paths[path].instance == 'String' && excludedFields.indexOf(path) == -1
+            ( Asset.schema.paths[path].instance == 'String' ||
+            (
+              Asset.schema.paths[path].instance == 'Array' &&
+              Asset.schema.paths[path].caster.instance == 'String'
+            ))
+            && excludedFields.indexOf(path) == -1
           );
+
+          let childSchemas = Asset.schema.childSchemas;
+
+          Object.keys(childSchemas).forEach(childSchema => {
+            let parent = childSchemas[childSchema].model.path;
+            let p = Object.keys(childSchemas[childSchema].model.schema.paths)
+              .filter( path =>
+                childSchemas[childSchema].model.schema.paths[path].instance == 'String' ||
+              (
+                childSchemas[childSchema].model.schema.paths[path].instance == 'Array' &&
+                childSchemas[childSchema].model.schema.paths[path].caster.instance == 'String'
+              ))
+              .map( path => `${parent}.${path}`);
+
+            paths = paths.concat(p);
+          });
+
           paths.push('location.area.name','location.sub_area.name');
           let searchConditions = {
             $and: words.map( word => ({ '$or': paths.map( path => ({ [path]: { $regex: new RegExp(word, 'i') } })) }))
           };
+
           pipeline.splice(searchPipelineIndex, 0, { $match: searchConditions });
         } else {
           return assets;
