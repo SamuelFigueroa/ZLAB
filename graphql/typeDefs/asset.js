@@ -1,6 +1,8 @@
 import { gql } from 'apollo-server-express';
 import Document from './document';
 import Location from './location';
+import Registration from './registration';
+import Range from './range';
 
 const Asset = gql`
 
@@ -57,11 +59,6 @@ const Asset = gql`
     supplier: String!
     warranty_exp: String
     price: Float!
-  }
-
-  type RegistrationEvent {
-    user: String!
-    date: String!
   }
 
   type MaintenanceEvent {
@@ -147,10 +144,6 @@ const Asset = gql`
     project_name: String!
   }
 
-  input RegistrationEventInput {
-    user: String!
-  }
-
   input AssetFilter {
     category: String
     location: [ID]
@@ -169,7 +162,7 @@ const Asset = gql`
 
   input PurchasingInfoFilter {
     supplier: [String]
-    price: Range
+    price: NumberRange
     date: DateRange
     warranty_exp: DateRange
   }
@@ -188,24 +181,10 @@ const Asset = gql`
   }
 
   input PurchaseEventFilter {
-    price: Range
+    price: NumberRange
     supplier: [String]
     date: DateRange
     received: DateRange
-  }
-
-  input RegistrationEventFilter {
-    user: [String]
-    date: DateRange
-  }
-
-  input DateRange {
-    min: String,
-    max: String
-  }
-  input Range {
-    min: Float
-    max: Float
   }
 
   input UpdateAssetInput {
@@ -301,4 +280,4 @@ const Asset = gql`
   }
 `;
 
-export default () => [Asset, Document, Location];
+export default () => [Asset, Document, Location, Registration, Range];
