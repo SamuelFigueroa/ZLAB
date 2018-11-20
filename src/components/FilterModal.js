@@ -10,7 +10,7 @@ import Select from './Select';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import FilterPanel from './FilterPanel';
-import FilterOptions from './FilterOptions';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = theme => ({
   root: {
@@ -85,6 +85,17 @@ class FilterModal extends PureComponent {
               min: '',
               max: ''
             };
+            break;
+          }
+          if(kind == 'measurement') {
+            this.state[id] = {
+              min: '',
+              max: ''
+            };
+            this.state[filter.units.id] = {
+              min: filter.units.default,
+              max: filter.units.default
+            };
           } else {
             this.state[id] = {
               min: NaN,
@@ -149,6 +160,17 @@ class FilterModal extends PureComponent {
               min: '',
               max: ''
             };
+            break;
+          }
+          if(kind == 'measurement') {
+            defaultState[id] = {
+              min: '',
+              max: ''
+            };
+            defaultState[filter.units.id] = {
+              min: filter.units.default,
+              max: filter.units.default
+            };
           } else {
             defaultState[id] = {
               min: NaN,
@@ -199,6 +221,10 @@ class FilterModal extends PureComponent {
       const value = event.target.value;
       if(kind == 'date') {
         this.setState({ [name] : {...this.state[name], [extreme]: value }});
+        break;
+      }
+      if(kind == 'measurement') {
+        this.setState({ [name] : {...this.state[name], [extreme]: value }});
       } else {
         this.setState(
           {
@@ -247,6 +273,17 @@ class FilterModal extends PureComponent {
             if(kind == 'date') {
               min && nestedAssign(input, `${id}.min`, min);
               max && nestedAssign(input, `${id}.max`, max);
+              break;
+            }
+            if(kind == 'measurement') {
+              if(!(isNaN(parseFloat(min.replace(/,/g, ''))))) {
+                nestedAssign(input, `${id}.min`, parseFloat(min.replace(/,/g, '')));
+                nestedAssign(input, `${filter.units.id}.min`, this.state[filter.units.id].min);
+              }
+              if(!(isNaN(parseFloat(max.replace(/,/g, ''))))) {
+                nestedAssign(input, `${id}.max`, parseFloat(max.replace(/,/g, '')));
+                nestedAssign(input, `${filter.units.id}.max`, this.state[filter.units.id].max);
+              }
             } else {
               !(isNaN(min) || (min === null)) && nestedAssign(input, `${id}.min`, min);
               !(isNaN(max) || (max === null)) && nestedAssign(input, `${id}.max`, max);
@@ -269,9 +306,9 @@ class FilterModal extends PureComponent {
 
 
   render() {
-    const { classes, open, errors, type } = this.props;
+    const { classes, open, errors, options: FilterOptions } = this.props;
     return(
-      <FilterOptions filter={type}>
+      <FilterOptions>
         {
           options => (
             <Modal
@@ -408,7 +445,83 @@ class FilterModal extends PureComponent {
                                               </ClickAwayListener>
                                             </Grid>
                                           </Fragment>
-                                        ) : null )))))}
+                                        ) : (
+                                          (filter.type == 'range' && filter.kind == 'measurement') ? (
+                                            <Fragment key={filter.id}>
+                                              <Grid item xs={filter.size}>
+                                                <Grid
+                                                  container
+                                                  alignItems="flex-start"
+                                                >
+                                                  <Grid item xs={8}>
+                                                    <TextField
+                                                      name="min"
+                                                      label={filter.label.min}
+                                                      fullWidth
+                                                      margin="none"
+                                                      value={this.state[filter.id].min}
+                                                      onChange={this.handleChange(filter.id, { type: filter.type, kind: filter.kind })}
+                                                      error={Boolean(errors[filter.id])}
+                                                      helperText={errors[filter.id]}
+                                                    />
+                                                  </Grid>
+                                                  <Grid item xs={4}>
+                                                    <TextField
+                                                      name="min"
+                                                      label="Units"
+                                                      fullWidth
+                                                      margin="none"
+                                                      value={this.state[filter.units.id].min}
+                                                      onChange={this.handleChange(filter.units.id, { type: filter.type, kind: filter.kind })}
+                                                      select
+                                                    >
+                                                      {options[filter.units.id].map(u => (
+                                                        <MenuItem key={u} value={u}>
+                                                          {u}
+                                                        </MenuItem>
+                                                      ))}
+                                                    </TextField>
+                                                  </Grid>
+                                                </Grid>
+                                              </Grid>
+                                              <Grid item xs={filter.size}>
+                                                <Grid
+                                                  container
+                                                  alignItems="flex-start"
+                                                >
+                                                  <Grid item xs={8}>
+                                                    <TextField
+                                                      name="max"
+                                                      label={filter.label.max}
+                                                      fullWidth
+                                                      margin="none"
+                                                      value={this.state[filter.id].max}
+                                                      onChange={this.handleChange(filter.id, { type: filter.type, kind: filter.kind })}
+                                                      error={Boolean(errors[filter.id])}
+                                                      helperText={errors[filter.id]}
+                                                    />
+                                                  </Grid>
+                                                  <Grid item xs={4}>
+                                                    <TextField
+                                                      name="max"
+                                                      label="Units"
+                                                      fullWidth
+                                                      margin="none"
+                                                      value={this.state[filter.units.id].max}
+                                                      onChange={this.handleChange(filter.units.id, { type: filter.type, kind: filter.kind })}
+                                                      select
+                                                    >
+                                                      {options[filter.units.id].map(u => (
+                                                        <MenuItem key={u} value={u}>
+                                                          {u}
+                                                        </MenuItem>
+                                                      ))}
+                                                    </TextField>
+                                                  </Grid>
+                                                </Grid>
+                                              </Grid>
+                                            </Fragment>
+                                          ) : null))))))}
                             </Grid>
                           </FilterPanel>
                         ))
@@ -449,6 +562,7 @@ class FilterModal extends PureComponent {
 
 FilterModal.propTypes = {
   classes: PropTypes.object.isRequired,
+  options: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   filterPanels: PropTypes.array.isRequired,
@@ -456,7 +570,6 @@ FilterModal.propTypes = {
   actions: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
-  type: PropTypes.object.isRequired
 };
 
 export default withStyles(styles, { withTheme: true })(FilterModal);

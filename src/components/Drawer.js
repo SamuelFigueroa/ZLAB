@@ -40,7 +40,7 @@ const MainDrawer = (props) => {
       </div>
       <Divider />
       <List component="nav">
-        <ListItem button>
+        <ListItem button component={Link} to="/chemistry">
           <ListItemText primary="Samples & Reagents" />
         </ListItem>
         <ListItem button component={Link} to="/assets">

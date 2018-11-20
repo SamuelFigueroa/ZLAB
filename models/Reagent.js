@@ -2,50 +2,87 @@ import mongoose from 'mongoose';
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const ReagentSchema = new mongoose.Schema({
-  containers: {
-    type: [String],
+  containers: [{
+    barcode: {
+      type: String,
+      required: true
+    },
+    content: {
+      type: ObjectId,
+      required: true
+    },
+    vendor: String,
+    catalog_id: String,
+    institution: String,
+    chemist: String,
+    state: {
+      type: String,
+      required: true,
+      enum: ['L', 'S', 'Soln', 'G', 'Susp']
+    },
+    mass: Number,
+    mass_units: {
+      type: String,
+      enum: ['ug', 'mg', 'g', 'kg']
+    },
+    volume: Number,
+    vol_units: {
+      type: String,
+      enum: ['nL', 'uL', 'mL', 'L']
+    },
+    concentration: Number,
+    conc_units: {
+      type: String,
+      enum: ['nM', 'uM', 'mM', 'M']
+    },
+    solvent: String,
+    location: {
+      area: {
+        type: ObjectId,
+        required: true
+      },
+      sub_area: {
+        type: ObjectId,
+        required: true
+      }
+    },
+    owner: ObjectId,  // Current owner's researcher oid
+    description: String,
+    registration_event: {
+      user: {
+        type: String,
+        required: true
+      },
+      date: {
+        type: Date,
+        'default': Date.now
+      }
+    }
+  }],
+  smiles: String,
+  compound_id: {
+    type: String,
     required: true
   },
-  structure: String,  //SMILES structure
-  reagent_id: String,  //e.g. R012345 (internal ID, Base64 of reagent's oid, will not change upon structure curation) CAS_NO
   name: {
     type: String,
     required: true
   },
-  state: {
-    type: String,
-    required: true,
-    enum: ['L', 'S', 'Soln', 'G', 'Susp']
-  },
-  comment: String,
+  description: String,
   attributes: [String],
-  safety: Document,
+  safety: ObjectId,
   flags: [String],
   storage: String,
   cas: String,
-  // history: [{
-  //   src_container: {
-  //     type: ObjectId,
-  //     required: true
-  //   },
-  //   amount: {
-  //     type: Number,
-  //     required: true
-  //   },
-  //   amount_units: {
-  //     type: String,
-  //     required: true,
-  //     enum: ['mg', 'g', 'kg', 'uL', 'mL', 'L']
-  //   },
-  //   date: {
-  //     type: Date,
-  //     'default': Date.now
-  //   },
-  //   comment: String
-  // }],
-  registration_date: {
-    type: Date,
-    'default': Date.now
+  registration_event: {
+    user: {
+      type: String,
+      required: true
+    },
+    date: {
+      type: Date,
+      'default': Date.now
+    }
   }
 });
 

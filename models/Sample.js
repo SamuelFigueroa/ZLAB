@@ -17,7 +17,7 @@ const SampleSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  comment: String,
+  description: String,
   project: ObjectId,
   collection: ObjectId,
   history: [{
@@ -42,7 +42,7 @@ const SampleSchema = new mongoose.Schema({
       type: Date,
       'default': Date.now
     },
-    comment: String
+    description: String
   }],
   curations: [{
     previous_structure: {
