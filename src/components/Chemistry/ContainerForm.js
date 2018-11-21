@@ -122,12 +122,12 @@ class ContainerForm extends PureComponent {
         institution: this.props.initialState.institution,
         chemist: this.props.initialState.chemist,
         state: this.props.initialState.state,
-        mass: this.props.initialState.mass ? this.props.initialState.mass: '',
+        mass: this.props.initialState.mass ? this.props.initialState.mass.toString(): '',
         mass_units: this.props.initialState.mass_units ? this.props.initialState.mass_units: 'mg',
-        volume: this.props.initialState.volume ? this.props.initialState.volume: '',
-        vol_units: this.props.initialState.mass_units ? this.props.initialState.mass_units: 'mL',
-        concentration: this.props.initialState.concentration ? this.props.initialState.concentration: '',
-        conc_units: this.props.initialState.conc_units ? this.props.initialState.conc_units: 'mL',
+        volume: this.props.initialState.volume ? this.props.initialState.volume.toString(): '',
+        vol_units: this.props.initialState.vol_units ? this.props.initialState.vol_units: 'mL',
+        concentration: this.props.initialState.concentration ? this.props.initialState.concentration.toString(): '',
+        conc_units: this.props.initialState.conc_units ? this.props.initialState.conc_units: 'mM',
         solvent: this.props.initialState.solvent,
         owner: this.props.initialState.owner,
         location_area: this.props.initialState.location.area.id,
@@ -195,7 +195,9 @@ class ContainerForm extends PureComponent {
       mass, mass_units, volume, vol_units, concentration, conc_units, solvent,
       owner, location_area: area, location_sub_area: sub_area, description } = this.state;
 
-    let container = { reagentID, state, owner, location: { area, sub_area }, description, solvent: '' };
+    let container = {
+      reagentID, state, owner, location: { area, sub_area }, description,
+      mass: null, mass_units: null, volume: null, vol_units: null, concentration: null, conc_units: null, solvent: '' };
 
     if (state == 'S') {
       container.mass = parseFloat(mass.replace(/,/g, ''));

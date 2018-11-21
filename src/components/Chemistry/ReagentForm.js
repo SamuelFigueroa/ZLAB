@@ -151,7 +151,9 @@ class ReagentForm extends Component {
         mass, mass_units, volume, vol_units, concentration, conc_units, solvent,
         owner, location_area: area, location_sub_area: sub_area, container_description } = this.state;
 
-      let container = { state, owner, location: { area, sub_area }, registration_event, description: container_description, solvent: '' };
+      let container = {
+        state, owner, location: { area, sub_area }, registration_event, description: container_description,
+        mass: null, mass_units: null, volume: null, vol_units: null, concentration: null, conc_units: null, solvent: '' };
 
       if (state == 'S') {
         container.mass = parseFloat(mass.replace(/,/g, ''));
