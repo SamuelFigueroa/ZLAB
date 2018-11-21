@@ -171,7 +171,7 @@ const Reagent = gql`
 
     #Update Mutations
     addReagentContainer(input: AddReagentContainerInput!) : Boolean
-    updateReagent(input: UpdateReagentInput!) : Boolean
+    updateReagent(input: UpdateReagentInput!) : ID
     updateReagentContainer(input: UpdateReagentContainerInput!) : Boolean
 
     #Delete Mutations

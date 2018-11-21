@@ -488,7 +488,11 @@ const resolvers = {
     },
     updateReagent: async (root, args) => {
       const input = args.input;
-      const { errors: inputErrors, isValid } = validateAddReagentInput(input);
+      const { id, molblock, ...update } = input;
+
+      update.smiles = rdkit.molBlockToSmiles(molblock);
+
+      const { errors: inputErrors, isValid } = validateAddReagentInput(update);
       const errors = { errors: inputErrors };
 
       // Check validation
@@ -497,13 +501,11 @@ const resolvers = {
       }
 
       try {
-        const { id, molblock, ...update } = input;
-        update.smiles = rdkit.molBlockToSmiles(molblock);
         await Reagent.findByIdAndUpdate(mongoose.Types.ObjectId(id), update);
       } catch(err) {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
-      return null;
+      return id;
     },
     deleteReagent: async (root, args) => {
       let reagent;

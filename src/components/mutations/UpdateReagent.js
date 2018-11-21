@@ -22,7 +22,7 @@ class UpdateReagent extends Component {
           <Mutation
             mutation={UPDATE_REAGENT}
             awaitRefetchQueries={true}
-            onCompleted={ () => this.props.history.goBack() }
+            onCompleted={ ({ updateReagent:id }) => window.location.href = `/chemistry/reagents/${id}` }
             onError={ errorObj => handleError(errorObj) }
           >
             { updateReagent => {
