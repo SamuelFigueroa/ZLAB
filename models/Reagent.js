@@ -21,20 +21,11 @@ const ReagentSchema = new mongoose.Schema({
       enum: ['L', 'S', 'Soln', 'G', 'Susp']
     },
     mass: Number,
-    mass_units: {
-      type: String,
-      enum: ['ug', 'mg', 'g', 'kg']
-    },
+    mass_units: String,
     volume: Number,
-    vol_units: {
-      type: String,
-      enum: ['nL', 'uL', 'mL', 'L']
-    },
+    vol_units: String,
     concentration: Number,
-    conc_units: {
-      type: String,
-      enum: ['nM', 'uM', 'mM', 'M']
-    },
+    conc_units: String,
     solvent: String,
     location: {
       area: {

@@ -79,8 +79,8 @@ class ReagentForm extends Component {
         molblock: this.props.initialState.molblock,
         cas: this.props.initialState.cas,
         description: this.props.initialState.description,
-        attributes: this.props.initialState.attributes.map(a => ( {label: a, value: a } )),
-        flags: this.props.initialState.flags.map(f => ( {label: f, value: f } )),
+        attributes: this.props.initialState.attributes,
+        flags: this.props.initialState.flags,
         storage: this.props.initialState.storage,
 
         new_attribute: '',
@@ -140,9 +140,7 @@ class ReagentForm extends Component {
     const { name, molblock, cas, description, attributes, flags, storage } = this.state;
 
     let input = {
-      name, molblock, cas, description, storage,
-      attributes: attributes.map(a => a.value),
-      flags: flags.map(f => f.value)
+      name, molblock, cas, description, storage, attributes, flags
     };
     if (this.props.initialState)
       input.id = this.props.initialState.id;
@@ -191,14 +189,24 @@ class ReagentForm extends Component {
     return this.props.history.goBack();
   }
 
-  addOption = (field, optionArray, newOption) => () => {
-    const option = this.state[newOption].trim();
-    if (option.length)
-      return this.setState({
-        [field]: Array.from(new Set(this.state[field].concat({ label: option, value: option }))),
-        [optionArray]: Array.from(new Set(this.state[optionArray].concat(option))),
-        [newOption]: ''
-      });
+  addOption = ({ fields, hints }) => () => {
+    const { option, options, added_options } = fields;
+    const newOption = this.state[option].trim();
+    if (newOption.length) {
+      if(hints.concat(this.state[added_options]).indexOf(newOption) == -1) {
+        return this.setState({
+          [options]: this.state[options].concat(newOption),
+          [added_options]: this.state[added_options].concat(newOption),
+          [option]: ''
+        });
+      } else {
+        return this.setState({
+          [options]: Array.from(new Set(this.state[options].concat(newOption))),
+          [option]: ''
+        });
+      }
+    }
+
   }
 
   render() {
@@ -278,8 +286,8 @@ class ReagentForm extends Component {
                                           className={classes.textField}
                                           options={reagentHints.attributes.concat(this.state.added_attributes).map(a => ({ label: a, value: a }))}
                                           label="Chemical Attributes"
-                                          value={this.state.attributes}
-                                          onChange={e=>this.handleChange({ target: {name: 'attributes', value: e}})}
+                                          value={this.state.attributes.map(a => ({ label: a, value: a }))}
+                                          onChange={e=>this.handleChange({ target: {name: 'attributes', value: e.map(({value})=>value)}})}
                                           isMulti={true}
                                         />
                                       </Grid>
@@ -301,7 +309,10 @@ class ReagentForm extends Component {
                                           </Grid>
                                           <Grid item xs={2}>
                                             <Button
-                                              onClick={this.addOption('attributes','added_attributes', 'new_attribute')}
+                                              onClick={this.addOption({
+                                                fields: { options: 'attributes', added_options: 'added_attributes', option: 'new_attribute'},
+                                                hints: reagentHints.attributes,
+                                              })}
                                               variant="contained" mini color="primary"
                                               aria-label="Add attribute"
                                               disabled={!this.state.new_attribute.trim().length}
@@ -317,8 +328,8 @@ class ReagentForm extends Component {
                                           className={classes.textField}
                                           options={reagentHints.flags.concat(this.state.added_flags).map(f => ({ label: f, value: f }))}
                                           label="Safety Flags"
-                                          value={this.state.flags}
-                                          onChange={e=>this.handleChange({ target: {name: 'flags', value: e}})}
+                                          value={this.state.flags.map(f => ({ label: f, value: f }))}
+                                          onChange={e=>this.handleChange({ target: {name: 'flags', value: e.map(({value})=>value)}})}
                                           isMulti={true}
                                         />
                                       </Grid>
@@ -340,7 +351,10 @@ class ReagentForm extends Component {
                                           </Grid>
                                           <Grid item xs={2}>
                                             <Button
-                                              onClick={this.addOption('flags','added_flags', 'new_flag')}
+                                              onClick={this.addOption({
+                                                fields: { options: 'flags', added_options: 'added_flags', option: 'new_flag'},
+                                                hints: reagentHints.flags,
+                                              })}
                                               variant="contained" mini color="primary"
                                               aria-label="Add flag"
                                               disabled={!this.state.new_flag.trim().length}
