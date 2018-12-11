@@ -4,6 +4,12 @@ import Counter from '../../models/Counter';
 import validateCounterInput from '../../validation/counter';
 
 const resolvers = {
+  Query: {
+    counters: async () => {
+      let counters = await Counter.find();
+      return counters;
+    }
+  },
   Mutation: {
     addCounter: async (root, args) => {
       const input = args.input;
@@ -31,12 +37,30 @@ const resolvers = {
         const newCounter = new Counter({
           name: input.name,
           prefix: input.prefix,
+          numDigits: input.numDigits
         });
 
         await newCounter.save();
         return null;
       }
     },
+    updateCounter: async (root, args) => {
+      const { name, numDigits } = args;
+      try {
+        await Counter.update({ name }, { numDigits });
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
+      }
+      return null;
+    },
+    deleteCounter: async (root, args) => {
+      try {
+        await Counter.findByIdAndDelete(args.id);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION');
+      }
+      return null;
+    }
   }
 };
 

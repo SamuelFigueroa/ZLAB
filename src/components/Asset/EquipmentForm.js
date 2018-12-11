@@ -461,7 +461,7 @@ class EquipmentForm extends Component {
                                       select
                                       margin="normal"
                                       value={this.state.location.area}
-                                      onChange={this.handleChange}
+                                      onChange={e => this.setState({ location: { area: e.target.value, sub_area: '' }})}
                                       error={Boolean(errors.location_area)}
                                       helperText={errors.location_area}
                                     >

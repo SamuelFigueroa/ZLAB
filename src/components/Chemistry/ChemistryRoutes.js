@@ -2,25 +2,20 @@ import React, { Fragment } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import queryString from 'query-string';
 import PropTypes from 'prop-types';
+
 import Chemistry from './Chemistry';
 import ChemistryTabs from './ChemistryTabs';
-import ReagentForm from './ReagentForm';
-// import SampleForm from './SampleForm';
-import ReagentInfo from './ReagentInfo';
-// import SampleInfo from './SampleInfo';
-import GetReagent from '../queries/GetReagent';
-import GetCompounds from '../queries/GetReagents';
+import CompoundForm from './CompoundForm';
+import CompoundInfo from './CompoundInfo';
+import GetCompound from '../queries/GetCompound';
+import GetCompounds from '../queries/GetCompounds';
 import ChemistrySearch from './ChemistrySearch';
-
-const chemistryForms = {
-  reagents: ReagentForm,
-  // samples: SampleForm,
-};
-
-const chemistryInfo ={
-  reagents: ReagentInfo,
-  // samples: SampleInfo,
-};
+import ExactStructureSearch from './ExactStructureSearch';
+import ContainerForm from './ContainerForm';
+import ContainerInfo from './ContainerInfo';
+import GetContainer from '../queries/GetContainer';
+import GetContainers from '../queries/GetContainers';
+import CurationForm from './CurationForm';
 
 const ChemistryRoutes = (props) => {
   const {user, isAuthenticated} = props.auth;
@@ -30,37 +25,70 @@ const ChemistryRoutes = (props) => {
       <Switch>
         <Route exact path="/chemistry/all" render={({ location })=><ChemistryTabs category={location.hash.slice(1)}/>}/>
         <Route exact path="/chemistry/search" render={({ location })=>(
-          <GetCompounds>
+          <GetContainers>
             {
-              (getCompounds, errors, clearErrors) =>
-                <ChemistrySearch
-                  data={{
-                    query: getCompounds,
-                    errors,
-                    clearErrors
-                  }}
-                  search={queryString.parse(location.search).q}
-                />
-            }
-          </GetCompounds>
+              (getContainers, containerErrors, clearContainerErrors) => (
+                <GetCompounds>
+                  {
+                    (getCompounds, compoundErrors, clearCompoundErrors) =>
+                      <ChemistrySearch
+                        data={{
+                          query: {
+                            containers: getContainers,
+                            compounds: getCompounds
+                          },
+                          errors: {
+                            containers: containerErrors,
+                            compounds: compoundErrors
+                          },
+                          clearErrors: {
+                            containers: clearContainerErrors,
+                            compounds: clearCompoundErrors
+                          }
+                        }}
+                        search={queryString.parse(location.search).q}
+                      />
+                  }
+                </GetCompounds>
+              )}
+          </GetContainers>
         )} />
-        <Route exact path="/chemistry/:category/new" render={
-          ({ match }) => {
-            let ChemistryForm = chemistryForms[match.params.category];
-            return <ChemistryForm user={user} />;
-          }} />
-        <Route exact path="/chemistry/:category/:id" render={
+        <Route exact path="/chemistry/compounds/register" render={()=><ExactStructureSearch />} />
+        <Route exact path="/chemistry/compounds/new" render={({ location }) => {
+          const cas = queryString.parse(location.search).cas !== undefined ? queryString.parse(location.search).cas : '';
+          return queryString.parse(location.search).smiles !== undefined ?
+            <CompoundForm user={user} cas={cas} structure={queryString.parse(location.search).smiles}/> :
+            <CompoundForm user={user} cas={cas} />;
+        }} />
+        <Route exact path="/chemistry/compounds/:id" render={
           ({ match, location }) => {
-            let ChemistryInfo = chemistryInfo[match.params.category];
-            return <ChemistryInfo user={user} isAuthenticated={isAuthenticated} id={match.params.id} section={location.hash.slice(1)}/>;
+            return <CompoundInfo user={user} isAuthenticated={isAuthenticated} id={match.params.id} section={location.hash.slice(1)}/>;
           }} />
-        <Route exact path="/chemistry/:category/:id/update" render={({ match }) => (
-          <GetReagent id={match.params.id}>
-            { reagent => {
-              let ChemistryForm = chemistryForms[match.params.category];
-              return <ChemistryForm user={user} initialState={reagent}/>;
+        <Route exact path="/chemistry/compounds/:id/update" render={({ match }) => (
+          <GetCompound id={match.params.id}>
+            { compound => {
+              return <CompoundForm user={user} initialState={compound}/>;
             }}
-          </GetReagent>
+          </GetCompound>
+        )}/>
+        <Route exact path="/chemistry/containers/register" render={()=><ExactStructureSearch />} />
+        <Route exact path="/chemistry/containers/:id" render={
+          ({ match, location }) => {
+            return <ContainerInfo isAuthenticated={isAuthenticated} id={match.params.id} section={location.hash.slice(1)}/>;
+          }} />
+        <Route exact path="/chemistry/containers/:id/update" render={({ match }) => (
+          <GetContainer id={match.params.id}>
+            { container => {
+              return <ContainerForm user={user} initialState={container}/>;
+            }}
+          </GetContainer>
+        )}/>
+        <Route exact path="/chemistry/containers/:id/curateStructure" render={({ match }) => (
+          <GetContainer id={match.params.id}>
+            { container => {
+              return <CurationForm author={user.login} batchID={container.batch_id} structure={container.content.molblock} />;
+            }}
+          </GetContainer>
         )}/>
       </Switch>
     </Fragment>

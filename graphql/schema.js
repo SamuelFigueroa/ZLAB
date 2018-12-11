@@ -5,9 +5,13 @@ import Counter from './typeDefs/counter';
 import Printer from './typeDefs/printer';
 import User from './typeDefs/user';
 import Reagent from './typeDefs/reagent';
+import Compound from './typeDefs/compound';
+import Container from './typeDefs/container';
 
 import assetResolvers from './resolvers/asset';
 import reagentResolvers from './resolvers/reagent';
+import compoundResolvers from './resolvers/compound';
+import containerResolvers from './resolvers/container';
 import counterResolvers from './resolvers/counter';
 import documentResolvers from './resolvers/document';
 import locationResolvers from './resolvers/location';
@@ -41,5 +45,5 @@ const Schema = gql`
 `;
 
 export const
-  typeDefs = () => [Schema, Asset, Reagent, Counter, Printer, User],
-  resolvers = [assetResolvers, reagentResolvers, counterResolvers, documentResolvers, locationResolvers, printerResolvers, userResolvers];
+  typeDefs = () => [Schema, Asset, Reagent, Compound, Container, Counter, Printer, User],
+  resolvers = [assetResolvers, reagentResolvers, compoundResolvers, containerResolvers, counterResolvers, documentResolvers, locationResolvers, printerResolvers, userResolvers];

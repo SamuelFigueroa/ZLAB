@@ -56,8 +56,6 @@ const styles = theme => ({
     zIndex: 20,
     left: 0,
     right: 0,
-    overflow: 'auto',
-    maxHeight: 200,
   },
   divider: {
     height: theme.spacing.unit * 2,
@@ -248,6 +246,7 @@ class IntegrationReactSelect extends Component {
             backspaceRemovesValue={false}
             hideSelectedOptions={false}
             closeMenuOnSelect={!isMulti}
+            maxMenuHeight={200}
           />
         </NoSsr>
       </div>

@@ -13,6 +13,10 @@ const CounterSchema = new mongoose.Schema({
     type: Number,
     'default': 0
   },
+  numDigits: {
+    type: Number,
+    required: true
+  }
 });
 
 CounterSchema.statics.getNextSequenceValue = async function(name) {
@@ -20,7 +24,7 @@ CounterSchema.statics.getNextSequenceValue = async function(name) {
     { $inc : { value : 1 } },
     { new : true });
 
-  return document.prefix + document.value.toString().padStart(6, '0');
+  return document.prefix + document.value.toString().padStart(document.numDigits, '0');
 };
 
 const Counter = mongoose.model('counters', CounterSchema);

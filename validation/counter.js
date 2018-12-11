@@ -6,6 +6,7 @@ export default data => {
 
   data.name = !isEmpty(data.name) ? data.name : '';
   data.prefix = !isEmpty(data.prefix) ? data.prefix : '';
+  data.numDigits = !isEmpty(data.numDigits) ? data.numDigits : 6;
 
   if(!Validator.isLength(data.name, { min: 2, max: 20 })) {
     errors.name = 'Name must be between 2 and 20 characters';
@@ -21,6 +22,10 @@ export default data => {
 
   if(Validator.isEmpty(data.prefix)) {
     errors.prefix = 'Prefix field is required';
+  }
+
+  if(isNaN(data.numDigits) || data.numDigits > 12 || data.numDigits < 2) {
+    errors.numDigits = 'Number of digits must be between an integer between 2 and 12';
   }
 
   return {

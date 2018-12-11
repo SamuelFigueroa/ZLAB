@@ -142,6 +142,12 @@ const styles = theme => ({
   },
   chip: {
     margin: theme.spacing.unit
+  },
+  cell: {
+    // maxWidth: theme.spacing.unit * 1,
+    // maxHeight: theme.spacing.unit * 6,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap'
   }
 });
 
@@ -320,6 +326,7 @@ class EnhancedTable extends PureComponent {
                     >
                       {cols.map(col => (
                         <TableCell
+                          className={classes.cell}
                           padding="dense"
                           component={col.id == 'name' ? 'th' : 'td'}
                           scope={col.id == 'name' ? 'row' : 'col'}

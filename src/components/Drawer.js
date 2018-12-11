@@ -41,7 +41,7 @@ const MainDrawer = (props) => {
       <Divider />
       <List component="nav">
         <ListItem button component={Link} to="/chemistry">
-          <ListItemText primary="Samples & Reagents" />
+          <ListItemText primary="Reagents & Samples" />
         </ListItem>
         <ListItem button component={Link} to="/assets">
           <ListItemText primary="Equipment & Supplies" />

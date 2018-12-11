@@ -165,6 +165,7 @@ const Reagent = gql`
   # Mutations
   extend type Mutation {
     exportReagentData(input: ExportReagentDataInput!) : String
+    registerReagents : Boolean
 
     #Create Mutations
     addReagent(input: AddReagentInput!) : ID

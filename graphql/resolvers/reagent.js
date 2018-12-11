@@ -9,6 +9,8 @@ import Reagent from '../../models/Reagent';
 import Counter from '../../models/Counter';
 import Document from '../../models/Document';
 import Location from '../../models/Location';
+import Compound from '../../models/Compound';
+import Container from '../../models/Container';
 
 import validateReagentFilter from '../../validation/reagent_filter';
 import validateAddReagentInput from '../../validation/reagent';
@@ -458,6 +460,57 @@ const resolvers = {
     },
   },
   Mutation: {
+    registerReagents: async () => {
+      let reagents = await Reagent.find();
+      for (const reagent of reagents) {
+        let compound_id = await Counter.getNextSequenceValue('Compound');
+        let newCompound = new Compound({
+          smiles: reagent.smiles.trim(),
+          compound_id,
+          name: reagent.name,
+          description: reagent.description,
+          attributes: reagent.attributes.map(attr => attr.toLowerCase()),
+          flags: reagent.flags.map(flag => flag.toLowerCase()),
+          storage: reagent.storage,
+          cas: reagent.cas.trim(),
+          registration_event: reagent.registration_event
+        });
+        await newCompound.save();
+        for (const container of reagent.containers) {
+          let batch_id = await Compound.getNextBatchId(compound_id);
+          let newContainer = new Container({
+            category: 'Reagent',
+            barcode: container.barcode,
+            content: newCompound.id,
+            batch_id,
+            vendor: container.vendor,
+            catalog_id: container.catalog_id,
+            institution: container.institution,
+            researcher: container.chemist,
+            eln_id: '',
+            state: container.state,
+            mass: container.mass,
+            mass_units: container.mass_units,
+            volume: container.volume,
+            vol_units: container.vol_units,
+            concentration: container.concentration,
+            conc_units: container.conc_units,
+            solvent: container.solvent,
+            location: {
+              area: container.location.area,
+              sub_area: container.location.sub_area
+            },
+            owner: container.owner,  // Current owner's researcher oid
+            description: container.description,
+            registration_event: container.registration_event
+          });
+          newCompound.containers.push(newContainer.id);
+          await newContainer.save();
+        }
+        await newCompound.save();
+      }
+      return null;
+    },
     addReagent: async (root, args) => {
       const input = args.input;
       const { container, molblock, ...reagent } = input;

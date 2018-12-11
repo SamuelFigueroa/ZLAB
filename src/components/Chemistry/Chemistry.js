@@ -116,8 +116,8 @@ class Chemistry extends Component {
               spacing={40}
             >
               <Grid item>
-                <Tooltip title="Add New Reagent" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="Add reagent" component={Link} to="/chemistry/reagents/new" className={classes.actionButton}>
+                <Tooltip title="Register Reagent/Sample" classes={{ tooltip: classes.tooltip }}>
+                  <Button variant="fab" color="default" aria-label="Register reagent or sample" component={Link} to="/chemistry/compounds/register" className={classes.actionButton}>
                     <AddIcon fontSize="large"/>
                   </Button>
                 </Tooltip>

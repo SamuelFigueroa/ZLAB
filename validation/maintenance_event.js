@@ -17,8 +17,8 @@ export default data => {
     errors.agent = 'Service agent is required';
   }
 
-  if(!Validator.isLength(data.description, { max: 60 })) {
-    errors.description = 'Description should be less than 60 characters';
+  if(!Validator.isLength(data.description, { max: 1000 })) {
+    errors.description = 'Description should be less than 1000 characters';
   }
 
   if(Validator.isEmpty(data.description)) {

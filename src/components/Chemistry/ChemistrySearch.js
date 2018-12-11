@@ -10,9 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 
 import Table from '../Table';
-import ReagentFilterOptions from './ReagentFilterOptions';
-import GetReagents from '../queries/GetReagents';
-import ExportReagentData from '../mutations/ExportReagentData';
+import CompoundFilterOptions from './CompoundFilterOptions';
+import GetCompounds from '../queries/GetCompounds';
+import GetContainers from '../queries/GetContainers';
+import ExportCompoundData from '../mutations/ExportCompoundData';
+import ExportContainerData from '../mutations/ExportContainerData';
 
 const styles = (theme) => ({
   addButton: {
@@ -30,24 +32,23 @@ const styles = (theme) => ({
 
 const tables = [
   {
-    id: 'reagents',
-    label: 'Reagents',
+    id: 'containers',
+    label: 'Containers',
     component: null,
-    tooltip: 'Add Reagent',
+    tooltip: 'Add Container',
     cols: [
       { id: 'molblock', numeric: false, label: 'Structure', exclude: true },
-      { id: 'smiles', numeric: false, label: 'SMILES' },
-      { id: 'compound_id', numeric: false, label: 'Compound ID' },
-      { id: 'name', numeric: false, label: 'Name' },
-      { id: 'cas', numeric: false, label: 'CAS No.' },
-      // { id: 'attributes', numeric: false, label: 'Attributes' },
-      // { id: 'flags', numeric: false, label: 'Flags' },
-      { id: 'storage', numeric: false, label: 'Storage' },
+      { id: 'barcode', numeric: false, label: 'Barcode' },
+      { id: 'batch_id', numeric: false, label: 'Batch ID' },
+      { id: 'source', numeric: false, label: 'Source' },
+      { id: 'source_id', numeric: false, label: 'Source ID' },
+      { id: 'amount', numeric: false, label: 'Amount' },
+      { id: 'location', numeric: false, label: 'Location' },
     ],
     filters: [
       {
-        id:'profile',
-        label: 'Profile',
+        id:'compound',
+        label: 'Compound',
         filters: [
           { id: 'attributes', label: 'Attributes', type: 'multi', size: 4 },
           { id: 'flags', label: 'Flags', type: 'multi', size: 4 },
@@ -56,136 +57,245 @@ const tables = [
           { id: 'registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },
         ]
       },{
-        id: 'containers',
-        label: 'Containers',
+        id: 'container',
+        label: 'Container',
         filters: [
-          { id: 'containers.vendor', label: 'Vendor', type: 'multi', size: 3 },
-          { id: 'containers.institution', label: 'Institution', type: 'multi', size: 3 },
-          { id: 'containers.chemist', label: 'Chemist', type: 'multi', size: 3 },
-          { id: 'containers.state', label: 'State', type: 'multi', size: 3 },
-          { id: 'containers.mass', label:{ min: 'Min. Mass', max: 'Max. Mass' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'containers.mass_units', default: 'mg'} },
-          { id: 'containers.volume', label:{ min: 'Min. Vol', max: 'Max. Vol' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'containers.vol_units', default: 'mL'} },
-          { id: 'containers.concentration', label:{ min: 'Min. Conc', max: 'Max. Conc' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'containers.conc_units', default: 'mM'} },
-          { id: 'containers.solvent', label: 'Solvent', type: 'multi', size: 3 },
-          { id: 'containers.location', label: 'Location', type: 'multi', size: 3 },
-          { id: 'containers.owner', label: 'Owner', type: 'multi', size: 3 },
-          { id: 'containers.registration_event.user', label: 'Registered By', type: 'multi', size: 3 },
-          { id: 'containers.registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },
+          { id: 'container.category', label: 'Category', type: 'single', size: 4 },
+          { id: 'container.vendor', label: 'Vendor', type: 'multi', size: 4 },
+          { id: 'container.institution', label: 'Institution', type: 'multi', size: 4 },
+          { id: 'container.researcher', label: 'Researcher', type: 'multi', size: 4 },
+          { id: 'container.location', label: 'Location', type: 'multi', size: 4 },
+          { id: 'container.registration_event.user', label: 'Registered By', type: 'multi', size: 4 },
+          { id: 'container.registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },
+          { id: 'container.mass', label:{ min: 'Min. Mass', max: 'Max. Mass' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'container.mass_units', default: 'mg'} },
+          { id: 'container.volume', label:{ min: 'Min. Vol', max: 'Max. Vol' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'container.vol_units', default: 'mL'} },
+          { id: 'container.concentration', label:{ min: 'Min. Conc', max: 'Max. Conc' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'container.conc_units', default: 'mM'} },
+          { id: 'container.solvent', label: 'Solvent', type: 'multi', size: 4 },
+          { id: 'container.state', label: 'State', type: 'multi', size: 4 },
+          { id: 'container.owner', label: 'Owner', type: 'multi', size: 4 },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'compounds',
+    label: 'Compounds',
+    component: null,
+    tooltip: 'Add Compound',
+    cols: [
+      { id: 'molblock', numeric: false, label: 'Structure', exclude: true },
+      { id: 'compound_id', numeric: false, label: 'Compound ID' },
+      { id: 'name', numeric: false, label: 'Name' },
+      { id: 'cas', numeric: false, label: 'CAS No.' },
+      { id: 'storage', numeric: false, label: 'Storage' },
+      { id: 'smiles', numeric: false, label: 'SMILES' },
+    ],
+    filters: [
+      {
+        id:'compound',
+        label: 'Compound',
+        filters: [
+          { id: 'attributes', label: 'Attributes', type: 'multi', size: 4 },
+          { id: 'flags', label: 'Flags', type: 'multi', size: 4 },
+          { id: 'storage', label: 'Storage', type: 'multi', size: 4 },
+          { id: 'registration_event.user', label: 'Registered By', type: 'multi', size: 4 },
+          { id: 'registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },
+        ]
+      },{
+        id: 'container',
+        label: 'Container',
+        filters: [
+          { id: 'container.category', label: 'Category', type: 'single', size: 4 },
+          { id: 'container.vendor', label: 'Vendor', type: 'multi', size: 4 },
+          { id: 'container.institution', label: 'Institution', type: 'multi', size: 4 },
+          { id: 'container.researcher', label: 'Researcher', type: 'multi', size: 4 },
+          { id: 'container.location', label: 'Location', type: 'multi', size: 4 },
+          { id: 'container.registration_event.user', label: 'Registered By', type: 'multi', size: 4 },
+          { id: 'container.registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },
+          { id: 'container.mass', label:{ min: 'Min. Mass', max: 'Max. Mass' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'container.mass_units', default: 'mg'} },
+          { id: 'container.volume', label:{ min: 'Min. Vol', max: 'Max. Vol' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'container.vol_units', default: 'mL'} },
+          { id: 'container.concentration', label:{ min: 'Min. Conc', max: 'Max. Conc' }, type: 'range', kind: 'measurement', size: 3, units: { id: 'container.conc_units', default: 'mM'} },
+          { id: 'container.solvent', label: 'Solvent', type: 'multi', size: 4 },
+          { id: 'container.state', label: 'State', type: 'multi', size: 4 },
+          { id: 'container.owner', label: 'Owner', type: 'multi', size: 4 },
         ]
       }
     ]
   }
 ];
 
-const filterOptions = {
-  reagents: ReagentFilterOptions
-};
-
-const getItems = {
-  reagents: GetReagents
-};
-
-const exportData = {
-  reagents: [ExportReagentData, 'exportReagentData']
-};
-
 class ChemistrySearch extends Component {
   constructor(props) {
     super(props);
     this.state = {
       results: {
-        reagents: null,
+        containers: null,
+        compounds: null
       },
-      queryExecuted: false
+      queriesExecuted: false
     };
     this.linkToChemistryInfo = this.linkToChemistryInfo.bind(this);
   }
 
   async componentDidMount() {
-    let reagents = await this.props.data.query(null, this.props.search);
-    let state = { queryExecuted: true };
-    if (reagents) {
-      state.results = { ...this.state.results, reagents };
-    }
-    return this.setState(state);
+    let containers = await this.props.data.query.containers(null, this.props.search);
+    let compounds = await this.props.data.query.compounds(null, this.props.search);
+
+    return this.setState({
+      queriesExecuted: true,
+      results: {
+        containers: containers && containers.length ? containers : this.state.results.containers,
+        compounds: compounds && compounds.length ? compounds : this.state.results.compounds,
+      }
+    });
   }
 
   linkToChemistryInfo = (category) => (id) => () => this.props.history.push(`/chemistry/${category}/${id}#profile`);
 
   render() {
     const { classes } = this.props;
-    const { queryExecuted } = this.state;
+    const { queriesExecuted } = this.state;
 
-    queryExecuted &&
-    tables.forEach( table => {
-      if (this.state.results[table.id]) {
-        const GetItems = getItems[table.id];
-        const FilterOptions = filterOptions[table.id];
-        const ExportData = exportData[table.id][0];
-        table.component = (
-          <GetItems>
-            { (getItems, errors, clearErrors) => (
-              <Fragment>
-                <Tooltip title={table.tooltip}>
-                  <Button
-                    className={classes.addButton}
-                    variant="fab"
-                    color="primary"
-                    aria-label="Add"
-                    component={Link}
-                    to={`/chemistry/${table.id}/new`}>
-                    <AddIcon />
-                  </Button>
-                </Tooltip>
-                <ExportData>
-                  {
-                    (mutate, exportErrors, clearExportErrors) =>
-                      <Table
-                        cols={table.cols}
-                        data={{
-                          query: {
-                            execute: async filter => {
-                              if(Object.keys(filter).length == 1)
-                                return this.state.results[table.id];
-                              let data = await getItems(filter, this.props.search);
-                              return data;
-                            },
+    if (queriesExecuted) {
+      tables[0].component = (
+        <GetContainers>
+          { (getContainers, errors, clearErrors) => (
+            <Fragment>
+              <Tooltip title={tables[0].tooltip}>
+                <Button
+                  className={classes.addButton}
+                  variant="fab"
+                  color="primary"
+                  aria-label="Add"
+                  component={Link}
+                  to={`/chemistry/${tables[0].id}/register`}>
+                  <AddIcon />
+                </Button>
+              </Tooltip>
+              <ExportContainerData>
+                {
+                  (mutate, exportErrors, clearExportErrors) =>
+                    <Table
+                      cols={tables[0].cols}
+                      data={{
+                        query: {
+                          execute: async filter => {
+                            let data;
+                            if(Object.keys(filter).length == 0)
+                              data = this.state.results[tables[0].id];
+                            else {
+                              data = await getContainers(filter, this.props.search);
+                            }
+                            if (data && data.length) {
+                              const formatted_containers = data.map(container => ({
+                                ...container,
+                                location: (container.location.area.name == 'UNASSIGNED') ?
+                                  'UNASSIGNED' : `${container.location.area.name} / ${container.location.sub_area.name}`,
+                                source: container.vendor ? container.vendor : container.institution,
+                                source_id: container.vendor ? container.catalog_id : (
+                                  container.category == 'Sample' ?  `${container.researcher} / ${container.eln_id}` :
+                                    container.researcher
+                                ),
+                                amount: container.state == 'S' ? `${container.mass} ${container.mass_units}` : (
+                                  container.state == 'L' ? `${container.volume} ${container.vol_units}` :
+                                    `${container.volume} ${container.vol_units} / ${container.concentration} ${container.conc_units}`
+                                )
+                              }));
+                              return formatted_containers;
+                            }
+                            return data;
                           },
-                          errors: errors[table.id] !== undefined ? errors[table.id] : errors,
-                          clearErrors,
-                        }}
-                        defaultFilter={{}}
-                        filterOptions={FilterOptions}
-                        filters={table.filters}
-                        title={table.label}
-                        onRowClick={this.linkToChemistryInfo(table.id)}
-                        exportData={{
-                          mutate: async input => {
-                            input.search2 = input.search;
-                            input.search = this.props.search;
-                            let response = await mutate(input);
-                            let fileURL = response !== undefined ? response.data[exportData[table.id][1]] : null;
-                            return fileURL;
+                        },
+                        errors: errors[tables[0].id] !== undefined ? errors[tables[0].id] : errors,
+                        clearErrors,
+                      }}
+                      defaultFilter={{}}
+                      filterOptions={CompoundFilterOptions}
+                      filters={tables[0].filters}
+                      title={tables[0].label}
+                      onRowClick={this.linkToChemistryInfo(tables[0].id)}
+                      exportData={{
+                        mutate: async input => {
+                          input.search2 = input.search;
+                          input.search = this.props.search;
+                          let response = await mutate(input);
+                          let fileURL = response !== undefined ? response.data.exportContainerData : null;
+                          return fileURL;
+                        },
+                        errors:exportErrors,
+                        clearErrors:clearExportErrors
+                      }}
+                    />
+                }
+              </ExportContainerData>
+            </Fragment>
+          )}
+        </GetContainers>
+      );
+      tables[1].component = (
+        <GetCompounds>
+          { (getCompounds, errors, clearErrors) => (
+            <Fragment>
+              <Tooltip title={tables[1].tooltip}>
+                <Button
+                  className={classes.addButton}
+                  variant="fab"
+                  color="primary"
+                  aria-label="Add"
+                  component={Link}
+                  to={`/chemistry/${tables[1].id}/register`}>
+                  <AddIcon />
+                </Button>
+              </Tooltip>
+              <ExportCompoundData>
+                {
+                  (mutate, exportErrors, clearExportErrors) =>
+                    <Table
+                      cols={tables[1].cols}
+                      data={{
+                        query: {
+                          execute: async filter => {
+                            if(Object.keys(filter).length == 0)
+                              return this.state.results[tables[1].id];
+                            let data = await getCompounds(filter, this.props.search);
+                            return data;
                           },
-                          errors:exportErrors,
-                          clearErrors:clearExportErrors
-                        }}
-                      />
-                  }
-                </ExportData>
-              </Fragment>
-            )}
-          </GetItems>
-        );
-      } else {
-        table.component = null;
-      }}
-    );
+                        },
+                        errors: errors[tables[1].id] !== undefined ? errors[tables[1].id] : errors,
+                        clearErrors,
+                      }}
+                      defaultFilter={{}}
+                      filterOptions={CompoundFilterOptions}
+                      filters={tables[1].filters}
+                      title={tables[1].label}
+                      onRowClick={this.linkToChemistryInfo(tables[1].id)}
+                      exportData={{
+                        mutate: async input => {
+                          input.search2 = input.search;
+                          input.search = this.props.search;
+                          let response = await mutate(input);
+                          let fileURL = response !== undefined ? response.data.exportCompoundData : null;
+                          return fileURL;
+                        },
+                        errors:exportErrors,
+                        clearErrors:clearExportErrors
+                      }}
+                    />
+                }
+              </ExportCompoundData>
+            </Fragment>
+          )}
+        </GetCompounds>
+      );
+    } else {
+      tables[0].component = null;
+      tables[1].component = null;
+    }
 
     return (
       <div className={classes.root}>
         {
-          queryExecuted ? (
+          queriesExecuted ? (
             <Grid container spacing={8}>
               {
                 Object.values(this.state.results).every(value => value === null) ? (

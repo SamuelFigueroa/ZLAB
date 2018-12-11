@@ -156,6 +156,7 @@ class EquipmentInfo extends Component {
               <Grid
                 container
                 className={classes.container}
+                alignItems="center"
                 spacing={32}>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subheading">

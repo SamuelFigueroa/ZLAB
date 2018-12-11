@@ -1,18 +1,26 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
+import { withRouter, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import Grid from '@material-ui/core/Grid';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
-import PrintIcon from '@material-ui/icons/Print';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import green from '@material-ui/core/colors/green';
+import EditIcon from '@material-ui/icons/Edit';
+import Chip from '@material-ui/core/Chip';
+import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
+import PrintIcon from '@material-ui/icons/Print';
 
-import QuickPrintModal from '../Printer/QuickPrintModal';
+import GetContainer from '../queries/GetContainer';
+import DeleteContainer from '../mutations/DeleteContainer';
 import GetUsers from '../queries/GetUsers';
+import QuickPrintModal from '../Printer/QuickPrintModal';
+
+import Tabs from '../Tabs';
+import StructureImage from './StructureImage';
 
 const dateTimeToString = (d) => {
   const date = new Date(d);
@@ -20,229 +28,400 @@ const dateTimeToString = (d) => {
   return date.toLocaleDateString('en-US');
 };
 
-const styles = theme => ({
+const styles = (theme) => ({
+  addButton: {
+    float: 'right',
+    position: 'relative',
+    left: theme.spacing.unit * 2,
+    zIndex: 10
+  },
   root: {
-    paddingTop: theme.spacing.unit * 3
+    paddingTop: theme.spacing.unit * 2,
+  },
+  registerButton: {
+    paddingTop: theme.spacing.unit * 2
   },
   input: {
     display: 'none',
   },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
+  headerSection: {
+    paddingBottom: theme.spacing * 5
   },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
-  },
-  icon: {
-    verticalAlign: 'bottom',
-    height: 20,
-    width: 20,
-  },
-  details: {
-    alignItems: 'center',
-  },
-  column: {
-    flexBasis: '33.33%',
-  },
-  helper: {
-    borderLeft: `2px solid ${theme.palette.divider}`,
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-  },
-  link: {
-    color: theme.palette.primary.main,
-    textDecoration: 'none',
+  fabGreen: {
+    position: 'absolute',
+    right: theme.spacing.unit * 4,
+    top: theme.spacing.unit * 2,
+    zIndex: 10,
+    color: theme.palette.common.white,
+    backgroundColor: green[500],
     '&:hover': {
-      textDecoration: 'underline',
-    },
+      backgroundColor: green[700],
+    }
   },
-  panelButton: {
-    float: 'left'
+  sectionTitle: {
+    paddingTop: theme.spacing.unit * 3
   },
-  panelActions: {
-    padding: theme.spacing.unit * 3
+  paper: {
+    maxWidth: theme.spacing.unit * 50,
+    maxHeight: theme.spacing.unit * 50,
+    margin:'auto',
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    }
+  },
+  structure: {
+    width: theme.spacing.unit * 40,
+    height: theme.spacing.unit * 40,
+    padding: theme.spacing.unit * 3,
+    margin:'auto'
+  },
+  chip: {
+    margin: theme.spacing.unit
   }
 });
 
-class ContainerInfo extends PureComponent {
+const tabs = [
+  { id: 'profile', label: 'Profile', component: null },
+  { id: 'actions', label: 'Actions', component: null }
+];
+
+class ContainerInfo extends Component {
   constructor(props) {
     super(props);
-    this.state= {
+    const index = tabs.map(tab => tab.id).indexOf(this.props.section);
+    this.state = {
+      value: index == -1 ? 0 : index,
       printModalOpen: false
     };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeIndex = this.handleChangeIndex.bind(this);
     this.openPrintModal = this.openPrintModal.bind(this);
     this.handlePrintModalClose = this.handlePrintModalClose.bind(this);
-    this.handleClose = this.handleClose.bind(this);
   }
-
-  static contextTypes = {
-    swipeableViews: PropTypes.object.isRequired,
-  };
 
   componentDidMount() {
-    setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.standard);
+    let location = this.props.history.location;
+    if(!location.hash) {
+      location.hash = tabs[this.state.value].id;
+      return this.props.history.push(location);
+    }
   }
 
-  componentDidUpdate() {
-    setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.standard);
+  componentDidUpdate(prevProps) {
+    if(prevProps.section !== this.props.section) {
+      const index = tabs.map(tab => tab.id).indexOf(this.props.section);
+      if(index == -1)
+      {
+        let location = this.props.history.location;
+        location.hash = tabs[0].id;
+        this.props.history.push(location);
+      }
+      this.setState({ value:  index == -1 ? 0 : index });
+    }
   }
 
-  handleClose = toggleForm => () => toggleForm();
+  handleChange = (event, value) => {
+    this.setState({ value });
+    let location = this.props.history.location;
+    location.hash = tabs[value].id;
+    return this.props.history.push(location);
+  };
+
+  handleChangeIndex = index => {
+    this.setState({ value: index });
+    let location = this.props.history.location;
+    location.hash = tabs[index].id;
+    return this.props.history.push(location);
+  };
 
   openPrintModal = () => this.setState({ printModalOpen: true });
   handlePrintModalClose = () => this.setState({ printModalOpen: false });
 
   render() {
-    const { classes, expanded, theme, toggleDetails, container } = this.props;
-    // const { container } = this.state;
+    const { classes, id, isAuthenticated } = this.props;
+
     return (
       <GetUsers>
         { users => (
-          <div className={classes.root}>
-            {
-              container ? (
-                <QuickPrintModal
-                  open={this.state.printModalOpen}
-                  onClose={this.handlePrintModalClose}
-                  data={container.barcode}
-                />
-              ): null
-            }
-            <ExpansionPanel expanded={expanded} CollapseProps={{
-              timeout: {
-                enter: 0,
-                exit: theme.transitions.duration.shortest
-              }
-            }}>
-              <ExpansionPanelSummary onClick={toggleDetails}>
-                <div className={classes.column}>
-                  <Typography className={classes.heading}>
-                    Container Information
-                  </Typography>
-                </div>
-                <div className={classes.column}>
-                  <Typography className={classes.secondaryHeading}>
-                    View container details
-                  </Typography>
-                </div>
-              </ExpansionPanelSummary>
-              <ExpansionPanelDetails className={classes.details}>
-                {
-                  container ? (
-                    <Grid
-                      container
-                      spacing={32}>
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
-                            Barcode: {container.barcode}
-                          <Tooltip title="Print barcode" placement="right">
-                            <IconButton aria-label="Print" onClick={this.openPrintModal}>
-                              <PrintIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
-                          Location: {(container.location.area.name == 'UNASSIGNED') ?
-                            'UNASSIGNED' : `${container.location.area.name} / ${container.location.sub_area.name}`}
-                        </Typography>
-                      </Grid>
-                      {
-                        container.vendor ? (
-                          <Grid item xs={12} sm={6}>
+          <GetContainer id={id}>
+            { container => {
+              tabs[0]['component'] = (
+                <div className={classes.root}>
+                  <QuickPrintModal
+                    open={this.state.printModalOpen}
+                    onClose={this.handlePrintModalClose}
+                    data={container.barcode}
+                  />
+                  <Tooltip title="Edit Container Information">
+                    <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/chemistry/containers/${container.id}/update`}>
+                      <EditIcon />
+                    </Button>
+                  </Tooltip>
+                  <Grid
+                    container
+                    spacing={32}>
+                    <Grid item xs={12}>
+                      <Typography variant="title" color="textSecondary">
+                        {container.category} Container Information
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Grid container spacing={32} alignItems="center">
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="subheading">
+                              Barcode: {container.barcode}
+                            <Tooltip title="Print barcode" placement="right">
+                              <IconButton aria-label="Print" onClick={this.openPrintModal}>
+                                <PrintIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="subheading">
+                              Location: {(container.location.area.name == 'UNASSIGNED') ?
+                              'UNASSIGNED' : `${container.location.area.name} / ${container.location.sub_area.name}`}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="subheading">
+                              Batch ID: {container.batch_id}
+                          </Typography>
+                        </Grid>
+                        {
+                          container.vendor ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  Vendor: {container.vendor}
+                              </Typography>
+                            </Grid>
+                          ) : (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  Institution: {container.institution}
+                              </Typography>
+                            </Grid>
+                          )
+                        }
+                        {
+                          container.catalog_id ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  Catalog No.: {container.catalog_id}
+                              </Typography>
+                            </Grid>
+                          ) : (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  Researcher: {container.researcher}
+                              </Typography>
+                            </Grid>
+                          )
+                        }
+                        {
+                          container.eln_id  ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  ELN ID: {container.eln_id}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          (container.state == 'S') ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                {`Mass: ${container.mass} ${container.mass_units}`}
+                              </Typography>
+                            </Grid>
+                          ) : (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                {`Volume: ${container.volume} ${container.vol_units}`}
+                              </Typography>
+                            </Grid>
+                          )
+                        }
+                        {
+                          (container.state == 'Soln' || container.state == 'Susp') ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                {`Concentration: ${container.concentration} ${container.conc_units}`}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          (container.state == 'Soln' || container.state == 'Susp') ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  Solvent: {container.solvent}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          container.description ? (
+                            <Grid item xs={12}>
+                              <Typography variant="subheading" gutterBottom>
+                                  Description:
+                              </Typography>
+                              <Typography variant="subheading">
+                                {container.description}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="subheading">
+                              Owner: {users.find(user => user.id == container.owner).name}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                            Content Information
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                              Name: {container.content.name}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="subheading">
+                              Compound ID:
+                          </Typography>
+                          <Link to={`/chemistry/compounds/${container.content.id}`}>
                             <Typography variant="subheading">
-                                Vendor: {container.vendor}
+                              {container.content.compound_id}
                             </Typography>
-                          </Grid>
-                        ) : (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                                Institution: {container.institution}
-                            </Typography>
-                          </Grid>
-                        )
-                      }
-                      {
-                        container.catalog_id ? (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                                Catalog No.: {container.catalog_id}
-                            </Typography>
-                          </Grid>
-                        ) : (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                                Chemist: {container.chemist}
-                            </Typography>
-                          </Grid>
-                        )
-                      }
-                      {
-                        (container.state == 'S') ? (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                              {`Mass: ${container.mass} ${container.mass_units}`}
-                            </Typography>
-                          </Grid>
-                        ) : (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                              {`Volume: ${container.volume} ${container.vol_units}`}
-                            </Typography>
-                          </Grid>
-                        )
-                      }
-                      {
-                        (container.state == 'Soln' || container.state == 'Susp') ? (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                              {`Concentration: ${container.concentration} ${container.conc_units}`}
-                            </Typography>
-                          </Grid>
-                        ) : null
-                      }
-                      {
-                        (container.state == 'Soln' || container.state == 'Susp') ? (
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
-                                Solvent: {container.solvent}
-                            </Typography>
-                          </Grid>
-                        ) : null
-                      }
-                      {
-                        container.description ? (
-                          <Grid item xs={12}>
-                            <Typography variant="subheading" gutterBottom>
-                                Description:
-                            </Typography>
-                            <Typography variant="subheading">
-                              {container.description}
-                            </Typography>
-                          </Grid>
-                        ) : null
-                      }
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
-                            Owner: {users.find(user => user.id == container.owner).name}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Typography variant="subheading" color="textSecondary" align="right">
-                            Registered by {container.registration_event.user} on {dateTimeToString(container.registration_event.date)}
-                        </Typography>
+                          </Link>
+                        </Grid>
+                        {
+                          container.content.smiles ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                                  Smiles: {container.content.smiles}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          container.content.cas ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  CAS No.: {container.content.cas}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          container.content.attributes.length ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                Chemical Attributes:
+                              </Typography>
+                              {
+                                container.content.attributes.map( attr =>
+                                  <Chip className={classes.chip} key={attr} label={attr} />)
+                              }
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          container.content.storage ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                  Storage Conditions:
+                              </Typography>
+                              <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                                {container.content.storage}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          container.content.description ? (
+                            <Grid item xs={12}>
+                              <Typography variant="subheading" gutterBottom>
+                                  Description:
+                              </Typography>
+                              <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                                {container.content.description}
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
                       </Grid>
                     </Grid>
-                  ) : (
-                    <Typography variant="display1" align="center">
-                      Please click a row on the table.
-                    </Typography>
-                  )
-                }
-              </ExpansionPanelDetails>
-            </ExpansionPanel>
-          </div>
+                    <Grid item xs={12} sm={6}>
+                      <Link to={`/chemistry/containers/${id}/curateStructure`}>
+                        <Tooltip title="Curate structure" placement="top">
+                          <Paper className={classes.paper} elevation={16}>
+                            <StructureImage className={classes.structure} molblock={container.content.molblock} />
+                          </Paper>
+                        </Tooltip>
+                      </Link>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={32}>
+                        {
+                          container.content.flags.length ? (
+                            <Grid item xs={12}>
+                              <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                              Safety Information
+                              </Typography>
+                            </Grid>
+                          ) : null
+                        }
+                        {
+                          container.content.flags.length ? (
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subheading">
+                                Safety Flags:
+                              </Typography>
+                              {
+                                container.content.flags.map( flag =>
+                                  <Chip className={classes.chip} key={flag} label={flag} />)
+                              }
+                            </Grid>
+                          ) : null
+                        }
+                        <Grid item xs={12}>
+                          <Typography variant="subheading" color="textSecondary" align="right">
+                              Registered by {container.registration_event.user} on {dateTimeToString(container.registration_event.date)}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </div>
+              );
+              if(isAuthenticated) {
+                tabs[1]['component'] = (
+                  <DeleteContainer>
+                    {
+                      deleteContainer => (
+                        <Grid
+                          container
+                          alignItems="center"
+                          justify="center">
+                          <Grid item xs={4}>
+                            <Button variant="contained" fullWidth onClick={() => deleteContainer(container.id)} color="secondary" className={classes.delete}>
+                            Delete Container
+                            </Button>
+                          </Grid>
+                        </Grid>
+                      )
+                    }
+                  </DeleteContainer>
+                );
+              }
+              return (
+                <Tabs tabs={tabs} value={this.state.value} onChange={this.handleChange} onChangeIndex={this.handleChangeIndex}/>
+              );
+            }}
+          </GetContainer>
         )}
       </GetUsers>
     );
@@ -251,11 +430,10 @@ class ContainerInfo extends PureComponent {
 
 ContainerInfo.propTypes = {
   classes: PropTypes.object.isRequired,
-  expanded: PropTypes.bool.isRequired,
-  theme: PropTypes.object.isRequired,
-  container: PropTypes.object,
-  toggleDetails: PropTypes.func.isRequired,
-  editMode: PropTypes.bool.isRequired
+  id: PropTypes.string.isRequired,
+  isAuthenticated: PropTypes.bool.isRequired,
+  history: PropTypes.object.isRequired,
+  section: PropTypes.string.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(ContainerInfo);
+export default withStyles(styles)(withRouter(ContainerInfo));

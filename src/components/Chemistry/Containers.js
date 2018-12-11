@@ -9,9 +9,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import green from '@material-ui/core/colors/green';
 
 import Table from '../CheckableTable';
-import ContainerForm from './ContainerForm';
-import DeleteReagentContainer from '../mutations/DeleteReagentContainer';
-import ContainerInfo from './ContainerInfo';
+import ContainerFormPanel from './ContainerFormPanel';
+import DeleteCompoundContainers from '../mutations/DeleteCompoundContainers';
+import ContainerInfoPanel from './ContainerInfoPanel';
 
 const styles = (theme) => ({
   fab: {
@@ -106,12 +106,12 @@ class Containers extends PureComponent {
 
 
   render() {
-    const { classes, theme, containers, reagentID, reagentHeadline, user } = this.props;
+    const { classes, theme, containers, compoundID, compoundHeadline, user } = this.props;
     const { currentEntry, selectedEntry } = this.state;
     const fabs = [
       {
         color: 'primary',
-        tooltip: 'Add Reagent Container',
+        tooltip: 'Add Compound Container',
         icon: <AddIcon />,
         className: classes.fab
       },
@@ -133,16 +133,16 @@ class Containers extends PureComponent {
       location: (container.location.area.name == 'UNASSIGNED') ?
         'UNASSIGNED' : `${container.location.area.name} / ${container.location.sub_area.name}`,
       source: container.vendor ? container.vendor : container.institution,
-      source_id: container.vendor ? container.catalog_id : container.chemist,
+      source_id: container.vendor ? container.catalog_id : container.researcher,
       registration_event:
         {...container.registration_event, date: formatDate(container.registration_event.date) },
     }));
 
     return (
-      <DeleteReagentContainer>
-        { deleteReagentContainer => (
+      <DeleteCompoundContainers>
+        { deleteCompoundContainers => (
           <div>
-            <ContainerInfo
+            <ContainerInfoPanel
               expanded={this.state.detailsExpanded}
               container={selectedEntry}
               toggleDetails={this.toggleDetails}
@@ -165,26 +165,26 @@ class Containers extends PureComponent {
               cols={containerCols}
               data={formatted_containers}
               title="Containers"
-              subheading={reagentHeadline}
+              subheading={compoundHeadline}
               editMode={this.state.editMode}
               editable={true}
               actions={{
-                delete: deleteReagentContainer(reagentID),
+                delete: deleteCompoundContainers(compoundID),
                 update: this.toggleEditMode
               }}
               onRowClick={this.handleRowClick}
             />
-            <ContainerForm
+            <ContainerFormPanel
               initialState={currentEntry}
               expanded={this.state.containerExpanded}
-              reagentID={reagentID}
+              compoundID={compoundID}
               toggleForm={this.toggleContainerForm}
               editMode={this.state.editMode}
               user={user}
             />
           </div>
         )}
-      </DeleteReagentContainer>
+      </DeleteCompoundContainers>
     );
   }
 }
@@ -193,8 +193,8 @@ Containers.propTypes = {
   classes: PropTypes.object.isRequired,
   containers: PropTypes.array.isRequired,
   theme: PropTypes.object.isRequired,
-  reagentID: PropTypes.string.isRequired,
-  reagentHeadline: PropTypes.string.isRequired,
+  compoundID: PropTypes.string.isRequired,
+  compoundHeadline: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired
 };
 
