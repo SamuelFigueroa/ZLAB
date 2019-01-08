@@ -9,6 +9,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
+import HandIcon from '@material-ui/icons/PanTool';
 import ListIcon from '@material-ui/icons/ViewList';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -40,6 +41,7 @@ const styles = theme => ({
     height: theme.spacing.unit * 10,
     width: theme.spacing.unit * 10,
     color: theme.palette.primary.main,
+    margin: theme.spacing.unit * 2
   },
   tooltip: {
     fontSize: theme.typography.body1.fontSize
@@ -113,7 +115,6 @@ class Chemistry extends Component {
               container
               alignItems="center"
               justify="center"
-              spacing={40}
             >
               <Grid item>
                 <Tooltip title="Register Reagent/Sample" classes={{ tooltip: classes.tooltip }}>
@@ -126,6 +127,13 @@ class Chemistry extends Component {
                 <Tooltip title="View All Compounds" classes={{ tooltip: classes.tooltip }}>
                   <Button variant="fab" color="default" aria-label="View all compounds" component={Link} to="/chemistry/all" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
+                  </Button>
+                </Tooltip>
+              </Grid>
+              <Grid item>
+                <Tooltip title="Handle Samples" classes={{ tooltip: classes.tooltip }}>
+                  <Button variant="fab" color="default" aria-label="Transfer solid" component={Link} to="/chemistry/containers/handleSamples" className={classes.actionButton}>
+                    <HandIcon fontSize="large"/>
                   </Button>
                 </Tooltip>
               </Grid>

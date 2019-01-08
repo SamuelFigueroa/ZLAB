@@ -3,22 +3,16 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const TransferSchema = new mongoose.Schema({
   //Sample handling info
-  source: {
-    type: ObjectId,
-    required: true
-  },
-  destination: {
-    type: ObjectId,
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  amount_units: {
+  source: ObjectId,
+  destination: ObjectId,
+  kind: {
     type: String,
-    required: true
+    required: true,
+    enum: ['mass', 'volume', 'drying', 'resuspension'],
   },
+  amount: Number,
+  amount_units: String,
+  solvent: String,
   timestamp: {
     type: Date,
     'default': Date.now

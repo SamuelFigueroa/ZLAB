@@ -16,6 +16,11 @@ import ContainerInfo from './ContainerInfo';
 import GetContainer from '../queries/GetContainer';
 import GetContainers from '../queries/GetContainers';
 import CurationForm from './CurationForm';
+import MassTransferForm from './MassTransferForm';
+import VolumeTransferForm from './VolumeTransferForm';
+import DryContainerForm from './DryContainerForm';
+import ResuspendContainerForm from './ResuspendContainerForm';
+import SampleHandling from './SampleHandling';
 
 const ChemistryRoutes = (props) => {
   const {user, isAuthenticated} = props.auth;
@@ -72,6 +77,11 @@ const ChemistryRoutes = (props) => {
           </GetCompound>
         )}/>
         <Route exact path="/chemistry/containers/register" render={()=><ExactStructureSearch />} />
+        <Route exact path="/chemistry/containers/handleSamples" render={()=><SampleHandling />} />
+        <Route exact path="/chemistry/containers/transferMass" render={()=><MassTransferForm />} />
+        <Route exact path="/chemistry/containers/transferVolume" render={()=><VolumeTransferForm />} />
+        <Route exact path="/chemistry/containers/dry" render={()=><DryContainerForm />} />
+        <Route exact path="/chemistry/containers/resuspend" render={()=><ResuspendContainerForm />} />
         <Route exact path="/chemistry/containers/:id" render={
           ({ match, location }) => {
             return <ContainerInfo isAuthenticated={isAuthenticated} id={match.params.id} section={location.hash.slice(1)}/>;
