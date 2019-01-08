@@ -144,10 +144,10 @@ const styles = theme => ({
     margin: theme.spacing.unit
   },
   cell: {
-    // maxWidth: theme.spacing.unit * 1,
-    // maxHeight: theme.spacing.unit * 6,
+    maxWidth: 200,
     overflow: 'hidden',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis'
   }
 });
 
