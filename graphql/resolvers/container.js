@@ -927,6 +927,9 @@ const resolvers = {
         { key: 'location', header: 'Location'},
         { key: 'category', header: 'Category'},
 
+        { key: 'content.name', header: 'Compound Name'},
+        { key: 'content.cas', header: 'CAS No.'},
+
         { key: 'source', header: 'Source'},
         { key: 'catalog_id', header: 'Catalog ID'},
         { key: 'researcher', header: 'Researcher'},
@@ -941,6 +944,7 @@ const resolvers = {
         { key: 'solvent', header: 'Solvent'},
 
         { key: 'description', header: 'Description'},
+        { key: 'content.smiles', header: 'SMILES'},
         { key: 'registration_event.user', header: 'Registered By'},
         { key: 'registration_event.date', header: 'Registration Date'},
         { key: 'id', header: 'ID'},
