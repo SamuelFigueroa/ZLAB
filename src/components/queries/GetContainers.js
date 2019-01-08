@@ -44,6 +44,9 @@ class GetContainers extends Component {
                   const { containers } = data;
                   let formatted_containers = containers.map( container => ({
                     ...container,
+                    mass: container.mass !== null ? Math.round(container.mass * 1000)/1000 : null,
+                    volume: container.volume !== null ? Math.round(container.volume * 1000)/1000 : null,
+                    concentration: container.concentration !== null ? Math.round(container.concentration * 1000)/1000 : null,
                     molblock: <StructureImage className={classes.image} molblock={container.content.molblock} />
                   }));
 

@@ -231,13 +231,13 @@ class ContainerInfo extends Component {
                           (container.state == 'S') ? (
                             <Grid item xs={12} sm={6}>
                               <Typography variant="subheading">
-                                {`Mass: ${container.mass} ${container.mass_units}`}
+                                {`Mass: ${Math.round(container.mass*1000)/1000} ${container.mass_units}`}
                               </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={12} sm={6}>
                               <Typography variant="subheading">
-                                {`Volume: ${container.volume} ${container.vol_units}`}
+                                {`Volume: ${Math.round(container.volume*1000)/1000} ${container.vol_units}`}
                               </Typography>
                             </Grid>
                           )
@@ -246,7 +246,7 @@ class ContainerInfo extends Component {
                           (container.state == 'Soln' || container.state == 'Susp') ? (
                             <Grid item xs={12} sm={6}>
                               <Typography variant="subheading">
-                                {`Concentration: ${container.concentration} ${container.conc_units}`}
+                                {`Concentration: ${Math.round(container.concentration*1000)/1000} ${container.conc_units}`}
                               </Typography>
                             </Grid>
                           ) : null
