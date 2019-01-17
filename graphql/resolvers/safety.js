@@ -332,26 +332,25 @@ const resolvers = {
       const errors = { errors: {} };
       const { sds_id, product_name } = args;
 
-      let browser;
+      let browser = await puppeteer.launch();
       let pdf_url = '';
       //Get valid SDS PDF url
       try {
-        browser = await puppeteer.launch();
         const browserContext = browser.defaultBrowserContext();
         const page = await browser.newPage();
         const pageTarget = page.target();
-        await page.goto(`${chemicalSafetyViewerUrl}?id=${sds_id}&name=${product_name}`);
+        await page.goto(`${chemicalSafetyViewerUrl}?id=${sds_id}`);
         await page.waitFor(viewSDSSelector);
         await page.click(viewSDSSelector);
         const newTarget = await browser.waitForTarget(target => target.opener() === pageTarget);
         const newPage = await newTarget.page();
         pdf_url = newTarget.url();
       } catch(err) {
+        await browser.close();
         errors.errors[sds_id] = 'Preview not available.';
         throw new UserInputError('Preview failed', errors);
-      } finally {
-        await browser.close();
       }
+      await browser.close();
       return pdf_url;
 
     },
