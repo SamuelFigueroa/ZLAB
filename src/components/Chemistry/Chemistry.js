@@ -125,7 +125,7 @@ class Chemistry extends Component {
               </Grid>
               <Grid item>
                 <Tooltip title="View All Compounds" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="View all compounds" component={Link} to="/chemistry/all" className={classes.actionButton}>
+                  <Button variant="fab" color="default" aria-label="View all compounds" component={Link} to="/chemistry/all#containers" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
                   </Button>
                 </Tooltip>

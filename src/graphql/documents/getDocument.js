@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 const GET_DOCUMENT = gql`
-     query getDocument($id: ID!) {
-      document(id: $id)
+     query getDocument($id: ID!, $collection: String) {
+      document(id: $id, collection: $collection)
     }
 `;
 

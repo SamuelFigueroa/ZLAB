@@ -217,28 +217,12 @@ class CompoundInfo extends Component {
                 </Grid>
                 <Grid item xs={12}>
                   <Grid container spacing={32}>
-                    {
-                      compound.flags.length ? (
-                        <Grid item xs={12}>
-                          <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
-                          Safety Information
-                          </Typography>
-                        </Grid>
-                      ) : null
-                    }
-                    {
-                      compound.flags.length ? (
-                        <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
-                            Safety Flags:
-                          </Typography>
-                          {
-                            compound.flags.map( flag =>
-                              <Chip className={classes.chip} key={flag} label={flag} />)
-                          }
-                        </Grid>
-                      ) : null
-                    }
+                    <Grid item xs={12} sm={8} md={4}>
+                      <Button variant="contained" component={Link}
+                        to={compound.safety ? `/safety/sds/${compound.safety}` : `/safety/sds/new?compound=${compound.id}`} color="primary" fullWidth>
+                        { compound.safety ? 'Go to Safety Data Sheet' : 'Add Safety Data Sheet' }
+                      </Button>
+                    </Grid>
                     <Grid item xs={12}>
                       <Typography variant="subheading" color="textSecondary" align="right">
                           Registered by {compound.registration_event.user} on {dateTimeToString(compound.registration_event.date)}
@@ -262,7 +246,7 @@ class CompoundInfo extends Component {
                       alignItems="center"
                       justify="center">
                       <Grid item xs={4}>
-                        <Button variant="contained" fullWidth onClick={() => deleteCompound(compound.id)} color="secondary" className={classes.delete}>
+                        <Button variant="contained" fullWidth onClick={() => deleteCompound(compound.id)} color="secondary">
                         Delete Compound
                         </Button>
                       </Grid>

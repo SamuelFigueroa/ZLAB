@@ -42,6 +42,7 @@ const Container = gql`
     flags: [String]!
     storage: String!
     cas: String!
+    safety: ID
     registration_event: RegistrationEvent!
   }
 

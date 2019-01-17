@@ -46,7 +46,7 @@ const MainDrawer = (props) => {
         <ListItem button component={Link} to="/assets">
           <ListItemText primary="Equipment & Supplies" />
         </ListItem>
-        <ListItem button>
+        <ListItem button component={Link} to="/safety">
           <ListItemText primary="Lab Safety" />
         </ListItem>
         <ListItem button>

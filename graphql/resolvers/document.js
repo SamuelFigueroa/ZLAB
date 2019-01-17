@@ -33,10 +33,14 @@ const storeFile = ({ stream, id, name }) => {
 const resolvers = {
   Query: {
     document: async (root, args) => {
+      const paths = {
+        safetyDataSheets: path.normalize(path.join(storageDir, 'SDS')),
+      };
       let document = await Document.findById(args.id);
       if(!document) {
         throw new ApolloError('Can\'t find document', 'BAD_REQUEST');
       } else {
+        const { collection } = args;
         try {
           await fse.ensureDir(cache);
           await fse.ensureDir(storage);
@@ -44,7 +48,8 @@ const resolvers = {
           throw new ApolloError('Document retrieval failed', 'DOC_DIRS_NOT_FOUND');
         }
         const { id, name } = document;
-        const srcPath = path.join(storage, `${id}-${name}`);
+        const srcPath = path.join((collection && paths[collection] !== undefined) ?
+          paths[collection] : storage, `${id}-${name}`);
         const dstPath = path.join(cache, `${id}-${name}`);
         try {
           await fse.copyFile(srcPath, dstPath);

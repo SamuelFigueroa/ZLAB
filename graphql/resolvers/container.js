@@ -10,6 +10,8 @@ import Counter from '../../models/Counter';
 import Compound from '../../models/Compound';
 import Container from '../../models/Container';
 import Location from '../../models/Location';
+import SafetyDataSheet from '../../models/SafetyDataSheet';
+import Document from '../../models/Document';
 
 import validateAddContainerInput from '../../validation/container';
 import validateCompoundFilter from '../../validation/compound_filter';
@@ -411,7 +413,8 @@ const resolvers = {
           flags,
           storage,
           cas,
-          registration_event
+          registration_event,
+          safety
         } = compound;
 
         let molblock = rdkit.smilesToMolBlock(smiles);
@@ -427,7 +430,8 @@ const resolvers = {
           flags,
           storage,
           cas,
-          registration_event
+          registration_event,
+          safety
         };
 
         let result;
@@ -573,13 +577,16 @@ const resolvers = {
       let container = await Container.findById(args.id);
       let compound = await Compound.findById(container.content);
       if (compound.containers.length == 1) {
-        let compound_document;
+        let sds;
+        let sds_document;
         try {
           if (compound.safety !== undefined) {
-            compound_document = await Document.findById(compound.safety, 'name');
-            const file_name = `${compound_document._id.toString()}-${compound_document.name}`;
-            await Document.deleteOne({ '_id': compound_document._id });
-            await fse.unlink(path.join(storage, file_name));
+            sds = await SafetyDataSheet.findById(compound.safety);
+            sds_document = await Document.findById(sds.document, 'name');
+            const file_name = `${sds.document}-${sds_document.name}`;
+            await Document.findByIdAndDelete(sds.document);
+            await fse.unlink(path.join(storage, 'SDS', file_name));
+            await SafetyDataSheet.findByIdAndDelete(compound.safety);
           }
           await Compound.findByIdAndDelete(container.content);
         } catch(err) {

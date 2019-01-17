@@ -11,6 +11,7 @@ import Counter from '../../models/Counter';
 import Document from '../../models/Document';
 import Location from '../../models/Location';
 import Curation from '../../models/Curation';
+import SafetyDataSheet from '../../models/SafetyDataSheet';
 
 import validateCompoundFilter from '../../validation/compound_filter';
 import validateAddCompoundInput from '../../validation/compound';
@@ -103,8 +104,7 @@ const resolvers = {
 
   Query: {
     compounds: async (root, args) => {
-      const { filter, search } = args;
-
+      const { filter, search, withSDS } = args;
       let pipeline = [
         {
           $unwind: '$containers'
@@ -407,6 +407,11 @@ const resolvers = {
           return compounds;
         }
       }
+      if(withSDS !== undefined)
+        pipeline.unshift({ $match: withSDS ?
+          ({ '$and': [{ safety: { $exists: true } }, { safety: { $type : 'objectId' } }] }) :
+          ({ '$or': [{ safety: { $exists: false } }, { safety: null }]}) });
+
       compounds = await Compound.aggregate(pipeline);
 
       for (const compound of compounds) {
@@ -423,18 +428,6 @@ const resolvers = {
       if(!compound) {
         throw new ApolloError('Can\'t find compound', 'BAD_REQUEST');
       } else {
-        let safety;
-        let document = await Document.findById(compound.safety);
-        if (document) {
-          safety = {
-            id: compound.safety,
-            name: document.name,
-            size: document.size,
-            category: document.category,
-            uploaded_by: document.upload_event.user,
-            upload_date: document.upload_event.date
-          };
-        }
         const {
           id,
           smiles,
@@ -490,7 +483,6 @@ const resolvers = {
         result = compound.toObject({
           virtuals: true,
           transform: (doc, ret) => {
-            ret.safety = safety;
             ret.containers = containers;
             ret.molblock = molblock;
             return ret;
@@ -740,12 +732,15 @@ const resolvers = {
             { $pull : { containers: { $in : containerIDs } } } );
           if (deleteOriginal) {
             //Delete original compound
-            let updatedCompoundDoc;
+            let sds;
+            let sds_document;
             if (compound.safety !== undefined) {
-              updatedCompoundDoc = await Document.findById(compound.safety, 'name');
-              const file_name = `${updatedCompoundDoc._id.toString()}-${updatedCompoundDoc.name}`;
-              await Document.deleteOne({ '_id': updatedCompoundDoc._id });
-              await fse.unlink(path.join(storage, file_name));
+              sds = await SafetyDataSheet.findById(compound.safety);
+              sds_document = await Document.findById(sds.document, 'name');
+              const file_name = `${sds.document}-${sds_document.name}`;
+              await Document.findByIdAndDelete(sds.document);
+              await fse.unlink(path.join(storage, 'SDS', file_name));
+              await SafetyDataSheet.findByIdAndDelete(compound.safety);
             }
             await Compound.findByIdAndDelete(compound.id);
           }
@@ -761,7 +756,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          safety,
           flags,
           storage,
           cas,
@@ -775,8 +769,13 @@ const resolvers = {
           { $push : { containers: { $each : containerIDs } } } );
         await Compound.findByIdAndUpdate(compound.id,
           { $pull : { containers: { $in : containerIDs } } } );
-        if (deleteOriginal)
+        if (deleteOriginal) {
           await Compound.findByIdAndDelete(compound.id);
+          if (safety) {
+            await Compound.findByIdAndUpdate(newCompound.id, { safety });
+            await SafetyDataSheet.findByIdAndUpdate(safety, { compound: newCompound.id });
+          }
+        }
       }
 
       let curationEvent = new Curation({
@@ -793,14 +792,17 @@ const resolvers = {
     },
     deleteCompound: async (root, args) => {
       let compound;
-      let compound_document;
+      let sds;
+      let sds_document;
       try {
         compound = await Compound.findById(args.id);
         if (compound.safety !== undefined) {
-          compound_document = await Document.findById(compound.safety, 'name');
-          const file_name = `${compound_document._id.toString()}-${compound_document.name}`;
-          await Document.deleteOne({ '_id': compound_document._id });
-          await fse.unlink(path.join(storage, file_name));
+          sds = await SafetyDataSheet.findById(compound.safety);
+          sds_document = await Document.findById(sds.document, 'name');
+          const file_name = `${sds.document}-${sds_document.name}`;
+          await Document.findByIdAndDelete(sds.document);
+          await fse.unlink(path.join(storage, 'SDS', file_name));
+          await SafetyDataSheet.findByIdAndDelete(compound.safety);
         }
         await Container.deleteMany({ '_id': { $in : compound.containers } });
         await Compound.findByIdAndDelete(args.id);
@@ -813,13 +815,16 @@ const resolvers = {
       const container_IDs = args.ids.map(id => mongoose.Types.ObjectId(id));
       let compound = await Compound.findById(args.compoundID);
       if (compound.containers.length == args.ids.length) {
-        let compound_document;
+        let sds;
+        let sds_document;
         try {
           if (compound.safety !== undefined) {
-            compound_document = await Document.findById(compound.safety, 'name');
-            const file_name = `${compound_document._id.toString()}-${compound_document.name}`;
-            await Document.deleteOne({ '_id': compound_document._id });
-            await fse.unlink(path.join(storage, file_name));
+            sds = await SafetyDataSheet.findById(compound.safety);
+            sds_document = await Document.findById(sds.document, 'name');
+            const file_name = `${sds.document}-${sds_document.name}`;
+            await Document.findByIdAndDelete(sds.document);
+            await fse.unlink(path.join(storage, 'SDS', file_name));
+            await SafetyDataSheet.findByIdAndDelete(compound.safety);
           }
           await Compound.findByIdAndDelete(args.compoundID);
           await Container.deleteMany({ '_id': { $in : container_IDs } });
@@ -845,7 +850,7 @@ const resolvers = {
         throw new UserInputError('Data export failed', errors);
       }
 
-      const { filter, search, searchCategories, search2, name } = args.input;
+      const { filter, search, searchCategories, search2, name, withSDS } = args.input;
 
       let pipeline = [
         {
@@ -1143,6 +1148,11 @@ const resolvers = {
           return compounds;
         }
       }
+
+      if(withSDS !== undefined)
+        pipeline.unshift({ $match: withSDS ?
+          ({ '$and': [{ safety: { $exists: true } }, { safety: { $type : 'objectId' } }] }) :
+          ({ '$or': [{ safety: { $exists: false } }, { safety: null }]}) });
       compounds = await Compound.aggregate(pipeline);
 
       let columns = [];

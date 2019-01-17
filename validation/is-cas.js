@@ -1,5 +1,5 @@
 const isCas = value => {
-  if (typeof value === 'string' && value.trim().length < 11) {
+  if (typeof value === 'string' && value.trim().length < 13) {
     const test = value.trim();
     const cas_regex = /(\d{2,7})-(\d{2})-(\d)/;
     const found = test.match(cas_regex);

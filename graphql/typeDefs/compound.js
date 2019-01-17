@@ -16,7 +16,7 @@ const Compound = gql`
     name: String!
     description: String!
     attributes: [String]!
-    safety: Document
+    safety: ID
     flags: [String]!
     storage: String!
     cas: String!
@@ -77,6 +77,7 @@ const Compound = gql`
     search2: String!
     searchCategories: [String]!
     name: String!
+    withSDS: Boolean
   }
 
   input UpdateCompoundInput {
@@ -105,7 +106,7 @@ const Compound = gql`
 
   # Queries
   extend type Query {
-    compounds(filter: CompoundFilter, search: String): [Compound]!
+    compounds(filter: CompoundFilter, search: String, withSDS: Boolean): [Compound]!
     compound(id: ID!): Compound!
     compoundHints: CompoundHint!
   }

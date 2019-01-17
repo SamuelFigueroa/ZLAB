@@ -47,6 +47,7 @@ const GET_CONTAINER = gql`
           flags
           storage
           cas
+          safety
           registration_event {
             user
             date

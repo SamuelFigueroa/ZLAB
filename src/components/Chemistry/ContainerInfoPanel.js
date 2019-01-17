@@ -157,7 +157,7 @@ class ContainerInfoPanel extends PureComponent {
                       <Grid item xs={12} sm={6}>
                         <Typography variant="subheading">
                           Batch ID: {
-                            <Link to={`/chemistry/containers/${container.id}`}>{container.batch_id}</Link>
+                            <Link to={`/chemistry/containers/${container.id}#profile`}>{container.batch_id}</Link>
                           }
                         </Typography>
                       </Grid>

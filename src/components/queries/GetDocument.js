@@ -14,10 +14,10 @@ class GetDocument extends Component {
     return(
       <Query query={GET_DOCUMENT} skip={true}>
         { ({ client }) => {
-          const callQuery = async (id) => {
+          const callQuery = async (id, collection) => {
             const { data } = await client.query({
               query: GET_DOCUMENT,
-              variables: { id }
+              variables: { id, collection }
             });
             return data.document;
           };

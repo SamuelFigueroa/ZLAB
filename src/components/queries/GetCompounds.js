@@ -32,11 +32,11 @@ class GetCompounds extends Component {
             skip={true}
           >
             { ({ client }) => {
-              const callQuery = async (filter, search) => {
+              const callQuery = async (filter, search, withSDS) => {
                 try {
                   const { data, loading, error } = await client.query({
                     query: GET_COMPOUNDS,
-                    variables: { filter, search },
+                    variables: { filter, search, withSDS },
                     fetchPolicy: 'network-only'
                   });
                   if (loading) return <ProgressIndicator />;

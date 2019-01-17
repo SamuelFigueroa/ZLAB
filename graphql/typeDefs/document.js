@@ -29,7 +29,7 @@ const Document = gql`
 
   # Queries
   extend type Query {
-    document(id: ID!): String
+    document(id: ID!, collection: String): String
   }
 
   # Mutations

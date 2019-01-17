@@ -311,8 +311,10 @@ class EnhancedTable extends PureComponent {
             <TableBody>
               { queryResults
                 .filter( result => !searchCategories.length ||
-                  searchCategories.some( cat =>
-                    result[cat].toLowerCase().indexOf(search.toLowerCase()) > -1)
+                  searchCategories.some( cat => {
+                    const data = result[cat].toLowerCase !== undefined ? result[cat].toLowerCase() : result[cat].props.label.toLowerCase();
+                    return data.indexOf(search.toLowerCase()) > -1;
+                  })
                 )
                 .sort(this.getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -332,12 +334,7 @@ class EnhancedTable extends PureComponent {
                           scope={col.id == 'name' ? 'row' : 'col'}
                           numeric={col.numeric}
                           key={col.id}>
-                          {n[col.id] == '' ? 'N/A' : (
-                            Array.isArray(n[col.id]) ? (
-                              Array.from(new Set(n[col.id])).map(tableData =>
-                                <Chip className={classes.chip} key={tableData} label={tableData} />)
-                            ) : n[col.id]
-                          )}
+                          {n[col.id] == '' ? 'N/A' : n[col.id]}
                         </TableCell>
                       )
                       )}

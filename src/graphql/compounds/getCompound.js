@@ -17,14 +17,7 @@ const GET_COMPOUND = gql`
           user
           date
         }
-        safety {
-          id
-          name
-          size
-          category
-          uploaded_by
-          upload_date
-        }
+        safety
         containers {
           id
           category

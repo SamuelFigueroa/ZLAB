@@ -15,6 +15,17 @@ module.exports = {
       //   use: ['json-loader']
       // },
       {
+          test: /\.(jpg|png|gif|svg|pdf|ico)$/,
+          use: [
+              {
+                  loader: 'file-loader',
+                  options: {
+                      name: '[path][name].[ext]'
+                  },
+              },
+          ]
+      },
+      {
         test: /\.js$/,
         exclude: /(node_modules|bower_compontents)/,
         use: {

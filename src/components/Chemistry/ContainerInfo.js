@@ -291,7 +291,7 @@ class ContainerInfo extends Component {
                           <Typography variant="subheading">
                               Compound ID:
                           </Typography>
-                          <Link to={`/chemistry/compounds/${container.content.id}`}>
+                          <Link to={`/chemistry/compounds/${container.content.id}#profile`}>
                             <Typography variant="subheading">
                               {container.content.compound_id}
                             </Typography>
@@ -365,28 +365,12 @@ class ContainerInfo extends Component {
                     </Grid>
                     <Grid item xs={12}>
                       <Grid container spacing={32}>
-                        {
-                          container.content.flags.length ? (
-                            <Grid item xs={12}>
-                              <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
-                              Safety Information
-                              </Typography>
-                            </Grid>
-                          ) : null
-                        }
-                        {
-                          container.content.flags.length ? (
-                            <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
-                                Safety Flags:
-                              </Typography>
-                              {
-                                container.content.flags.map( flag =>
-                                  <Chip className={classes.chip} key={flag} label={flag} />)
-                              }
-                            </Grid>
-                          ) : null
-                        }
+                        <Grid item xs={12} sm={8} md={4}>
+                          <Button variant="contained" component={Link}
+                            to={container.content.safety ? `/safety/sds/${container.content.safety}` : `/safety/sds/new?compound=${container.content.id}`} color="primary" fullWidth>
+                            { container.content.safety ? 'Go to Safety Data Sheet' : 'Add Safety Data Sheet' }
+                          </Button>
+                        </Grid>
                         <Grid item xs={12}>
                           <Typography variant="subheading" color="textSecondary" align="right">
                               Registered by {container.registration_event.user} on {dateTimeToString(container.registration_event.date)}
@@ -407,7 +391,7 @@ class ContainerInfo extends Component {
                           alignItems="center"
                           justify="center">
                           <Grid item xs={4}>
-                            <Button variant="contained" fullWidth onClick={() => deleteContainer(container.id)} color="secondary" className={classes.delete}>
+                            <Button variant="contained" fullWidth onClick={() => deleteContainer(container.id)} color="secondary">
                             Delete Container
                             </Button>
                           </Grid>

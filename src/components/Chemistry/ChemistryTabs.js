@@ -150,7 +150,7 @@ class ChemistryTabs extends Component {
     }
   }
 
-  linkToChemistryInfo = (category) => (id) => () => this.props.history.push(`/chemistry/${category}/${id}`);
+  linkToChemistryInfo = (category) => (id) => () => this.props.history.push(`/chemistry/${category}/${id}#profile`);
 
   handleChange = (event, value) => {
     this.setState({ value });
