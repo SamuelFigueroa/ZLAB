@@ -13,7 +13,6 @@ const CompoundSchema = new mongoose.Schema({
   description: String,
   attributes: [String],
   safety: ObjectId,
-  flags: [String],
   storage: String,
   cas: String,
   batchCount: {
