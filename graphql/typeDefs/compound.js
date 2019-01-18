@@ -108,7 +108,6 @@ const Compound = gql`
 
   # Mutations
   extend type Mutation {
-    unsetFlags: Boolean
     exportCompoundData(input: ExportCompoundDataInput!) : String
     exactCompound(molblock: String!, cas: String!): ExactCompoundOutput!
     smilesToMolBlock(smiles: String!) : String!

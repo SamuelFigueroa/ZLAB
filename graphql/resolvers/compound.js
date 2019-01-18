@@ -526,10 +526,6 @@ const resolvers = {
     },
   },
   Mutation: {
-    unsetFlags: async () => {
-      await Compound.updateMany({}, { $unset: { flags: '' } } );
-      return true;
-    },
     exactCompound: async (root, args) => {
       const { molblock, cas } = args;
 

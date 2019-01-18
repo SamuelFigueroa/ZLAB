@@ -4,7 +4,6 @@ import puppeteer from 'puppeteer';
 import rdkit from 'node-rdkit';
 import { storageDir, cacheDir } from '../../config';
 import safetyCodes from '../../data/safetyCodes';
-import mongoose from 'mongoose';
 import path from 'path';
 import fse from 'fs-extra';
 import stringify from 'csv-stringify';
@@ -186,7 +185,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event
@@ -202,7 +200,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event
@@ -224,7 +221,7 @@ const resolvers = {
                 type: precautions[code].type,
                 statement: precautions[code].statement,
                 conditions: Array.from(new Set(Object.keys(precautions[code].conditions).filter(h_class=>h_classes.includes(h_class)).map(h_class=>precautions[code].conditions[h_class])))
-               }))
+              }))
             ) : [];
             ret.compound = content;
             return ret;
@@ -236,7 +233,7 @@ const resolvers = {
 
       return result;
     },
-    safetyDataSheetHints: async (root, args, context, info) => {
+    safetyDataSheetHints: async () => {
 
       const { h_statements } = safetyCodes;
 
@@ -330,20 +327,20 @@ const resolvers = {
   Mutation: {
     previewSafetyDataSheet: async (root, args) => {
       const errors = { errors: {} };
-      const { sds_id, product_name } = args;
+      const { sds_id } = args;
 
       let browser = await puppeteer.launch();
       let pdf_url = '';
       //Get valid SDS PDF url
       try {
-        const browserContext = browser.defaultBrowserContext();
+        // const browserContext = browser.defaultBrowserContext();
         const page = await browser.newPage();
         const pageTarget = page.target();
         await page.goto(`${chemicalSafetyViewerUrl}?id=${sds_id}`);
         await page.waitFor(viewSDSSelector);
         await page.click(viewSDSSelector);
         const newTarget = await browser.waitForTarget(target => target.opener() === pageTarget);
-        const newPage = await newTarget.page();
+        // const newPage = await newTarget.page();
         pdf_url = newTarget.url();
       } catch(err) {
         await browser.close();
@@ -354,10 +351,11 @@ const resolvers = {
       return pdf_url;
 
     },
-    addSafetyDataSheet: async (root, args, context) => {
+    addSafetyDataSheet: async (root, args) => {
       const { input } = args;
       const { upload, compound, sds_id, user } = input;
       const errors = { errors: {} };
+      const { h_statements, p_statements, pictograms } = safetyCodes;
 
       let c;
       try {
@@ -420,13 +418,16 @@ const resolvers = {
           let sds_response = await sds_request.json();
 
           const sds_details = sds_response.rows[0];
+          const h_codes = Object.keys(h_statements);
+          const p_codes = Object.keys(p_statements);
+          const pictogram_codes = Object.keys(pictograms);
           product_name = sds_details[1];
           sds.sds_id = sds_id;
           sds.manufacturer = sds_details[2];
           sds.signal_word = sds_details[12];
-          sds.pictograms = sds_details[9].split(',');
-          sds.p_statements = sds_details[5].split(',');
-          sds.h_statements = sds_details[6].split(',');
+          sds.pictograms = sds_details[9].length ? sds_details[9].split(',').filter(p=>pictogram_codes.includes(p)) : [];
+          sds.p_statements = sds_details[5].length ? sds_details[5].split(',').filter(p=>p_codes.includes(p)) : [];
+          sds.h_statements = sds_details[6].length ? sds_details[6].split(',').filter(h=>h_codes.includes(h)) : [];
         } catch(err) {
           errors.errors.upload = 'Document upload failed';
           throw new ApolloError('Document upload failed', 'FILE_UPLOAD_ERROR');
@@ -435,14 +436,14 @@ const resolvers = {
         //Get valid SDS PDF url
         try {
           browser = await puppeteer.launch();
-          const browserContext = browser.defaultBrowserContext();
+          // const browserContext = browser.defaultBrowserContext();
           const page = await browser.newPage();
           const pageTarget = page.target();
           await page.goto(`${chemicalSafetyViewerUrl}?id=${sds_id}&name=${product_name}`);
           await page.waitFor(viewSDSSelector);
           await page.click(viewSDSSelector);
           const newTarget = await browser.waitForTarget(target => target.opener() === pageTarget);
-          const newPage = await newTarget.page();
+          // const newPage = await newTarget.page();
           pdf_url = newTarget.url();
         } catch(err) {
           errors.errors.upload = 'Document upload failed';

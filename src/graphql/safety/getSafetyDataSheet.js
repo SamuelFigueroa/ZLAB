@@ -4,6 +4,7 @@ const GET_SAFETY_DATA_SHEET = gql`
   query getSafetyDataSheet($id: ID!) {
     safetyDataSheet(id: $id) {
       id
+      sds_id
       manufacturer
       signal_word
       pictograms

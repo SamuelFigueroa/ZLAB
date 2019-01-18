@@ -526,7 +526,7 @@ class SDSInfo extends Component {
                                 clickable={false}
                                 label={<Typography variant="button" color="inherit">{sds.signal_word}</Typography>}
                               />
-                              : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                              : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'No signal word' : 'No information available'}</i></Typography>
                           }
                         </TableCell>
                       </TableRow>
@@ -545,7 +545,7 @@ class SDSInfo extends Component {
                                   <Pictogram className={classes.pictogram} code={p} />
                                 </ButtonBase>
                               ))
-                              : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                              : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                           }
                         </TableCell>
                       </TableRow>
@@ -578,7 +578,7 @@ class SDSInfo extends Component {
                               </TableCell>
                             </TableRow>
                         ))
-                        : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                        : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                       }
                     </TableBody>
                   </Table>
@@ -628,7 +628,7 @@ class SDSInfo extends Component {
                               </TableCell>
                             </TableRow>
                           ))
-                          : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                          : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                       }
                     </TableBody>
                   </Table>
@@ -684,7 +684,7 @@ class SDSInfo extends Component {
                               </TableCell>
                             </TableRow>
                           ))
-                          : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                          : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                       }
                     </TableBody>
                   </Table>
