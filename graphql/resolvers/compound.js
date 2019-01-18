@@ -435,7 +435,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event
@@ -450,7 +449,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event
@@ -528,6 +526,10 @@ const resolvers = {
     },
   },
   Mutation: {
+    unsetFlags: async () => {
+      await Compound.updateMany({}, { $unset: { flags: '' } } );
+      return true;
+    },
     exactCompound: async (root, args) => {
       const { molblock, cas } = args;
 
@@ -748,7 +750,7 @@ const resolvers = {
       } else {
         //Updated structure is not registered.
         let compound_id = await Counter.getNextSequenceValue('Compound');
-        const { name, description, attributes, safety, flags, storage, cas, registration_event } = compound;
+        const { name, description, attributes, safety, storage, cas, registration_event } = compound;
 
         let newCompound = new Compound({
           smiles,
@@ -756,7 +758,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event
@@ -1163,7 +1164,6 @@ const resolvers = {
           let record = JSON.flatten(compound, '.');
           record.id = compound.id.toString();
           record.attributes = compound.attributes.join(',');
-          record.flags = compound.flags.join(',');
           record['registration_event.date'] = formatDate(compound.registration_event.date);
           records.push(record);
         }
@@ -1173,7 +1173,6 @@ const resolvers = {
         { key: 'compound_id', header: 'Compound ID'},
         { key: 'name', header: 'Name'},
         { key: 'attributes', header: 'Attributes'},
-        { key: 'flags', header: 'Flags'},
         { key: 'storage', header: 'Storage'},
         { key: 'smiles', header: 'SMILES'},
         { key: 'cas', header: 'CAS No.'},

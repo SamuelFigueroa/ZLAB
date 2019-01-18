@@ -39,7 +39,6 @@ const Container = gql`
     name: String!
     description: String!
     attributes: [String]!
-    flags: [String]!
     storage: String!
     cas: String!
     safety: ID

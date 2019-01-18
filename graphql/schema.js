@@ -4,14 +4,12 @@ import Asset from './typeDefs/asset';
 import Counter from './typeDefs/counter';
 import Printer from './typeDefs/printer';
 import User from './typeDefs/user';
-import Reagent from './typeDefs/reagent';
 import Compound from './typeDefs/compound';
 import Container from './typeDefs/container';
 import Transfer from './typeDefs/transfer';
 import Safety from './typeDefs/safety';
 
 import assetResolvers from './resolvers/asset';
-import reagentResolvers from './resolvers/reagent';
 import compoundResolvers from './resolvers/compound';
 import containerResolvers from './resolvers/container';
 import transferResolvers from './resolvers/transfer';
@@ -49,5 +47,5 @@ const Schema = gql`
 `;
 
 export const
-  typeDefs = () => [Schema, Asset, Reagent, Compound, Container, Transfer, Safety, Counter, Printer, User],
-  resolvers = [assetResolvers, reagentResolvers, compoundResolvers, containerResolvers, transferResolvers, safetyResolvers, counterResolvers, documentResolvers, locationResolvers, printerResolvers, userResolvers];
+  typeDefs = () => [Schema, Asset, Compound, Container, Transfer, Safety, Counter, Printer, User],
+  resolvers = [assetResolvers, compoundResolvers, containerResolvers, transferResolvers, safetyResolvers, counterResolvers, documentResolvers, locationResolvers, printerResolvers, userResolvers];

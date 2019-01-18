@@ -94,13 +94,11 @@ class CompoundForm extends Component {
         cas: this.props.initialState.cas,
         description: this.props.initialState.description,
         attributes: this.props.initialState.attributes,
-        flags: this.props.initialState.flags,
         storage: this.props.initialState.storage,
 
         new_attribute: '',
         added_attributes: [],
         new_flag: '',
-        added_flags: []
       };
     } else {
       this.state={
@@ -109,7 +107,6 @@ class CompoundForm extends Component {
         cas: this.props.cas !== undefined ? this.props.cas : '',
         description: '',
         attributes: [],
-        flags: [],
         storage: '',
         registration_event: {
           user: this.props.user.login
@@ -139,7 +136,6 @@ class CompoundForm extends Component {
         new_attribute: '',
         added_attributes: [],
         new_flag: '',
-        added_flags: []
       };
     }
     this.handleChange = this.handleChange.bind(this);
@@ -154,10 +150,10 @@ class CompoundForm extends Component {
 
   handleSubmit = callAction => e => {
     e.preventDefault();
-    const { name, molblock, cas, description, attributes, flags, storage } = this.state;
+    const { name, molblock, cas, description, attributes, storage } = this.state;
 
     let input = {
-      name, cas: cas.trim(), description, storage, attributes, flags
+      name, cas: cas.trim(), description, storage, attributes
     };
     if (this.props.initialState)
       input.id = this.props.initialState.id;
@@ -342,48 +338,6 @@ class CompoundForm extends Component {
                                                   variant="contained" mini color="primary"
                                                   aria-label="Add attribute"
                                                   disabled={!this.state.new_attribute.trim().length}
-                                                  classes={{ root: classes.addButton}}
-                                                >
-                                                  <AddIcon />
-                                                </Button>
-                                              </Grid>
-                                            </Grid>
-                                          </Grid>
-                                          <Grid item xs={12} sm={6}>
-                                            <Select
-                                              className={classes.textField}
-                                              options={compoundHints.flags.concat(this.state.added_flags).map(f => ({ label: f, value: f }))}
-                                              label="Safety Flags"
-                                              value={this.state.flags.map(f => ({ label: f, value: f }))}
-                                              onChange={e=>this.handleChange({ target: {name: 'flags', value: e.map(({value})=>value)}})}
-                                              isMulti={true}
-                                            />
-                                          </Grid>
-                                          <Grid item xs={12} sm={6}>
-                                            <Grid
-                                              container
-                                              alignItems="flex-end"
-                                            >
-                                              <Grid item xs={10}>
-                                                <TextField
-                                                  className={classes.textField}
-                                                  name="new_flag"
-                                                  label="Add a flag"
-                                                  fullWidth
-                                                  margin="none"
-                                                  value={this.state.new_flag}
-                                                  onChange={this.handleChange}
-                                                />
-                                              </Grid>
-                                              <Grid item xs={2}>
-                                                <Button
-                                                  onClick={this.addOption({
-                                                    fields: { options: 'flags', added_options: 'added_flags', option: 'new_flag'},
-                                                    hints: compoundHints.flags,
-                                                  })}
-                                                  variant="contained" mini color="primary"
-                                                  aria-label="Add flag"
-                                                  disabled={!this.state.new_flag.trim().length}
                                                   classes={{ root: classes.addButton}}
                                                 >
                                                   <AddIcon />

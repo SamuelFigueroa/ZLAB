@@ -344,7 +344,6 @@ const resolvers = {
           'content.name',
           'content.description',
           'content.attributes',
-          'content.flags',
           'content.storage',
           'content.cas',
           'content.registration_event.user'
@@ -410,7 +409,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event,
@@ -427,7 +425,6 @@ const resolvers = {
           name,
           description,
           attributes,
-          flags,
           storage,
           cas,
           registration_event,
@@ -860,7 +857,6 @@ const resolvers = {
           'content.name',
           'content.description',
           'content.attributes',
-          'content.flags',
           'content.storage',
           'content.cas',
           'content.registration_event.user'

@@ -17,7 +17,6 @@ const Compound = gql`
     description: String!
     attributes: [String]!
     safety: ID
-    flags: [String]!
     storage: String!
     cas: String!
     transfers: [TransferEvent]!
@@ -45,7 +44,6 @@ const Compound = gql`
 
   type CompoundHint {
     attributes: [String]!
-    flags: [String]!
     storage: [String]!
   }
 
@@ -57,7 +55,6 @@ const Compound = gql`
     name: String!
     description: String!
     attributes: [String]!
-    flags: [String]!
     storage: String!
     cas: String!
     registration_event: RegistrationEventInput!
@@ -65,7 +62,6 @@ const Compound = gql`
 
   input CompoundFilter {
     attributes: [String]
-    flags: [String]
     storage: [String]
     container: ContainerFilter
     registration_event: RegistrationEventFilter
@@ -85,7 +81,6 @@ const Compound = gql`
     name: String!
     description: String!
     attributes: [String]!
-    flags: [String]!
     storage: String!
     cas: String!
   }
@@ -113,6 +108,7 @@ const Compound = gql`
 
   # Mutations
   extend type Mutation {
+    unsetFlags: Boolean
     exportCompoundData(input: ExportCompoundDataInput!) : String
     exactCompound(molblock: String!, cas: String!): ExactCompoundOutput!
     smilesToMolBlock(smiles: String!) : String!

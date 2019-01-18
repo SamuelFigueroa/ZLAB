@@ -51,7 +51,6 @@ const tables = [
         label: 'Compound',
         filters: [
           { id: 'attributes', label: 'Attributes', type: 'multi', size: 4 },
-          { id: 'flags', label: 'Flags', type: 'multi', size: 4 },
           { id: 'storage', label: 'Storage', type: 'multi', size: 4 },
           { id: 'registration_event.user', label: 'Registered By', type: 'multi', size: 4 },
           { id: 'registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },
@@ -96,7 +95,6 @@ const tables = [
         label: 'Compound',
         filters: [
           { id: 'attributes', label: 'Attributes', type: 'multi', size: 4 },
-          { id: 'flags', label: 'Flags', type: 'multi', size: 4 },
           { id: 'storage', label: 'Storage', type: 'multi', size: 4 },
           { id: 'registration_event.user', label: 'Registered By', type: 'multi', size: 4 },
           { id: 'registration_event.date', label: { min: 'Date Registered (From)', max: 'Date Registered (To)' }, type: 'range', kind: 'date', size: 3 },

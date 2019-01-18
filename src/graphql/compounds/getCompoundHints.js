@@ -4,7 +4,6 @@ const GET_COMPOUND_HINTS = gql`
   query getCompoundHints {
     compoundHints {
       attributes
-      flags
       storage
     }
   }

@@ -10,7 +10,6 @@ const GET_COMPOUND = gql`
         name
         description
         attributes
-        flags
         storage
         cas
         registration_event {

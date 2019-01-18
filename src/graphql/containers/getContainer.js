@@ -44,7 +44,6 @@ const GET_CONTAINER = gql`
           name
           description
           attributes
-          flags
           storage
           cas
           safety

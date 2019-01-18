@@ -30,7 +30,6 @@ const CompoundFilterOptions = (props) => (
                 { containerHints => {
                   let options = {
                     'attributes': compoundHints.attributes.map(attribute => ({ label: attribute, value: attribute })),
-                    'flags': compoundHints.flags.map(flag => ({ label: flag, value: flag })),
                     'storage': compoundHints.storage.map(s => ({ label: s, value: s })),
                     'registration_event.user': users.map(user => ({ label: user.name, value: user.id })),
                     'container.category': categories,

@@ -10,7 +10,6 @@ const GET_COMPOUNDS = gql`
       name
       description
       attributes
-      flags
       storage
       cas
     }
