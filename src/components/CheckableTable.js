@@ -53,19 +53,21 @@ class CEnhancedTableHead extends Component {
                 numeric={col.numeric}
                 sortDirection={orderBy === col.id ? order : false}
               >
-                <Tooltip
-                  title="Sort"
-                  placement={col.numeric ? 'bottom-end' : 'bottom-start'}
-                  enterDelay={300}
-                >
-                  <TableSortLabel
-                    active={orderBy === col.id}
-                    direction={order}
-                    onClick={this.createSortHandler(col.id)}
+                { col.exclude === undefined || !col.exclude ? (
+                  <Tooltip
+                    title="Sort"
+                    placement={col.numeric ? 'bottom-end' : 'bottom-start'}
+                    enterDelay={300}
                   >
-                    {col.label}
-                  </TableSortLabel>
-                </Tooltip>
+                    <TableSortLabel
+                      active={orderBy === col.id}
+                      direction={order}
+                      onClick={this.createSortHandler(col.id)}
+                    >
+                      {col.label}
+                    </TableSortLabel>
+                  </Tooltip>
+                ) : col.label }
               </TableCell>
             );
           }, this)}
@@ -186,15 +188,17 @@ CEnhancedTableToolbar = withStyles(toolbarStyles)(CEnhancedTableToolbar);
 
 const styles = theme => ({
   root: {
-    // width: '100%',
     marginTop: theme.spacing.unit * 3,
-  },
-  table: {
-
-    // minWidth: 1020,
   },
   tableWrapper: {
     overflowX: 'auto',
+  },
+  cell: {
+    maxWidth: 200,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    cursor: 'default'
   }
 });
 
@@ -203,7 +207,7 @@ class CEnhancedTable extends PureComponent {
     super(props);
     this.state = {
       order: 'asc',
-      orderBy: this.props.cols[0].id,
+      orderBy: this.props.cols.filter(c => c.exclude === undefined || !c.exclude)[0].id,
       selected: [],
       page: 0,
       rowsPerPage: 5,
@@ -357,7 +361,7 @@ class CEnhancedTable extends PureComponent {
                       </TableCell>
                       {cols.map(col => (
                         <TableCell
-                          style={{ cursor: 'default' }}
+                          className={classes.cell}
                           padding="dense"
                           component={col.id == 'name' ? 'th' : 'td'}
                           scope={col.id == 'name' ? 'row' : 'col'}
