@@ -24,7 +24,7 @@ const AssetFilterOptions = (props) => {
                        .concat(loc.area.sub_areas
                          .map(sub_area => ({ label: `${loc.area.name} / ${sub_area.name}`, value: sub_area.id }))), []),
                     'condition': conditions.map(condition => ({ label: condition, value: condition })),
-                    'registration_event.user': users.map(user => ({ label: user.name, value: user.id })),
+                    'registration_event.user': users.map(user => ({ label: user.name, value: user.login })),
                     'brand': assetHints.brand.map(brand => ({ label: brand, value: brand })),
                     'model': assetHints.model.map(model => ({ label: model, value: model })),
                     'purchasing_info.supplier': assetHints.purchasing_info.supplier.map(supplier => ({ label: supplier, value: supplier })),
@@ -39,7 +39,7 @@ const AssetFilterOptions = (props) => {
                   };
                 } else {
                   options = {
-                    'registration_event.user': users.map(user => ({ label: user.name, value: user.id })),
+                    'registration_event.user': users.map(user => ({ label: user.name, value: user.login })),
                     'shared': [{ label: 'Yes', value: 'Yes' }, { label: 'No', value: 'No' }],
                     'purchase_log.supplier': assetHints.purchase_log.supplier.map(supplier => ({ label: supplier, value: supplier })),
                   };

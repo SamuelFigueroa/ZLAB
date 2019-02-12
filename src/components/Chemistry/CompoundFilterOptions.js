@@ -31,7 +31,7 @@ const CompoundFilterOptions = (props) => (
                   let options = {
                     'attributes': compoundHints.attributes.map(attribute => ({ label: attribute, value: attribute })),
                     'storage': compoundHints.storage.map(s => ({ label: s, value: s })),
-                    'registration_event.user': users.map(user => ({ label: user.name, value: user.id })),
+                    'registration_event.user': users.map(user => ({ label: user.name, value: user.login })),
                     'container.category': categories,
                     'container.vendor': containerHints.vendor.map(v => ({ label: v, value: v })),
                     'container.state': states,
@@ -45,7 +45,7 @@ const CompoundFilterOptions = (props) => (
                          locations.reduce( (acc, loc) => acc
                            .concat(loc.area.sub_areas
                              .map(sub_area => ({ label: `${loc.area.name} / ${sub_area.name}`, value: sub_area.id }))), []),
-                    'container.registration_event.user': users.map(user => ({ label: user.name, value: user.id })),
+                    'container.registration_event.user': users.map(user => ({ label: user.name, value: user.login })),
                     'container.owner': users.map(user => ({ label: user.name, value: user.id })),
                   };
                   return props.children(options);
