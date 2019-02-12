@@ -77,15 +77,17 @@ class ContainerInfoPanel extends PureComponent {
   }
 
   static contextTypes = {
-    swipeableViews: PropTypes.object.isRequired,
+    swipeableViews: PropTypes.object,
   };
 
   componentDidMount() {
-    setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.standard);
+    if(this.context.swipeableViews !== undefined)
+      setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.standard);
   }
 
   componentDidUpdate() {
-    setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.standard);
+    if(this.context.swipeableViews !== undefined)
+      setTimeout(() => this.context.swipeableViews.slideUpdateHeight(), this.props.theme.transitions.duration.standard);
   }
 
   handleClose = toggleForm => () => toggleForm();
@@ -277,7 +279,7 @@ ContainerInfoPanel.propTypes = {
   theme: PropTypes.object.isRequired,
   container: PropTypes.object,
   toggleDetails: PropTypes.func.isRequired,
-  editMode: PropTypes.bool.isRequired
+  // editMode: PropTypes.bool.isRequired
 };
 
 export default withStyles(styles, { withTheme: true })(ContainerInfoPanel);
