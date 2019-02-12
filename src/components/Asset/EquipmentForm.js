@@ -201,7 +201,7 @@ class EquipmentForm extends Component {
                           spacing={8}>
                           <Grid item xs={12}>
                             <Typography variant="display1" gutterBottom>
-                              { `${update ? 'Edit' : 'Register'} ${this.state.category}` }
+                              { `${update ? 'Edit' : 'Register'} Asset` }
                             </Typography>
                           </Grid>
                           <Grid item xs={12}>

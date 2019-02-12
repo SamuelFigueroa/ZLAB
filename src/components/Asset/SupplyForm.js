@@ -46,7 +46,7 @@ const dateTimeToString = (d) => {
 
 const categories = [
   { id: 'equipment', name: 'Lab Equipment'},
-  { id: 'supplies', name: 'Lab Consumables'},
+  { id: 'consumables', name: 'Lab Consumables'},
   //'Computer Hardware', 'Software'
 ];
 
@@ -112,7 +112,7 @@ class SupplyForm extends Component {
               spacing={8}>
               <Grid item xs={12}>
                 <Typography variant="display1" gutterBottom>
-                  { `${update ? 'Edit' : 'Register'} ${this.state.category}` }
+                  { `${update ? 'Edit' : 'Register'} Asset` }
                 </Typography>
               </Grid>
               <Grid item xs={12}>

@@ -123,7 +123,7 @@ class SupplyInfo extends Component {
         { asset => {
           tabs[0]['component'] = (
             <div className={classes.root}>
-              <Tooltip title={`Edit ${asset.category} Information`}>
+              <Tooltip title="Edit Consumable Information">
                 <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/consumables/${asset.id}/update`}>
                   <EditIcon />
                 </Button>
