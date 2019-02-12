@@ -626,7 +626,7 @@ const resolvers = {
         const excludedFields = ['shared', 'training_required'];
 
         if(words) {
-          
+
           let paths = Object.keys(Asset.schema.paths).filter(path =>
             ( Asset.schema.paths[path].instance == 'String' ||
             (
@@ -677,6 +677,7 @@ const resolvers = {
             record['purchasing_info.date'] = formatDate(asset.purchasing_info.date);
             record['purchasing_info.warranty_exp'] = asset.purchasing_info.warranty_exp ? formatDate(asset.purchasing_info.warranty_exp) : '';
             record['registration_event.date'] = formatDate(asset.registration_event.date);
+            record['category'] = 'Equipment';
             records.push(record);
           }
         }
@@ -712,6 +713,7 @@ const resolvers = {
             let record = asset;
             record.id = asset.id.toString();
             record['registration_event.date'] = formatDate(asset.registration_event.date);
+            record['category'] = 'Consumables';
             records.push(record);
           }
         }

@@ -14,12 +14,12 @@ import AssetSearch from './AssetSearch';
 
 const assetForms = {
   equipment: EquipmentForm,
-  supplies: SupplyForm,
+  consumables: SupplyForm,
 };
 
 const assetInfo ={
   equipment: EquipmentInfo,
-  supplies: SupplyInfo,
+  consumables: SupplyInfo,
 };
 
 const AssetRoutes = (props) => {

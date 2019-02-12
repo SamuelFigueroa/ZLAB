@@ -282,10 +282,10 @@ class EquipmentInfo extends Component {
             </div>
           );
           tabs[1]['component'] = (
-            <DocumentLog docs={asset.documents} user={user} assetID={asset.id} assetHeadline={`${asset.category}: ${asset.name}`}/>
+            <DocumentLog docs={asset.documents} user={user} assetID={asset.id} assetHeadline={`Equipment: ${asset.name}`}/>
           );
           tabs[2]['component'] = (
-            <MaintenanceLog events={asset.maintenance_log} assetID={asset.id} assetHeadline={`${asset.category}: ${asset.name}`}/>
+            <MaintenanceLog events={asset.maintenance_log} assetID={asset.id} assetHeadline={`Equipment: ${asset.name}`}/>
           );
           if(isAuthenticated) {
             tabs[3]['component'] = (

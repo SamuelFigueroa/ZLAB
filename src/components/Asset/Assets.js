@@ -71,7 +71,7 @@ class Assets extends Component {
         >
           <Grid item xs={12}>
             <Typography align="center" variant="display1" gutterBottom className={classes.title}>
-              Lab Equipment & Supplies
+              Equipment & Consumables
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -83,7 +83,7 @@ class Assets extends Component {
                 <TextField
                   name="search"
                   autoComplete="off"
-                  placeholder="Search for lab equipment or supplies"
+                  placeholder="Search for lab equipment or consumables"
                   fullWidth
                   margin="normal"
                   value={this.state.search}
@@ -116,14 +116,14 @@ class Assets extends Component {
               spacing={40}
             >
               <Grid item>
-                <Tooltip title="Add New Equipment/Supply" classes={{ tooltip: classes.tooltip }}>
+                <Tooltip title="Add New Equipment/Consumables" classes={{ tooltip: classes.tooltip }}>
                   <Button variant="fab" color="default" aria-label="Add asset" component={Link} to="/assets/equipment/new" className={classes.actionButton}>
                     <AddIcon fontSize="large"/>
                   </Button>
                 </Tooltip>
               </Grid>
               <Grid item>
-                <Tooltip title="View All Equipment/Supplies" classes={{ tooltip: classes.tooltip }}>
+                <Tooltip title="View All Equipment/Consumables" classes={{ tooltip: classes.tooltip }}>
                   <Button variant="fab" color="default" aria-label="View all assets" component={Link} to="/assets/all" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
                   </Button>

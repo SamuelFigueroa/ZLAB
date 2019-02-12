@@ -31,6 +31,7 @@ const styles = (theme) => ({
 const tables = [
   {
     id: 'equipment',
+    route: 'equipment',
     label: 'Equipment',
     component: null,
     category: 'Lab Equipment',
@@ -94,10 +95,11 @@ const tables = [
     ]
   },{
     id: 'supplies',
-    label: 'Supplies',
+    route: 'consumables',
+    label: 'Consumables',
     component: null,
     category: 'Lab Supplies',
-    tooltip: 'Add Supplies',
+    tooltip: 'Add Consumables',
     cols: [
       { id: 'name', numeric: false, label: 'Name' },
       { id: 'shared', numeric: false, label: 'Shared' },
@@ -202,8 +204,8 @@ class AssetSearch extends Component {
                         defaultFilter={{ category: table.category }}
                         filterOptions={(props)=><AssetFilterOptions category={table.category} {...props} />}
                         filters={table.filters}
-                        title={table.category}
-                        onRowClick={this.linkToAssetInfo(table.id)}
+                        title={table.label}
+                        onRowClick={this.linkToAssetInfo(table.route)}
                         exportData={{
                           mutate: async input => {
                             input.search2 = input.search;

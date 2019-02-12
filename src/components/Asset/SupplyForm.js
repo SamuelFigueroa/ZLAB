@@ -46,7 +46,7 @@ const dateTimeToString = (d) => {
 
 const categories = [
   { id: 'equipment', name: 'Lab Equipment'},
-  { id: 'supplies', name: 'Lab Supplies'},
+  { id: 'supplies', name: 'Lab Consumables'},
   //'Computer Hardware', 'Software'
 ];
 
@@ -142,7 +142,7 @@ class SupplyForm extends Component {
                             onChange={this.linkToCategory}
                             margin="normal"
                             SelectProps={{
-                              renderValue: () => this.state.category
+                              renderValue: () => 'Lab Consumables'
                             }}
                           >
                             {categories.map( category => (

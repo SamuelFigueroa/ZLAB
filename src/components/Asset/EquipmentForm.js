@@ -70,7 +70,7 @@ const dateTimeToString = (d) => {
 
 const categories = [
   { id: 'equipment', name: 'Lab Equipment'},
-  { id: 'supplies', name: 'Lab Supplies'},
+  { id: 'consumables', name: 'Lab Consumables'},
   //'Computer Hardware', 'Software'
 ];
 

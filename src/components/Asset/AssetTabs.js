@@ -26,6 +26,7 @@ const tabs = [
   {
     id: 'equipment',
     label: 'Equipment',
+    route: 'equipment',
     component: null,
     category: 'Lab Equipment',
     tooltip: 'Add Equipment',
@@ -88,10 +89,11 @@ const tabs = [
     ]
   },{
     id: 'supplies',
-    label: 'Supplies',
+    route: 'consumables',
+    label: 'Consumables',
     component: null,
     category: 'Lab Supplies',
-    tooltip: 'Add Supplies',
+    tooltip: 'Add Consumables',
     cols: [
       { id: 'name', numeric: false, label: 'Name' },
       { id: 'shared', numeric: false, label: 'Shared' },
@@ -122,7 +124,7 @@ const tabs = [
 class AssetTabs extends Component {
   constructor(props) {
     super(props);
-    const index = tabs.map(tab => tab.id).indexOf(this.props.category);
+    const index = tabs.map(tab => tab.route).indexOf(this.props.category);
     this.state = {
       value: index == -1 ? 0 : index
     };
@@ -134,18 +136,18 @@ class AssetTabs extends Component {
   componentDidMount() {
     let location = this.props.history.location;
     if(!location.hash) {
-      location.hash = tabs[this.state.value].id;
+      location.hash = tabs[this.state.value].route;
       return this.props.history.push(location);
     }
   }
 
   componentDidUpdate(prevProps) {
     if(prevProps.category !== this.props.category) {
-      const index = tabs.map(tab => tab.id).indexOf(this.props.category);
+      const index = tabs.map(tab => tab.route).indexOf(this.props.category);
       if(index == -1)
       {
         let location = this.props.history.location;
-        location.hash = tabs[0].id;
+        location.hash = tabs[0].route;
         this.props.history.push(location);
       }
       this.setState({ value:  index == -1 ? 0 : index });
@@ -157,14 +159,14 @@ class AssetTabs extends Component {
   handleChange = (event, value) => {
     this.setState({ value });
     let location = this.props.history.location;
-    location.hash = tabs[value].id;
+    location.hash = tabs[value].route;
     return this.props.history.push(location);
   };
 
   handleChangeIndex = index => {
     this.setState({ value: index });
     let location = this.props.history.location;
-    location.hash = tabs[index].id;
+    location.hash = tabs[index].route;
     return this.props.history.push(location);
   };
 
@@ -209,8 +211,8 @@ class AssetTabs extends Component {
                       defaultFilter={{ category: tab.category }}
                       filterOptions={(props)=><AssetFilterOptions category={tab.category} {...props} />}
                       filters={tab.filters}
-                      title={tab.category}
-                      onRowClick={this.linkToAssetInfo(tab.id)}
+                      title={tab.label}
+                      onRowClick={this.linkToAssetInfo(tab.route)}
                       exportData={{
                         mutate: async input => {
                           input.search2 = input.search;

@@ -124,7 +124,7 @@ class SupplyInfo extends Component {
           tabs[0]['component'] = (
             <div className={classes.root}>
               <Tooltip title={`Edit ${asset.category} Information`}>
-                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/supplies/${asset.id}/update`}>
+                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/consumables/${asset.id}/update`}>
                   <EditIcon />
                 </Button>
               </Tooltip>
@@ -158,10 +158,10 @@ class SupplyInfo extends Component {
             </div>
           );
           tabs[1]['component'] = (
-            <DocumentLog docs={asset.documents} user={user} assetID={asset.id} assetHeadline={`${asset.category}: ${asset.name}`}/>
+            <DocumentLog docs={asset.documents} user={user} assetID={asset.id} assetHeadline={`Consumables: ${asset.name}`}/>
           );
           tabs[2]['component'] = (
-            <PurchaseLog events={asset.purchase_log} assetID={asset.id} assetHeadline={`${asset.category}: ${asset.name}`}/>
+            <PurchaseLog events={asset.purchase_log} assetID={asset.id} assetHeadline={`Consumables: ${asset.name}`}/>
           );
           if(isAuthenticated) {
             tabs[3]['component'] = (
@@ -174,7 +174,7 @@ class SupplyInfo extends Component {
                       justify="center">
                       <Grid item xs={4}>
                         <Button variant="contained" fullWidth onClick={() => deleteAsset(asset.id, asset.category)} color="secondary" className={classes.delete}>
-                        Delete Lab Supply
+                        Delete Lab Consumable
                         </Button>
                       </Grid>
                     </Grid>
