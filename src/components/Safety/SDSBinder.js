@@ -40,7 +40,7 @@ const sdsTable = {
   cols: [
     { id: 'molblock', numeric: false, label: 'Structure', exclude: true },
     { id: 'name', numeric: false, label: 'Name' },
-    { id: 'manufacturer', numeric: false, label: 'Manufacturer' },
+    { id: 'manufacturer', numeric: false, label: 'SDS Supplier' },
     { id: 'signal_word', numeric: false, label: 'Signal Word' },
     { id: 'pictograms', numeric: false, label: 'Pictograms', exclude: true },
     { id: 'compound_id', numeric: false, label: 'Compound ID' },
