@@ -31,7 +31,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -55,12 +55,12 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="5.0159819"
-     inkscape:cx="134.8929"
+     inkscape:cx="92.528315"
      inkscape:cy="23.746586"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg12" />
+     inkscape:current-layer="areas" />
   <g
      id="g292"
      transform="translate(1.0596127e-4,17.863136)">
@@ -153,42 +153,42 @@
          y="2.8705914"
          x="37.394066"
          height="13.157942"
-         width="32.695496"
+         width="25"
          id="double_door_freezer"
-         style="opacity:1;fill-rule:nonzero;stroke-width:1.05624163" />
-      <rect
-         inkscape:label="freezer 4"
-         ry="4.5"
-         y="2.8705914"
-         x="72.271172"
-         height="13.157942"
-         width="24.122892"
-         id="freezer4"
-         style="opacity:1;fill-rule:nonzero;stroke-width:0.90726471" />
+         style="opacity:1;fill-rule:nonzero;stroke-width:0.92361152" />
       <rect
          inkscape:label="freezer 3"
-         style="opacity:1;fill-rule:nonzero;stroke-width:0.90726471"
-         id="freezer3"
-         width="24.122892"
+         ry="4.5"
+         y="2.8705914"
+         x="64.271172"
          height="13.157942"
-         x="113.08956"
+         width="20"
+         id="freezer3"
+         style="opacity:1;fill-rule:nonzero;stroke-width:0.82610327" />
+      <rect
+         inkscape:label="biofreezer"
+         style="opacity:1;fill-rule:nonzero;stroke-width:0.78371036"
+         id="biofreezer"
+         width="18"
+         height="13.157942"
+         x="135.07045"
          y="2.8705914"
          ry="4.5" />
       <rect
          inkscape:label="freezer 2"
          ry="4.5"
          y="2.8705914"
-         x="153.13599"
+         x="155.13599"
          height="13.157942"
-         width="24.122892"
+         width="20"
          id="freezer2"
-         style="opacity:1;fill-rule:nonzero;stroke-width:0.90726471" />
+         style="opacity:1;fill-rule:nonzero;stroke-width:0.82610327" />
       <rect
-         style="opacity:1;fill-rule:nonzero;stroke-width:0.90726471"
+         style="opacity:1;fill-rule:nonzero;stroke-width:0.82610327"
          id="freezer1"
-         width="24.122892"
+         width="20"
          height="13.157942"
-         x="184.23657"
+         x="186.23657"
          y="-17.863136"
          ry="4.5"
          inkscape:label="freezer 1" />
