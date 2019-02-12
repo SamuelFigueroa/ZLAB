@@ -452,6 +452,64 @@ const resolvers = {
         return result;
       }
     },
+    barcodedContainer: async (root, args) => {
+      const { barcode } = args;
+      let container = await Container.findOne({ barcode });
+      if(!container) {
+        throw new ApolloError('Can\'t find container', 'BAD_REQUEST');
+      } else {
+        let compound = await Compound.findById(container.content);
+        const {
+          id,
+          smiles,
+          compound_id,
+          compound_id_aliases,
+          name,
+          description,
+          attributes,
+          storage,
+          cas,
+          registration_event,
+          safety
+        } = compound;
+
+        let molblock = rdkit.smilesToMolBlock(smiles);
+        let content = {
+          id,
+          smiles,
+          molblock,
+          compound_id,
+          compound_id_aliases,
+          name,
+          description,
+          attributes,
+          storage,
+          cas,
+          registration_event,
+          safety
+        };
+
+        let result;
+
+        const { area: areaID, sub_area: subAreaID } = container.location;
+        let location = await Location.findById(areaID);
+        const area = location.area.name;
+        const sub_area = location.area.sub_areas.id(subAreaID).name;
+
+        result = container.toObject({
+          virtuals: true,
+          transform: (doc, ret) => {
+            ret.location = {};
+            ret.location.area = {id: areaID, name: area};
+            ret.location.sub_area = {id: subAreaID, name: sub_area};
+            ret.content = content;
+            return ret;
+          }
+        });
+
+        return result;
+      }
+    },
     containerHints: async (root, args, context, info) => {
 
       const fieldsFromInfo = (info) => {
@@ -568,6 +626,45 @@ const resolvers = {
         throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
       }
       return id;
+    },
+    updateContainerLocations: async (root, args) => {
+      const { ids, area, sub_area } = args;
+
+      const errors = { errors: {} };
+      let location;
+      try {
+        location = await Location.findById(area);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+      if(!location) {
+        errors.errors.area = 'Area has been removed from database';
+        throw new UserInputError('Container update failed', errors);
+      }
+
+      let sub_location = location.area.sub_areas.id(sub_area);
+      if(!sub_location) {
+        errors.errors.sub_area = 'Sub-area has been removed from database';
+        throw new UserInputError('Container update failed', errors);
+      }
+
+      let containers;
+      try {
+        containers = await Container.find({ '_id': { $in: ids.map(id=>mongoose.Types.ObjectId(id)) } });
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+
+      if(containers && containers.length) {
+        try {
+          await Container.updateMany({ '_id': { $in: containers.map(container=>mongoose.Types.ObjectId(container.id)) } },
+            { 'location.area': area, 'location.sub_area': sub_area });
+        } catch(err) {
+          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+        }
+      }
+
+      return true;
     },
     deleteContainer: async (root, args) => {
       const container_ID = mongoose.Types.ObjectId(args.id);

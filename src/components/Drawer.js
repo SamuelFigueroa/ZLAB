@@ -44,16 +44,16 @@ const MainDrawer = (props) => {
           <ListItemText primary="Reagents & Samples" />
         </ListItem>
         <ListItem button component={Link} to="/assets">
-          <ListItemText primary="Equipment & Supplies" />
+          <ListItemText primary="Assets" />
         </ListItem>
         <ListItem button component={Link} to="/safety">
-          <ListItemText primary="Lab Safety" />
+          <ListItemText primary="Safety" />
         </ListItem>
         <ListItem button>
           <ListItemText primary="People" />
         </ListItem>
-        <ListItem button>
-          <ListItemText primary="Facilities" />
+        <ListItem button component={Link} to="/spaces">
+          <ListItemText primary="Spaces" />
         </ListItem>
       </List>
     </div>

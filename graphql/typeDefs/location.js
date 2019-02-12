@@ -39,6 +39,18 @@ const Location = gql`
     sub_area: String!
   }
 
+  input UpdateLocationInput {
+    locationID: ID!
+    subAreaID: ID!
+    area: String!
+    sub_area: String!
+  }
+
+  input DeleteLocationInput {
+    locationID: ID!
+    subAreaID: ID!
+  }
+
   # Queries
   extend type Query {
     locations: [LocationObject]!
@@ -49,6 +61,12 @@ const Location = gql`
 
     #Create Mutations
     addLocation(input: AddLocationInput!) : Boolean
+
+    #Update Mutations
+    updateLocation(input: UpdateLocationInput!) : Boolean
+
+    #Delete Mutations
+    deleteLocation(input: [DeleteLocationInput!]!) : Boolean
   }
 `;
 

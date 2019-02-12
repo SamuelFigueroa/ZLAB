@@ -15,12 +15,20 @@ export default data => {
     errors.area = 'Area field is required';
   }
 
+  if(data.area === 'UNASSIGNED') {
+    errors.area = 'UNASSIGNED area name is reserved';
+  }
+
   if(!Validator.isLength(data.sub_area, { min: 2, max: 30 })) {
     errors.sub_area = 'Sub-area is invalid';
   }
 
   if(Validator.isEmpty(data.sub_area)) {
     errors.sub_area = 'Sub-area field is required';
+  }
+
+  if(data.sub_area === 'UNASSIGNED') {
+    errors.sub_area = 'UNASSIGNED sub-area name is reserved';
   }
 
   return {

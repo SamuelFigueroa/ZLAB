@@ -5,6 +5,7 @@ import Register from './Register';
 import AssetRoutes from './Asset/AssetRoutes';
 import ChemistryRoutes from './Chemistry/ChemistryRoutes';
 import SafetyRoutes from './Safety/SafetyRoutes';
+import LocationRoutes from './Location/LocationRoutes';
 import PrinterRoutes from './Printer/PrinterRoutes';
 
 
@@ -15,6 +16,7 @@ const PrivateRoutes = ({ auth }) => {
       <AssetRoutes auth={auth} />
       <ChemistryRoutes auth={auth}/>
       <SafetyRoutes auth={auth} />
+      <LocationRoutes auth={auth} />
       <PrinterRoutes />
       {
         user.admin ? (

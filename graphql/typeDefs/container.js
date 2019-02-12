@@ -131,6 +131,7 @@ const Container = gql`
     containers(filter: CompoundFilter, search: String): [Container]!
     container(id: ID!): Container!
     containerHints: ContainerHint!
+    barcodedContainer(barcode: String!): Container!
   }
 
   # Mutations
@@ -142,6 +143,7 @@ const Container = gql`
 
     #Update Mutations
     updateContainer(input: UpdateContainerInput!) : Boolean
+    updateContainerLocations(ids: [ID!]!, area: ID!, sub_area: ID!) : Boolean
 
     #Delete Mutations
     deleteContainer(id: ID!) : Boolean
