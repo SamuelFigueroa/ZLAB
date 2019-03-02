@@ -1,27 +1,22 @@
 import { host, port, mongoURI }  from './config';
 
-import User from './models/User';
-
+import http from 'http';
 import express from 'express';
 import mongoose from 'mongoose';
-// import passport from 'passport';
-import jwt_decode from 'jwt-decode';
-import { ApolloServer } from 'apollo-server-express';
-import { typeDefs, resolvers } from './graphql/schema';
-// import resolvers from './graphql/resolvers';
 import path from 'path';
 import fs from 'fs-extra';
 import fetch from 'node-fetch';
+import jwt_decode from 'jwt-decode';
 
+import { ApolloServer, PubSub } from 'apollo-server-express';
+import { typeDefs, resolvers } from './graphql/schema';
+import startRfidServer from './rfid-server';
+
+import User from './models/User';
+
+const pubsub = new PubSub();
 
 const app = express();
-
-// passport middleware
-// app.use(passport.initialize());
-
-// passport config
-// import passportConfig from './config/passport';
-// passportConfig(passport);
 
 // Connect to MongoDB
 mongoose
@@ -39,21 +34,16 @@ app.all( /^\/(?!graphql)(.*)\/?$/i, (req, res) => {
   res.render('index');
 });
 
-//Secure graphql endpoint with passport
-// app.post('/graphql', passport.authenticate('jwt', { session: false }));
-
-app.listen(port, host, () => {
-  console.info('Express listening on port', port);
-});
-
 const server = new ApolloServer({
   // These will be defined for both new or existing servers
   typeDefs,
   resolvers,
   introspection: true,
-  context: async ({ req }) => {
+  context: async ({ req, connection }) => {
 
-    const context = {};
+    let context = { pubsub };
+    if (connection)
+      return { ...connection.context, pubsub };
     // get the user token from the headers
     const token = req.headers.authorization || '';
 
@@ -76,9 +66,40 @@ const server = new ApolloServer({
     return context;
 
   },
+  // subscriptions: {
+  // path: '/subscriptions',
+  // onConnect: (connectionParams, webSocket, context) => {
+  // ...
+  // },
+  // onOperation: (message, params, webSocket) => {
+  // Manipulate and return the params, e.g.
+  // params.context.randomId = uuid.v4();
+
+  // Or specify a schema override
+  // if (shouldOverrideSchema()) {
+  //   params.schema = newSchema;
+  // }
+
+  // return params;
+  // },
+  // onOperationComplete: webSocket => {
+  // ...
+  // },
+  // onDisconnect: (webSocket, context) => {
+  // ...
+  // },
+  // },
 });
 
 server.applyMiddleware({ app }); // app is from an existing express app
+
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
+httpServer.listen(port, host, () => {
+  console.log(`🚀 Server ready at http://${host}:${port}${server.graphqlPath}`);
+  console.log(`🚀 Subscriptions ready at ws://${host}:${port}${server.subscriptionsPath}`);
+});
 
 fetch(`http://${host}:${port}/graphql`, {
   method: 'POST',
@@ -108,6 +129,8 @@ fetch(`http://${host}:${port}/graphql`, {
       type => type.possibleTypes !== null,
     );
     result.data.__schema.types = filteredData;
+    // Start RFID TCP server
+    startRfidServer(result.data);
     fs.writeFile(path.join(__dirname, 'src', 'fragmentTypes.json'), JSON.stringify(result.data), err => {
       if (err) {
         console.error('Error writing fragmentTypes file', err);

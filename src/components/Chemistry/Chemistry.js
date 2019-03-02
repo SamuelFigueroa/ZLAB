@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import HandIcon from '@material-ui/icons/PanTool';
+import InventoryIcon from '@material-ui/icons/PlaylistAddCheck';
 import ListIcon from '@material-ui/icons/ViewList';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -136,6 +137,25 @@ class Chemistry extends Component {
                     <HandIcon fontSize="large"/>
                   </Button>
                 </Tooltip>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Grid
+                container
+                alignItems="center"
+                justify="center"
+              >
+                <Grid item>
+                  <Tooltip title="Inventorize Reagents" classes={{ tooltip: classes.tooltip }}>
+                    <Button variant="fab" color="default" aria-label="Inventorize reagents" component={Link} to="/chemistry/containers/inventory" className={classes.actionButton}>
+                      <InventoryIcon fontSize="large"/>
+                    </Button>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                </Grid>
+                <Grid item>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>

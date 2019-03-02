@@ -1,5 +1,5 @@
 import { ApolloClient } from 'apollo-client';
-import { ApolloLink } from 'apollo-link';
+import { ApolloLink, split } from 'apollo-link';
 // import { HttpLink } from 'apollo-link-http';
 import { createUploadLink } from 'apollo-upload-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -7,6 +7,8 @@ import { withClientState } from 'apollo-link-state';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getMainDefinition } from 'apollo-utilities';
 import introspectionQueryResultData from './fragmentTypes.json';
 
 const fragmentMatcher = new IntrospectionFragmentMatcher({
@@ -20,6 +22,13 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
 const uploadLink = createUploadLink({
   uri: '/graphql',
   credentials: 'include'
+});
+
+const wsLink = new WebSocketLink({
+  uri: `ws://${location.host}/graphql`,
+  options: {
+    reconnect: true
+  }
 });
 
 const cache = new InMemoryCache({ fragmentMatcher });
@@ -60,7 +69,15 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const link = ApolloLink.from([authLink, stateLink, uploadLink]);
+const link = split(
+  // split based on operation type
+  ({ query }) => {
+    const { kind, operation } = getMainDefinition(query);
+    return kind === 'OperationDefinition' && operation === 'subscription';
+  },
+  wsLink,
+  ApolloLink.from([authLink, stateLink, uploadLink]),
+);
 
 const client = new ApolloClient({
   link,

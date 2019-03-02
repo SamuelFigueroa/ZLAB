@@ -19,6 +19,7 @@ import validateFilename from '../../validation/filename';
 
 const cache = path.normalize(cacheDir);
 const storage = path.normalize(storageDir);
+const CONTAINER_INVENTORIZED = 'CONTAINER_INVENTORIZED';
 
 const cacheFile = ({ stream, name }) => {
   const dstPath = path.join(cache, `${name}`);
@@ -397,64 +398,6 @@ const resolvers = {
     },
     container: async (root, args) => {
       let container = await Container.findById(args.id);
-      if(!container) {
-        throw new ApolloError('Can\'t find container', 'BAD_REQUEST');
-      } else {
-        let compound = await Compound.findById(container.content);
-        const {
-          id,
-          smiles,
-          compound_id,
-          compound_id_aliases,
-          name,
-          description,
-          attributes,
-          storage,
-          cas,
-          registration_event,
-          safety
-        } = compound;
-
-        let molblock = rdkit.smilesToMolBlock(smiles);
-        let content = {
-          id,
-          smiles,
-          molblock,
-          compound_id,
-          compound_id_aliases,
-          name,
-          description,
-          attributes,
-          storage,
-          cas,
-          registration_event,
-          safety
-        };
-
-        let result;
-
-        const { area: areaID, sub_area: subAreaID } = container.location;
-        let location = await Location.findById(areaID);
-        const area = location.area.name;
-        const sub_area = location.area.sub_areas.id(subAreaID).name;
-
-        result = container.toObject({
-          virtuals: true,
-          transform: (doc, ret) => {
-            ret.location = {};
-            ret.location.area = {id: areaID, name: area};
-            ret.location.sub_area = {id: subAreaID, name: sub_area};
-            ret.content = content;
-            return ret;
-          }
-        });
-
-        return result;
-      }
-    },
-    barcodedContainer: async (root, args) => {
-      const { barcode } = args;
-      let container = await Container.findOne({ barcode });
       if(!container) {
         throw new ApolloError('Can\'t find container', 'BAD_REQUEST');
       } else {
@@ -1076,8 +1019,67 @@ const resolvers = {
         throw new ApolloError('Document retrieval failed', 'FILE_CACHE_ERROR');
       }
     },
+    inventorizeContainer: async (root, args, { pubsub }) => {
+      const { barcode } = args;
+      let container = await Container.findOne({ barcode });
+      if(!container)
+        return null;
+      let compound = await Compound.findById(container.content);
+      const {
+        id,
+        smiles,
+        compound_id,
+        compound_id_aliases,
+        name,
+        description,
+        attributes,
+        storage,
+        cas,
+        registration_event,
+        safety
+      } = compound;
 
-  }
+      let molblock = rdkit.smilesToMolBlock(smiles);
+      let content = {
+        id,
+        smiles,
+        molblock,
+        compound_id,
+        compound_id_aliases,
+        name,
+        description,
+        attributes,
+        storage,
+        cas,
+        registration_event,
+        safety
+      };
+
+      const { area: areaID, sub_area: subAreaID } = container.location;
+      let location = await Location.findById(areaID);
+      const area = location.area.name;
+      const sub_area = location.area.sub_areas.id(subAreaID).name;
+
+      const result = container.toObject({
+        virtuals: true,
+        transform: (doc, ret) => {
+          ret.location = {};
+          ret.location.area = {id: areaID, name: area};
+          ret.location.sub_area = {id: subAreaID, name: sub_area};
+          ret.content = content;
+          return ret;
+        }
+      });
+      pubsub.publish(CONTAINER_INVENTORIZED, { containerInventorized: result });
+
+      return null;
+    },
+  },
+  Subscription: {
+    containerInventorized: {
+      subscribe: (root, args, { pubsub }) => pubsub.asyncIterator([CONTAINER_INVENTORIZED])
+    }
+  },
 };
 
 export default resolvers;

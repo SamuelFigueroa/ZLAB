@@ -25,6 +25,7 @@ const Schema = gql`
   schema {
     query: Query
     mutation: Mutation
+    subscription: Subscription
   }
 
   type Error {
@@ -44,6 +45,8 @@ const Schema = gql`
   type Mutation {
     setErrors(errors: [ErrorInput]!) : Boolean
   }
+
+  type Subscription
 `;
 
 export const

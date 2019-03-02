@@ -131,13 +131,13 @@ const Container = gql`
     containers(filter: CompoundFilter, search: String): [Container]!
     container(id: ID!): Container!
     containerHints: ContainerHint!
-    barcodedContainer(barcode: String!): Container!
   }
 
   # Mutations
   extend type Mutation {
     exportContainerData(input: ExportContainerDataInput!) : String
-
+    inventorizeContainer(barcode: String!) : Boolean
+    
     #Create Mutations
     addContainer(input: AddContainerInput!) : Boolean
 
@@ -147,6 +147,11 @@ const Container = gql`
 
     #Delete Mutations
     deleteContainer(id: ID!) : Boolean
+  }
+
+  # Subscriptions
+  extend type Subscription {
+    containerInventorized : Container!
   }
 `;
 

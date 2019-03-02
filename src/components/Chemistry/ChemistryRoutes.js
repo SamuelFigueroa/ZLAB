@@ -21,6 +21,7 @@ import VolumeTransferForm from './VolumeTransferForm';
 import DryContainerForm from './DryContainerForm';
 import ResuspendContainerForm from './ResuspendContainerForm';
 import SampleHandling from './SampleHandling';
+import RFIDInventory from './RFIDInventory';
 
 const ChemistryRoutes = (props) => {
   const {user, isAuthenticated} = props.auth;
@@ -29,6 +30,7 @@ const ChemistryRoutes = (props) => {
       <Route exact path="/chemistry" component={Chemistry}/>
       <Switch>
         <Route exact path="/chemistry/all" render={({ location })=><ChemistryTabs category={location.hash.slice(1)}/>}/>
+        <Route exact path="/chemistry/containers/inventory" render={() => <RFIDInventory />} />
         <Route exact path="/chemistry/search" render={({ location })=>(
           <GetContainers>
             {
