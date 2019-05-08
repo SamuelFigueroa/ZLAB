@@ -50,13 +50,13 @@ class CEnhancedTableHead extends Component {
             return (
               <TableCell
                 key={col.id}
-                numeric={col.numeric}
+                numeric={false}
                 sortDirection={orderBy === col.id ? order : false}
               >
                 { col.exclude === undefined || !col.exclude ? (
                   <Tooltip
                     title="Sort"
-                    placement={col.numeric ? 'bottom-end' : 'bottom-start'}
+                    placement="bottom-start"
                     enterDelay={300}
                   >
                     <TableSortLabel
@@ -211,6 +211,7 @@ class CEnhancedTable extends PureComponent {
       selected: [],
       page: 0,
       rowsPerPage: 25,
+      numericCols: Object.fromEntries(this.props.cols.map(col=>[col.id, col.numeric]))
     };
     this.getSorting = this.getSorting.bind(this);
     this.handleRequestSort = this.handleRequestSort.bind(this);
@@ -236,7 +237,12 @@ class CEnhancedTable extends PureComponent {
   }
 
   getSorting = (order, orderBy) => {
-    return order === 'desc' ? (a, b) => '' + b[orderBy].localeCompare(a[orderBy]) : (a, b) => '' + a[orderBy].localeCompare(b[orderBy]);
+    if(this.state.numericCols[orderBy])
+      return order === 'desc' ?
+        (a, b) => b[orderBy]-a[orderBy] : (a, b) => a[orderBy]-b[orderBy];
+    return order === 'desc' ?
+      (a, b) => '' + b[orderBy].localeCompare(a[orderBy]) :
+      (a, b) => '' + a[orderBy].localeCompare(b[orderBy]);
   }
 
   handleRequestSort = (event, property) => {
@@ -301,8 +307,6 @@ class CEnhancedTable extends PureComponent {
     const { classes, title, subheading, cols, data, actions, editMode, editable } = this.props;
     const { order, orderBy, rowsPerPage, page, selected } = this.state;
     const queryResults = data.slice();
-    // const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
-
     return (
       <Paper className={classes.root}>
         <CEnhancedTableToolbar
@@ -365,9 +369,9 @@ class CEnhancedTable extends PureComponent {
                           padding="dense"
                           component={col.id == 'name' ? 'th' : 'td'}
                           scope={col.id == 'name' ? 'row' : 'col'}
-                          numeric={col.numeric}
+                          numeric={false}
                           key={col.id}>
-                          {n[col.id] == '' ? 'N/A' : n[col.id]}
+                          {n[col.id] === '' ? 'N/A' : n[col.id]}
                         </TableCell>
                       )
                       )}

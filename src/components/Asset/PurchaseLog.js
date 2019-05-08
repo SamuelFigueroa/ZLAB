@@ -39,8 +39,8 @@ const purchaseCols = [
   { id: 'date', numeric: false, label: 'Date' },
   { id: 'supplier', numeric: false, label: 'Supplier' },
   { id: 'catalog_number', numeric: false, label: 'Catalog No.' },
-  { id: 'price', numeric: false, label: 'Price' },
-  { id: 'quantity', numeric: false, label: 'Quantity' },
+  { id: 'price', numeric: true, label: 'Price' },
+  { id: 'quantity', numeric: true, label: 'Quantity' },
   { id: 'received', numeric: false, label: 'Date Received' },
 ];
 

@@ -38,7 +38,7 @@ const styles = (theme) => ({
 const locationCols = [
   { id: 'area', numeric: false, label: 'Area' },
   { id: 'sub_area', numeric: false, label: 'Sub Area' },
-  { id: 'containerCount', numeric: false, label: 'Containers' }
+  { id: 'containerCount', numeric: true, label: 'Containers' }
 ];
 
 class Locations extends Component {
