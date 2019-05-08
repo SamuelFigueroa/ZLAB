@@ -32,11 +32,11 @@ class GetContainers extends Component {
             skip={true}
           >
             { ({ client }) => {
-              const callQuery = async (filter, search) => {
+              const callQuery = async variables => {
                 try {
                   const { data, loading, error } = await client.query({
                     query: GET_CONTAINERS,
-                    variables: { filter, search },
+                    variables,
                     fetchPolicy: 'network-only'
                   });
                   if (loading) return <ProgressIndicator />;

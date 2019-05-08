@@ -31,7 +31,7 @@ export default data => {
       };
     }
     return {
-      errors: { supplies: errors },
+      errors: { consumables: errors },
       isValid: isEmpty(errors)
     };
   }

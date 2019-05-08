@@ -30,25 +30,30 @@ class TableExport extends Component {
   };
 
   handleClose = () => {
-    this.props.exportData.clearErrors();
+    this.props.onClose();
     this.setState({ open: false, name: '' });
   };
 
   handleChange = e => this.setState({ [e.target.name]: e.target.value });
 
   handleSubmit = async () => {
-    const { handleDownload } = this.props.exportData;
+    const { onSubmit } = this.props;
     let filename = this.state.name;
     if (filename) {
       if(!filename.endsWith('.csv')) filename=filename.concat('.csv');
     } else {
       filename = 'export.csv';
     }
-    await handleDownload(filename, this.handleClose);
+
+    let fileURL = await onSubmit(filename);
+    if(fileURL) {
+      this.handleClose();
+      window.open(fileURL);
+    }
   }
 
   render() {
-    const { errors } = this.props.exportData;
+    const { errors } = this.props;
     return (
       <div>
         <Tooltip title="Download">
@@ -94,7 +99,9 @@ class TableExport extends Component {
 }
 
 TableExport.propTypes = {
-  exportData: PropTypes.object.isRequired
+  onSubmit: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default TableExport;

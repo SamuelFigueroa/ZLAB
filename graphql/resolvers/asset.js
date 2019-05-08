@@ -19,6 +19,7 @@ import validateFilename from '../../validation/filename';
 
 const storage = path.normalize(storageDir);
 const cache = path.normalize(cacheDir);
+const EQUIPMENT_INVENTORIZED = 'EQUIPMENT_INVENTORIZED';
 
 const cacheFile = ({ stream, name }) => {
   const dstPath = path.join(cache, `${name}`);
@@ -395,6 +396,45 @@ const resolvers = {
       }
       return null;
     },
+    updateEquipmentLocations: async (root, args) => {
+      const { ids, area, sub_area } = args;
+
+      const errors = { errors: {} };
+      let location;
+      try {
+        location = await Location.findById(area);
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+      if(!location) {
+        errors.errors.area = 'Area has been removed from database';
+        throw new UserInputError('Container update failed', errors);
+      }
+
+      let sub_location = location.area.sub_areas.id(sub_area);
+      if(!sub_location) {
+        errors.errors.sub_area = 'Sub-area has been removed from database';
+        throw new UserInputError('Container update failed', errors);
+      }
+
+      let equipment;
+      try {
+        equipment = await Asset.find({ '_id': { $in: ids.map(id=>mongoose.Types.ObjectId(id)) } });
+      } catch(err) {
+        throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+      }
+
+      if(equipment && equipment.length) {
+        try {
+          await Asset.updateMany({ '_id': { $in: equipment.map(e=>mongoose.Types.ObjectId(e.id)) } },
+            { 'location.area': area, 'location.sub_area': sub_area });
+        } catch(err) {
+          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
+        }
+      }
+
+      return true;
+    },
     deleteAsset: async (root, args) => {
       let asset;
       let asset_documents;
@@ -769,7 +809,49 @@ const resolvers = {
       }
       return null;
     },
-  }
+    inventorizeEquipment: async (root, args, { pubsub }) => {
+      const { barcode } = args;
+      let asset = await Asset.findOne({ barcode });
+      if(!asset)
+        return null;
+
+      const documents = await asset.documents.map( async docID => {
+        let document = await Document.findById(docID);
+        return {
+          id: docID,
+          name: document.name,
+          size: document.size,
+          category: document.category,
+          uploaded_by: document.upload_event.user,
+          upload_date: document.upload_event.date
+        };
+      });
+
+      const { area: areaID, sub_area: subAreaID } = asset.location;
+      let location = await Location.findById(areaID);
+      const area = location.area.name;
+      const sub_area = location.area.sub_areas.id(subAreaID).name;
+
+      const result = asset.toObject({
+        virtuals: true,
+        transform: (doc, ret) => {
+          ret.location = {};
+          ret.location.area = {id: areaID, name: area};
+          ret.location.sub_area = {id: subAreaID, name: sub_area};
+          ret.documents = documents;
+          return ret;
+        }
+      });
+      pubsub.publish(EQUIPMENT_INVENTORIZED, { equipmentInventorized: result });
+
+      return null;
+    },
+  },
+  Subscription: {
+    equipmentInventorized: {
+      subscribe: (root, args, { pubsub }) => pubsub.asyncIterator([EQUIPMENT_INVENTORIZED])
+    }
+  },
 };
 
 

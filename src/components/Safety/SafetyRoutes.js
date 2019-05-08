@@ -17,13 +17,14 @@ const SafetyRoutes = (props) => {
       <Switch>
         <Route exact path="/safety/sds/all" component={SDSBinder}/>
         <Route exact path="/safety/sds/new" render={({ location }) => (
-          queryString.parse(location.search).compound !== undefined ? <SDSSearch user={user} compound={queryString.parse(location.search).compound} />
-          : <SDSCheck />
+          queryString.parse(location.search).compound !== undefined ?
+            <SDSSearch user={user} compound={queryString.parse(location.search).compound} />
+            : <SDSCheck />
         )} />
         <Route exact path="/safety/sds/:id" render={
-          ({ match, location }) => {
+          ({ match }) => {
             return <SDSInfo user={user} isAuthenticated={isAuthenticated} id={match.params.id}/>;
-        }} />
+          }} />
       </Switch>
     </Fragment>
   );

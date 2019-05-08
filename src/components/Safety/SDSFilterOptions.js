@@ -15,17 +15,17 @@ const pictograms = {
   'GHS09':'Environment'
 };
 const SDSFilterOptions = (props) => (
-    <GetSafetyDataSheetHints>
-      { sdsHints => {
-        let options = {
-          'manufacturer': sdsHints.manufacturer.map(m => ({ label: m, value: m })),
-          'signal_word': sdsHints.signal_word.map(word => ({ label: word, value: word })),
-          'pictograms': sdsHints.pictograms.map(p => ({ label: pictograms[p.toUpperCase()], value: p })),
-          'h_class': sdsHints.h_class.map(h => ({ label: h.replace(class_regex, '').trim(), value: h }))
-        };
-        return props.children(options);
-      }}
-    </GetSafetyDataSheetHints>
+  <GetSafetyDataSheetHints>
+    { sdsHints => {
+      let options = {
+        'manufacturer': sdsHints.manufacturer.map(m => ({ label: m, value: m })),
+        'signal_word': sdsHints.signal_word.map(word => ({ label: word, value: word })),
+        'pictograms': sdsHints.pictograms.map(p => ({ label: pictograms[p.toUpperCase()], value: p })),
+        'h_class': sdsHints.h_class.map(h => ({ label: h.replace(class_regex, '').trim(), value: h }))
+      };
+      return props.children(options);
+    }}
+  </GetSafetyDataSheetHints>
 );
 
 SDSFilterOptions.propTypes = {

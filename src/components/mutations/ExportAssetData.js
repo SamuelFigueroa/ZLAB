@@ -20,9 +20,14 @@ class ExportAssetData extends Component {
             onError={ errorObj => handleError(errorObj) }
           >
             { mutate => {
-              const exportAssetData = input => mutate({
-                variables: { input }
-              });
+              const exportAssetData = async input => {
+                let response = await mutate({
+                  variables: { input }
+                });
+                let fileURL = response !== undefined ? response.data.exportAssetData : null;
+                return fileURL;
+              };
+
               return this.props.children(exportAssetData, errors, clearErrors);
             }}
           </Mutation>

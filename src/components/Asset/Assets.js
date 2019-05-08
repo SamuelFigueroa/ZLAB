@@ -11,6 +11,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import ListIcon from '@material-ui/icons/ViewList';
 import Tooltip from '@material-ui/core/Tooltip';
+import InventoryIcon from '@material-ui/icons/PlaylistAddCheck';
 
 const styles = theme => ({
   root: {
@@ -126,6 +127,13 @@ class Assets extends Component {
                 <Tooltip title="View All Equipment/Consumables" classes={{ tooltip: classes.tooltip }}>
                   <Button variant="fab" color="default" aria-label="View all assets" component={Link} to="/assets/all" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
+                  </Button>
+                </Tooltip>
+              </Grid>
+              <Grid item>
+                <Tooltip title="Inventorize Equipment" classes={{ tooltip: classes.tooltip }}>
+                  <Button variant="fab" color="default" aria-label="Inventorize equipment" component={Link} to="/assets/equipment/inventory" className={classes.actionButton}>
+                    <InventoryIcon fontSize="large"/>
                   </Button>
                 </Tooltip>
               </Grid>

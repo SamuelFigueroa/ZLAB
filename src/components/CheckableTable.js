@@ -210,7 +210,7 @@ class CEnhancedTable extends PureComponent {
       orderBy: this.props.cols.filter(c => c.exclude === undefined || !c.exclude)[0].id,
       selected: [],
       page: 0,
-      rowsPerPage: 5,
+      rowsPerPage: 25,
     };
     this.getSorting = this.getSorting.bind(this);
     this.handleRequestSort = this.handleRequestSort.bind(this);

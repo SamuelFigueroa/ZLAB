@@ -79,7 +79,7 @@ const Safety = gql`
   }
 
   input ExportCompoundSafetyDataInput {
-    filter: SDSFilter!
+    filter: SDSFilter
     search: String
     search2: String!
     searchCategories: [String]!

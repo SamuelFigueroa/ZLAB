@@ -63,12 +63,18 @@ const Compound = gql`
   input CompoundFilter {
     attributes: [String]
     storage: [String]
+    substructure: SubstructureFilter
     container: ContainerFilter
     registration_event: RegistrationEventFilter
   }
 
+  input SubstructureFilter {
+    pattern: String
+    removeHs: Boolean
+  }
+
   input ExportCompoundDataInput {
-    filter: CompoundFilter!
+    filter: CompoundFilter
     search: String
     search2: String!
     searchCategories: [String]!
@@ -111,6 +117,7 @@ const Compound = gql`
     exportCompoundData(input: ExportCompoundDataInput!) : String
     exactCompound(molblock: String!, cas: String!): ExactCompoundOutput!
     smilesToMolBlock(smiles: String!) : String!
+    molBlockToSmiles(molblock: String!) : String!
 
     #Create Mutations
     addCompound(input: AddCompoundInput!) : ID

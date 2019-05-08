@@ -9,6 +9,7 @@ const GET_LOCATIONS = gql`
           sub_areas {
             id
             name
+            containerCount
           }
         }
       }

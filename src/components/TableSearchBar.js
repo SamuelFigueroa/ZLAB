@@ -57,20 +57,46 @@ class TableSearchBar extends Component {
     super(props);
     this.state={
       open: false,
+      value: '',
+      selectedCols: [],
+      timeoutID: null
     };
 
-    this.toggleCategorySelect = this.toggleCategorySelect.bind(this);
+    this.toggleColumnSelect = this.toggleColumnSelect.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.textField = React.createRef();
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  toggleCategorySelect = () => this.setState({ open: !this.state.open });
+  componentDidUpdate(prevProps) {
+    const { value, selectedCols, initialized } = this.props;
+    if (prevProps.initialized === false && initialized === true)
+      this.setState({ value, selectedCols });
+  }
+
+  toggleColumnSelect = () => this.setState({ open: !this.state.open });
 
   handleClose = () => this.setState({ open: false });
 
+  handleChange = update => {
+    this.setState(update, this.handleSubmit);
+  }
+
+  handleSubmit = () => {
+    const { value, selectedCols, timeoutID } = this.state;
+    if (timeoutID)
+      clearTimeout(timeoutID);
+    this.setState({ timeoutID: setTimeout(
+      () => {
+        this.props.onSubmit({ value, selectedCols });
+        this.setState({ timeoutID: null });
+      }, 300) });
+  }
+
   render() {
-    const { classes, value, categories, selected, onChange } = this.props;
-    const { open } =this.state;
+    const { classes, cols, initialized } = this.props;
+    const { open, value, selectedCols } = this.state;
 
     return (
       <NoSsr>
@@ -79,6 +105,7 @@ class TableSearchBar extends Component {
             <TextField
               name="search"
               variant="outlined"
+              disabled={!initialized}
               label=""
               fullWidth
               autoComplete="off"
@@ -89,7 +116,7 @@ class TableSearchBar extends Component {
                 'aria-haspopup': 'true',
               }}
               value={value}
-              onChange={e => onChange('search', e.target.value)}
+              onChange={e => this.handleChange({ value: e.target.value, selectedCols })}
               InputProps={{
                 classes: {
                   input: classes.input,
@@ -104,8 +131,8 @@ class TableSearchBar extends Component {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="Select Search Category"
-                      onClick={this.toggleCategorySelect}
+                      aria-label="Select Columns"
+                      onClick={this.toggleColumnSelect}
                       className={classes.dropDown}
                     >
                       <ArrowDropDownIcon />
@@ -138,24 +165,45 @@ class TableSearchBar extends Component {
                     >
                       <MenuList dense>
                         {
-                          <MenuItem key="_all" id="_all" onClick={() => onChange('searchCategory', categories.map(c => c.id))}>
+                          <MenuItem key="_all" id="_all" onClick={() => this.handleChange(
+                            {
+                              value,
+                              selectedCols: selectedCols.length === cols.length ? [] : cols.map(c => c.key),
+                            }
+                          )}>
                             <Checkbox
-                              checked={selected.length == categories.length}
+                              checked={selectedCols.length == cols.length}
                               tabIndex={-1}
                               disableRipple
                             />
-                            All Categories
+                            All Columns
                           </MenuItem>
                         }
-                        {  categories.map(
-                          category =>
-                            <MenuItem key={category.id} id={category.id} onClick={() => onChange('searchCategory', category.id)}>
+                        {  cols.map(
+                          col =>
+                            <MenuItem key={col.key} id={col.key} onClick={() => {
+                              const selectedIndex = selectedCols.indexOf(col.key);
+                              let newSelected = [];
+                              if (selectedIndex === -1) {
+                                newSelected = newSelected.concat(selectedCols, col.key);
+                              } else if (selectedIndex === 0) {
+                                newSelected = newSelected.concat(selectedCols.slice(1));
+                              } else if (selectedIndex === selectedCols.length - 1) {
+                                newSelected = newSelected.concat(selectedCols.slice(0, -1));
+                              } else if (selectedIndex > 0) {
+                                newSelected = newSelected.concat(
+                                  selectedCols.slice(0, selectedIndex),
+                                  selectedCols.slice(selectedIndex + 1),
+                                );
+                              }
+                              return this.handleChange({ value, selectedCols: newSelected });
+                            }}>
                               <Checkbox
-                                checked={selected.includes(category.id)}
+                                checked={selectedCols.includes(col.key)}
                                 tabIndex={-1}
                                 disableRipple
                               />
-                              {category.label}
+                              {col.label}
                             </MenuItem>)
                         }
                       </MenuList>
@@ -173,10 +221,11 @@ class TableSearchBar extends Component {
 
 TableSearchBar.propTypes = {
   classes: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  initialized: PropTypes.bool.isRequired,
   value: PropTypes.string.isRequired,
-  selected: PropTypes.array.isRequired,
-  categories: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired
+  selectedCols: PropTypes.array.isRequired,
+  cols: PropTypes.array.isRequired
 };
 
 export default withStyles(styles, { withTheme: true })(TableSearchBar);

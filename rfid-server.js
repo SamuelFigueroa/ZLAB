@@ -14,6 +14,12 @@ const INVENTORIZE_CONTAINER = gql`
   }
 `;
 
+const INVENTORIZE_EQUIPMENT= gql`
+   mutation inventorizeEquipment($barcode: String!) {
+    inventorizeEquipment(barcode: $barcode)
+  }
+`;
+
 export default introspectionQueryResultData => {
   const fragmentMatcher = new IntrospectionFragmentMatcher({
     introspectionQueryResultData
@@ -25,11 +31,14 @@ export default introspectionQueryResultData => {
     cache
   });
   const inventorizeContainer = async barcode => await client.mutate({ mutation: INVENTORIZE_CONTAINER, variables: { barcode }});
+  const inventorizeEquipment = async barcode => await client.mutate({ mutation: INVENTORIZE_EQUIPMENT, variables: { barcode }});
+
   const tcpServer = net.createServer();
   tcpServer.on('connection', socket => {
     socket.on('data', data => {
       socket.write(data);
       inventorizeContainer(Buffer.from(data.toString('utf8'), 'hex').toString('utf8').replace(/\0/g, ''));
+      inventorizeEquipment(Buffer.from(data.toString('utf8'), 'hex').toString('utf8').replace(/\0/g, ''));
     });
   });
   tcpServer.listen(rfidPort, host, () => {

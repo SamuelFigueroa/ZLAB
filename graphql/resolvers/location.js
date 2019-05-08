@@ -10,7 +10,47 @@ import Container from '../../models/Container';
 const resolvers = {
   Query: {
     locations: async () => {
-      let locations = await Location.find();
+      let locations = await Location.aggregate([
+        {
+          $unwind: '$area.sub_areas'
+        },
+        {
+          $lookup: {
+            from: 'containers',
+            localField: 'area.sub_areas._id',
+            foreignField: 'location.sub_area',
+            as: 'containerArray'
+          }
+        },
+        {
+          $addFields: {
+            'id': '$_id',
+            'area.sub_areas.id': '$area.sub_areas._id',
+            'area.sub_areas.containerCount': {
+              $let: {
+                vars: { containerCount: { $size: '$containerArray' }},
+                in: '$$containerCount'
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            'containerArray': 0,
+            'area.sub_areas._id': 0
+          }
+        },
+        {
+          $group : { _id : '$_id', area: { $first: '$area' }, 'sub_areas': { $push: '$area.sub_areas' } }
+        },
+        {
+          $project: {
+            'id': '$_id',
+            'area.name': '$area.name',
+            'area.sub_areas': '$sub_areas',
+          }
+        },
+      ]);
       return locations;
     },
   },

@@ -1,9 +1,7 @@
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, split } from 'apollo-link';
-// import { HttpLink } from 'apollo-link-http';
 import { createUploadLink } from 'apollo-upload-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { withClientState } from 'apollo-link-state';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/schema';
 import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
@@ -14,10 +12,6 @@ import introspectionQueryResultData from './fragmentTypes.json';
 const fragmentMatcher = new IntrospectionFragmentMatcher({
   introspectionQueryResultData
 });
-// const httpLink =  new HttpLink({
-//   uri: '/graphql',
-//   credentials: 'include'
-// });
 
 const uploadLink = createUploadLink({
   uri: '/graphql',
@@ -50,13 +44,6 @@ const defaultState = {
   errors: []
 };
 
-const stateLink = withClientState({
-  cache,
-  defaults: defaultState,
-  resolvers,
-  typeDefs
-});
-
 const authLink = new ApolloLink((operation, forward) => {
   operation.setContext(({ headers }) => {
     const token = localStorage.getItem('jwtToken');
@@ -76,12 +63,17 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  ApolloLink.from([authLink, stateLink, uploadLink]),
+  ApolloLink.from([authLink, uploadLink]),
 );
 
 const client = new ApolloClient({
   link,
-  cache
+  cache,
+  resolvers,
+  typeDefs,
+  defaults: cache.writeData({
+    data: defaultState,
+  }),
 });
 
 export default client;

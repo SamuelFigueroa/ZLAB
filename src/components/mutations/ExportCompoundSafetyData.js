@@ -20,9 +20,13 @@ class ExportCompoundSafetyData extends Component {
             onError={ errorObj => handleError(errorObj) }
           >
             { mutate => {
-              const exportCompoundSafetyData = input => mutate({
-                variables: { input }
-              });
+              const exportCompoundSafetyData = async input => {
+                let response = await mutate({
+                  variables: { input }
+                });
+                let fileURL = response !== undefined ? response.data.exportCompoundSafetyData : null;
+                return fileURL;
+              };
               return this.props.children(exportCompoundSafetyData, errors, clearErrors);
             }}
           </Mutation>

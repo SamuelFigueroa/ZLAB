@@ -37,7 +37,8 @@ const styles = (theme) => ({
 
 const locationCols = [
   { id: 'area', numeric: false, label: 'Area' },
-  { id: 'sub_area', numeric: false, label: 'Sub Area' }
+  { id: 'sub_area', numeric: false, label: 'Sub Area' },
+  { id: 'containerCount', numeric: false, label: 'Containers' }
 ];
 
 class Locations extends Component {
@@ -102,7 +103,8 @@ class Locations extends Component {
       .map(location => location.area.sub_areas.map(sub_area => ({
         id: `${location.id.toString()},${sub_area.id.toString()}`,
         area: location.area.name,
-        sub_area: sub_area.name
+        sub_area: sub_area.name,
+        containerCount: sub_area.containerCount
       })))
       .reduce((locs, area) => locs.concat(area));
 

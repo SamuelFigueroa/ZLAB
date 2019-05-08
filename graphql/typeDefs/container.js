@@ -119,7 +119,7 @@ const Container = gql`
   }
 
   input ExportContainerDataInput {
-    filter: CompoundFilter!
+    filter: CompoundFilter
     search: String
     search2: String!
     searchCategories: [String]!
@@ -137,7 +137,7 @@ const Container = gql`
   extend type Mutation {
     exportContainerData(input: ExportContainerDataInput!) : String
     inventorizeContainer(barcode: String!) : Boolean
-    
+
     #Create Mutations
     addContainer(input: AddContainerInput!) : Boolean
 

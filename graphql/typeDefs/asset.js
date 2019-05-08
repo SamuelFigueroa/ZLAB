@@ -245,7 +245,7 @@ const Asset = gql`
   }
 
   input ExportAssetDataInput {
-    filter: AssetFilter!
+    filter: AssetFilter
     search: String
     search2: String!
     searchCategories: [String]!
@@ -262,6 +262,7 @@ const Asset = gql`
   # Mutations
   extend type Mutation {
     exportAssetData(input: ExportAssetDataInput!) : String
+    inventorizeEquipment(barcode: String!) : Boolean
 
     #Create Mutations
     addAsset(input: AddAssetInput!) : Boolean
@@ -272,11 +273,17 @@ const Asset = gql`
     updateAsset(input: UpdateAssetInput!) : Boolean
     updateMaintenanceEvent(input: UpdateMaintenanceEventInput!) : Boolean
     updatePurchaseEvent(input: UpdatePurchaseEventInput!) : Boolean
+    updateEquipmentLocations(ids: [ID!]!, area: ID!, sub_area: ID!) : Boolean
+
 
     #Delete Mutations
     deleteAsset(id: ID!) : Boolean
     deleteMaintenanceEvent(ids: [ID!]!, assetID: ID!) : Boolean
     deletePurchaseEvent(ids: [ID!]!, assetID: ID!) : Boolean
+  }
+  # Subscriptions
+  extend type Subscription {
+    equipmentInventorized : Asset!
   }
 `;
 

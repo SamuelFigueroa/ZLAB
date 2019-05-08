@@ -9,8 +9,9 @@ import SupplyForm from './SupplyForm';
 import EquipmentInfo from './EquipmentInfo';
 import SupplyInfo from './SupplyInfo';
 import GetAsset from '../queries/GetAsset';
-import GetAssets from '../queries/GetAssets';
+import GetAssetQueryVariables from '../queries/GetAssetQueryVariables';
 import AssetSearch from './AssetSearch';
+import EquipmentInventory from './EquipmentInventory';
 
 const assetForms = {
   equipment: EquipmentForm,
@@ -30,20 +31,29 @@ const AssetRoutes = (props) => {
       <Switch>
         <Route exact path="/assets/all" render={({ location })=><AssetTabs category={location.hash.slice(1)}/>}/>
         <Route exact path="/assets/search" render={({ location })=>(
-          <GetAssets>
+          <GetAssetQueryVariables id="search_equipment">
             {
-              (getAssets, errors, clearErrors) =>
-                <AssetSearch
-                  data={{
-                    query: getAssets,
-                    errors,
-                    clearErrors
-                  }}
-                  search={queryString.parse(location.search).q}
-                />
-            }
-          </GetAssets>
+              equipmentQueryVariables => (
+                <GetAssetQueryVariables id="search_consumables">
+                  {
+                    consumablesQueryVariables =>
+                      <AssetSearch
+                        initialized={(
+                          equipmentQueryVariables.search === queryString.parse(location.search).q
+                          && consumablesQueryVariables.search === queryString.parse(location.search).q
+                        )}
+                        results={{
+                          equipment: equipmentQueryVariables.resultsCount,
+                          consumables: consumablesQueryVariables.resultsCount
+                        }}
+                        search={queryString.parse(location.search).q}
+                      />
+                  }
+                </GetAssetQueryVariables>
+              )}
+          </GetAssetQueryVariables>
         )} />
+        <Route exact path="/assets/equipment/inventory" render={() => <EquipmentInventory />} />
         <Route exact path="/assets/:category/new" render={
           ({ match }) => {
             let AssetForm = assetForms[match.params.category];

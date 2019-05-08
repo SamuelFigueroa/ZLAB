@@ -36,7 +36,7 @@ const containerCols = [
   { id: 'formatted_location', numeric: false, label: 'Location' },
 ];
 
-class RFIDInventory extends Component {
+class ContainerInventory extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -201,8 +201,8 @@ class RFIDInventory extends Component {
   }
 }
 
-RFIDInventory.propTypes = {
+ContainerInventory.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(RFIDInventory);
+export default withStyles(styles)(ContainerInventory);

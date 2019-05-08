@@ -9,13 +9,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import TableSearchBar from './TableSearchBar';
 import Radio from '@material-ui/core/Radio';
 
 class REnhancedTableHead extends Component {
@@ -42,20 +37,20 @@ class REnhancedTableHead extends Component {
           {cols.map(col => {
             return (
               <TableCell
-                key={col.id}
-                numeric={col.numeric}
-                sortDirection={orderBy === col.id ? order : false}
+                key={col.key}
+                numeric={false}
+                sortDirection={orderBy === col.key ? order : false}
               >
-                { col.exclude === undefined || !col.exclude ? (
+                { col.alphanumeric ? (
                   <Tooltip
                     title="Sort"
-                    placement={col.numeric ? 'bottom-end' : 'bottom-start'}
+                    placement="bottom-start"
                     enterDelay={300}
                   >
                     <TableSortLabel
-                      active={orderBy === col.id}
+                      active={orderBy === col.key}
                       direction={order}
-                      onClick={this.createSortHandler(col.id)}
+                      onClick={this.createSortHandler(col.key)}
                     >
                       {col.label}
                     </TableSortLabel>
@@ -75,43 +70,6 @@ REnhancedTableHead.propTypes = {
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   cols: PropTypes.array.isRequired,
-};
-
-class REnhancedTableToolbar extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const { title, rightHeader, actions } = this.props;
-    const { search } = actions;
-
-    return (
-      <Toolbar>
-        <Grid container
-          alignItems="center"
-          justify="flex-start"
-          spacing={16}
-        >
-          <Grid item>
-            <Typography variant="headline" color="primary" id="tableTitle">
-              {title}
-            </Typography>
-          </Grid>
-          <Grid item sm={4} xs={6}>
-            <TableSearchBar value={search.value} selected={search.selectedCategories} categories={search.categories} onChange={search.handleChange} />
-          </Grid>
-          { rightHeader ? rightHeader: null }
-        </Grid>
-      </Toolbar>
-    );
-  }
-}
-
-REnhancedTableToolbar.propTypes = {
-  title: PropTypes.string.isRequired,
-  rightHeader: PropTypes.object,
-  actions: PropTypes.object.isRequired
 };
 
 const styles = theme => ({
@@ -137,38 +95,33 @@ class RadioTable extends PureComponent {
     super(props);
     this.state = {
       order: 'asc',
-      orderBy: this.props.cols.filter(c => c.exclude === undefined || !c.exclude)[0].id,
+      orderBy: this.props.cols.filter(c => c.alphanumeric)[0].key,
       page: 0,
       rowsPerPage: 25,
-      searchCategories: this.props.cols.filter(c => c.exclude === undefined || !c.exclude).map(c => c.id),
-      search: '',
-      data: [],
     };
     this.getSorting = this.getSorting.bind(this);
     this.handleRequestSort = this.handleRequestSort.bind(this);
     this.handleChangePage = this.handleChangePage.bind(this);
     this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
-    this.handleSearch = this.handleSearch.bind(this);
   }
+
   static contextTypes = {
     swipeableViews: PropTypes.object,
   };
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     if(this.context.swipeableViews !== undefined)
       this.context.swipeableViews.slideUpdateHeight();
+    if(prevProps.queryExecuted === false && this.props.queryExecuted === true)
+      this.props.onRowClick(
+        this.props.data.length ?
+          this.props.data.slice().sort(this.getSorting(this.state.order, this.state.orderBy))[0].id : ''
+      )();
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     if(this.context.swipeableViews !== undefined)
       this.context.swipeableViews.slideUpdateHeight();
-    let data = await this.props.data.query.execute();
-    this.setState({ data },
-      this.props.onRowClick(
-        data.length ?
-          data.slice().sort(this.getSorting(this.state.order, this.state.orderBy))[0].id : ''
-      )
-    );
   }
 
   getSorting = (order, orderBy) => {
@@ -186,31 +139,6 @@ class RadioTable extends PureComponent {
     this.setState({ order, orderBy });
   };
 
-  handleSearch = (name, value) => {
-    if (name == 'search')
-      return this.setState({ search: value });
-    if (Array.isArray(value))
-      return this.setState({ searchCategories: this.state.searchCategories.length == value.length ? [] : value });
-    const { searchCategories } = this.state;
-    const selectedIndex = searchCategories.indexOf(value);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(searchCategories, value);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(searchCategories.slice(1));
-    } else if (selectedIndex === searchCategories.length - 1) {
-      newSelected = newSelected.concat(searchCategories.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        searchCategories.slice(0, selectedIndex),
-        searchCategories.slice(selectedIndex + 1),
-      );
-    }
-
-    return this.setState({ searchCategories: newSelected });
-  }
-
   handleChangePage = (event, page) => {
     this.setState({ page });
   };
@@ -220,18 +148,12 @@ class RadioTable extends PureComponent {
   };
 
   render() {
-    const { classes, title, rightHeader, cols, onRowClick, selected } = this.props;
-    const { order, orderBy, rowsPerPage, page, data, search, searchCategories } = this.state;
-    const queryResults = data.slice();
+    const { classes, cols, onRowClick, toolbar, data, selected } = this.props;
+    const { order, orderBy, rowsPerPage, page } = this.state;
 
     return (
       <Paper className={classes.root}>
-        <REnhancedTableToolbar
-          title={title}
-          rightHeader={rightHeader}
-          actions={{
-            search: { value: search, categories: cols.filter(c => c.exclude === undefined || !c.exclude), selectedCategories: searchCategories, handleChange: this.handleSearch },
-          }}/>
+        { toolbar === undefined ? null : toolbar }
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <REnhancedTableHead
@@ -241,13 +163,7 @@ class RadioTable extends PureComponent {
               cols={cols}
             />
             <TableBody>
-              { queryResults
-                .filter( result => !searchCategories.length ||
-                  searchCategories.some( cat => {
-                    const data = result[cat].toLowerCase !== undefined ? result[cat].toLowerCase() : result[cat].props.label.toLowerCase();
-                    return data.indexOf(search.toLowerCase()) > -1;
-                  })
-                )
+              { data
                 .sort(this.getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(n => {
@@ -270,22 +186,17 @@ class RadioTable extends PureComponent {
                         <TableCell
                           className={classes.cell}
                           padding="dense"
-                          component={col.id == 'name' ? 'th' : 'td'}
-                          scope={col.id == 'name' ? 'row' : 'col'}
-                          numeric={col.numeric}
-                          key={col.id}>
-                          {n[col.id] == '' ? 'N/A' : n[col.id]}
+                          component={col.key == 'name' ? 'th' : 'td'}
+                          scope={col.key == 'name' ? 'row' : 'col'}
+                          numeric={false}
+                          key={col.key}>
+                          {n[col.key] == '' ? 'N/A' : n[col.key]}
                         </TableCell>
                       )
                       )}
                     </TableRow>
                   );
                 })}
-              {/*emptyRows > 0 && (
-                <TableRow style={{ height: 49 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )*/}
             </TableBody>
           </Table>
         </div>
@@ -311,11 +222,12 @@ class RadioTable extends PureComponent {
 
 RadioTable.propTypes = {
   classes: PropTypes.object.isRequired,
-  title: PropTypes.string.isRequired,
   cols: PropTypes.array.isRequired,
-  data: PropTypes.object.isRequired,
-  rightHeader: PropTypes.object,
+  data: PropTypes.array.isRequired,
   onRowClick: PropTypes.func.isRequired,
+  toolbar: PropTypes.object,
+  selected: PropTypes.string,
+  queryExecuted: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(RadioTable);

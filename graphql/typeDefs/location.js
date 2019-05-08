@@ -25,6 +25,7 @@ const Location = gql`
   type SubArea {
     id: ID!
     name: String!
+    containerCount: Int!
   }
 
   #INPUT

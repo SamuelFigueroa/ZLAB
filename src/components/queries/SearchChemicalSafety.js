@@ -47,6 +47,6 @@ class SearchChemicalSafety extends Component {
 
 SearchChemicalSafety.propTypes = {
   children: PropTypes.func.isRequired,
- };
+};
 
 export default SearchChemicalSafety;

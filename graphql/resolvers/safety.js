@@ -515,6 +515,7 @@ const resolvers = {
       }
 
       const { filter, search, searchCategories, search2, name } = input;
+      const { hclass_to_hcodes } = safetyCodes;
       let pipeline = [
         {
           $lookup: {

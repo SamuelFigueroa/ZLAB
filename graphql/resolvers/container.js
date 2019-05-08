@@ -265,15 +265,18 @@ const resolvers = {
       ];
 
       let containers = [];
+      let errors;
+      let substructureFilter;
       if(filter && Object.keys(filter).length) {
         const { errors: inputErrors, isValid } = validateCompoundFilter(filter, 'containers');
-        const errors = { errors: inputErrors };
+        errors = { errors: inputErrors };
         // Check validation
         if (!isValid) {
           throw new UserInputError('Container filtering failed', errors);
         }
 
-        const { container, ...compoundFilters } = filter;
+        const { container, substructure, ...compoundFilters } = filter;
+        substructureFilter = substructure;
         let other = compoundFilters;
         let containerLocation;
         let containerOwner;
@@ -386,12 +389,44 @@ const resolvers = {
           return containers;
         }
       }
-
-      containers = await Container.aggregate(pipeline);
-
-      for (const container of containers) {
-        container.content.molblock = rdkit.smilesToMolBlock(container.content.smiles);
+      let pipeOut = await Container.aggregate(pipeline);
+      //Substructure input validation
+      if(substructureFilter && substructureFilter.pattern) {
+        let patternSmiles;
+        try {
+          patternSmiles = rdkit.molBlockToSmiles(substructureFilter.pattern);
+        } catch(err) {
+          errors.errors = { containers: { substructure : err.message } };
+          throw new UserInputError('Container filtering failed', errors);
+        }
+        if (!patternSmiles)
+          substructureFilter.pattern = '';
       }
+      //Substructure matching filter
+      for (const container of pipeOut) {
+        if(substructureFilter && substructureFilter.pattern) {
+          let hasSubstructMatch;
+          try {
+            hasSubstructMatch = rdkit.hasSubstructMatch(container.content.smiles, substructureFilter.pattern, substructureFilter.removeHs);
+          } catch(err) {
+            errors.errors = { containers: { substructure : err.message } };
+            throw new UserInputError('Container filtering failed', errors);
+          }
+          if (!hasSubstructMatch)
+            continue;
+        }
+        container.content.molblock = rdkit.smilesToMolBlock(container.content.smiles);
+        containers.push(container);
+      }
+
+      // if(substructureFilter && substructureFilter.pattern && !rdkit.molBlockToSmiles(substructureFilter.pattern))
+      //   substructureFilter.pattern = '';
+      // for (const container of pipeOut) {
+      //   if (substructureFilter && substructureFilter.pattern && !rdkit.hasSubstructMatch(container.content.smiles, substructureFilter.pattern, substructureFilter.removeHs))
+      //     continue;
+      //   container.content.molblock = rdkit.smilesToMolBlock(container.content.smiles);
+      //   containers.push(container);
+      // }
 
       return containers;
 
@@ -816,6 +851,7 @@ const resolvers = {
       ];
 
       let containers = [];
+      let substructureFilter;
       if(filter && Object.keys(filter).length) {
         const { errors: inputErrors, isValid } = validateCompoundFilter(filter);
         const errors = { errors: inputErrors };
@@ -824,7 +860,9 @@ const resolvers = {
           throw new UserInputError('Container filtering failed', errors);
         }
 
-        const { container, ...compoundFilters } = filter;
+        const { container, substructure, ...compoundFilters } = filter;
+        substructureFilter = substructure;
+
         let other = compoundFilters;
         let containerLocation;
         let containerOwner;
@@ -939,7 +977,34 @@ const resolvers = {
         }
       }
 
-      containers = await Container.aggregate(pipeline);
+      let pipeOut = await Container.aggregate(pipeline);
+      //Substructure input validation
+      if(substructureFilter && substructureFilter.pattern) {
+        let patternSmiles;
+        try {
+          patternSmiles = rdkit.molBlockToSmiles(substructureFilter.pattern);
+        } catch(err) {
+          errors.errors = { containers: { substructure : err.message } };
+          throw new UserInputError('Container filtering failed', errors);
+        }
+        if (!patternSmiles)
+          substructureFilter.pattern = '';
+      }
+      //Substructure matching filter
+      for (const container of pipeOut) {
+        if(substructureFilter && substructureFilter.pattern) {
+          let hasSubstructMatch;
+          try {
+            hasSubstructMatch = rdkit.hasSubstructMatch(container.content.smiles, substructureFilter.pattern, substructureFilter.removeHs);
+          } catch(err) {
+            errors.errors = { containers: { substructure : err.message } };
+            throw new UserInputError('Container filtering failed', errors);
+          }
+          if (!hasSubstructMatch)
+            continue;
+        }
+        containers.push(container);
+      }
 
       let columns = [];
       let records = [];
