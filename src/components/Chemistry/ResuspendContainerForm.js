@@ -117,127 +117,127 @@ class ResuspendContainerForm extends Component {
     const { classes } = this.props;
     return(
       <ResuspendContainer>
-      { (resuspendContainer, errors, clearErrors) => (
-        <GetContainerHints>
-          { containerHints => (
-          <div className={classes.root}>
-            <Grid
-              container
-              justify="center"
-              alignItems="center"
-              direction="column"
-              spacing={8}>
-              <Grid item xs={12}>
-                <Typography variant="display1" gutterBottom>
-                  Resuspend Container
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Paper className={classes.form} elevation={12}>
-                  <form className={classes.container}
-                    onSubmit={this.handleSubmit(resuspendContainer, clearErrors)}
-                    noValidate
-                    autoComplete="off">
-                    <Grid
-                      container
-                      spacing={16}>
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          className={classes.textField}
-                          name="container"
-                          label="Barcode"
-                          fullWidth
-                          margin="none"
-                          value={this.state.container}
-                          onChange={this.handleChange}
-                          error={Boolean(errors.container)}
-                          helperText={errors.container}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          className={classes.textField}
-                          name="concentration"
-                          label="Concentration"
-                          fullWidth
-                          margin="none"
-                          value={this.state.concentration}
-                          onChange={this.handleChange}
-                          error={Boolean(errors.concentration)}
-                          helperText={errors.concentration}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          className={classes.textField}
-                          name="conc_units"
-                          label="Units"
-                          fullWidth
-                          margin="none"
-                          value={this.state.conc_units}
-                          onChange={this.handleChange}
-                          select
-                        >
-                          {['nM', 'uM', 'mM', 'M'].map(u => (
-                            <MenuItem key={u} value={u}>
-                              {u}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <Autocomplete
-                          options={containerHints.solvent}
-                          className={classes.textField}
-                          textFieldProps={{
-                            name: 'solvent',
-                            label: 'Solvent',
-                            margin: 'none',
-                            value: this.state.solvent,
-                            onChange: this.handleChange,
-                            error: Boolean(errors.solvent),
-                            helperText: errors.solvent
-                          }}>
-                        </Autocomplete>
-                      </Grid>
-                      {
-                        this.state.success ? (
-                          <Grid item xs={12}>
-                            <Typography variant="subheading" className={classes.success}>
-                              Container was successfully resuspended.
-                            </Typography>
+        { (resuspendContainer, errors, clearErrors) => (
+          <GetContainerHints>
+            { containerHints => (
+              <div className={classes.root}>
+                <Grid
+                  container
+                  justify="center"
+                  alignItems="center"
+                  direction="column"
+                  spacing={8}>
+                  <Grid item xs={12}>
+                    <Typography variant="h4" gutterBottom>
+                      Resuspend Container
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Paper className={classes.form} elevation={12}>
+                      <form className={classes.container}
+                        onSubmit={this.handleSubmit(resuspendContainer, clearErrors)}
+                        noValidate
+                        autoComplete="off">
+                        <Grid
+                          container
+                          spacing={16}>
+                          <Grid item xs={12} sm={3}>
+                            <TextField
+                              className={classes.textField}
+                              name="container"
+                              label="Barcode"
+                              fullWidth
+                              margin="none"
+                              value={this.state.container}
+                              onChange={this.handleChange}
+                              error={Boolean(errors.container)}
+                              helperText={errors.container}
+                            />
                           </Grid>
-                        ) : null
-                      }
-                    </Grid>
-                    <Grid
-                      container
-                      alignItems="flex-end"
-                      justify="flex-start"
-                      className={classes.actions}
-                      spacing={32}>
-                      <Grid item md={3} xs={12} className={classes.registerButton}>
-                        <input type="submit" id="register-button" className={classes.input}/>
-                        <label htmlFor="register-button">
-                          <Button variant="contained"  component="span" color="primary" fullWidth>
-                            Resuspend
-                          </Button>
-                        </label>
-                      </Grid>
-                      <Grid item md={3} xs={12}>
-                        <Button variant="contained" color="secondary" fullWidth onClick={this.handleClose(clearErrors)}>
-                          Cancel
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </form>
-                </Paper>
-              </Grid>
-            </Grid>
-          </div>
+                          <Grid item xs={12} sm={3}>
+                            <TextField
+                              className={classes.textField}
+                              name="concentration"
+                              label="Concentration"
+                              fullWidth
+                              margin="none"
+                              value={this.state.concentration}
+                              onChange={this.handleChange}
+                              error={Boolean(errors.concentration)}
+                              helperText={errors.concentration}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={3}>
+                            <TextField
+                              className={classes.textField}
+                              name="conc_units"
+                              label="Units"
+                              fullWidth
+                              margin="none"
+                              value={this.state.conc_units}
+                              onChange={this.handleChange}
+                              select
+                            >
+                              {['nM', 'uM', 'mM', 'M'].map(u => (
+                                <MenuItem key={u} value={u}>
+                                  {u}
+                                </MenuItem>
+                              ))}
+                            </TextField>
+                          </Grid>
+                          <Grid item xs={12} sm={3}>
+                            <Autocomplete
+                              options={containerHints.solvent}
+                              className={classes.textField}
+                              textFieldProps={{
+                                name: 'solvent',
+                                label: 'Solvent',
+                                margin: 'none',
+                                value: this.state.solvent,
+                                onChange: this.handleChange,
+                                error: Boolean(errors.solvent),
+                                helperText: errors.solvent
+                              }}>
+                            </Autocomplete>
+                          </Grid>
+                          {
+                            this.state.success ? (
+                              <Grid item xs={12}>
+                                <Typography variant="subtitle1" className={classes.success}>
+                                  Container was successfully resuspended.
+                                </Typography>
+                              </Grid>
+                            ) : null
+                          }
+                        </Grid>
+                        <Grid
+                          container
+                          alignItems="flex-end"
+                          justify="flex-start"
+                          className={classes.actions}
+                          spacing={32}>
+                          <Grid item md={3} xs={12} className={classes.registerButton}>
+                            <input type="submit" id="register-button" className={classes.input}/>
+                            <label htmlFor="register-button">
+                              <Button variant="contained"  component="span" color="primary" fullWidth>
+                                Resuspend
+                              </Button>
+                            </label>
+                          </Grid>
+                          <Grid item md={3} xs={12}>
+                            <Button variant="contained" color="secondary" fullWidth onClick={this.handleClose(clearErrors)}>
+                              Cancel
+                            </Button>
+                          </Grid>
+                        </Grid>
+                      </form>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </div>
+            )}
+          </GetContainerHints>
         )}
-        </GetContainerHints>
-      )}
       </ResuspendContainer>
     );
   }

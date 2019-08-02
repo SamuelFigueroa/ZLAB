@@ -10,7 +10,6 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import ArrowIcon from '@material-ui/icons/PlayArrow';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '../Select';
 import Hidden from '@material-ui/core/Hidden';
 import green from '@material-ui/core/colors/green';
 
@@ -123,141 +122,141 @@ class VolumeTransferForm extends Component {
     const { classes } = this.props;
     return(
       <TransferVolume>
-      { (transferVolume, errors, clearErrors) => (
-        <div className={classes.root}>
-          <Grid
-            container
-            justify="center"
-            alignItems="center"
-            direction="column"
-            spacing={8}>
-            <Grid item xs={12}>
-              <Typography variant="display1" gutterBottom>
-                Volume Transfer
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Paper className={classes.form} elevation={12}>
-                <form className={classes.container}
-                  onSubmit={this.handleSubmit(transferVolume, clearErrors)}
-                  noValidate
-                  autoComplete="off">
-                  <Grid
-                    container
-                    alignItems="flex-start"
-                    spacing={16}>
-                    <Grid item xs={12} sm={5}>
-                      <Grid
-                        container
-                        spacing={16}>
-                        <Grid item xs={12}>
-                          <Typography variant="headline" color="primary">
-                            Source Container
-                          </Typography>
+        { (transferVolume, errors, clearErrors) => (
+          <div className={classes.root}>
+            <Grid
+              container
+              justify="center"
+              alignItems="center"
+              direction="column"
+              spacing={8}>
+              <Grid item xs={12}>
+                <Typography variant="h4" gutterBottom>
+                  Volume Transfer
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Paper className={classes.form} elevation={12}>
+                  <form className={classes.container}
+                    onSubmit={this.handleSubmit(transferVolume, clearErrors)}
+                    noValidate
+                    autoComplete="off">
+                    <Grid
+                      container
+                      alignItems="flex-start"
+                      spacing={16}>
+                      <Grid item xs={12} sm={5}>
+                        <Grid
+                          container
+                          spacing={16}>
+                          <Grid item xs={12}>
+                            <Typography variant="h5" color="primary">
+                              Source Container
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              className={classes.textField}
+                              name="source"
+                              label="Barcode"
+                              fullWidth
+                              margin="none"
+                              value={this.state.source}
+                              onChange={this.handleChange}
+                              error={Boolean(errors.source)}
+                              helperText={errors.source}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              className={classes.textField}
+                              name="volume"
+                              label="Transfer Volume"
+                              fullWidth
+                              margin="none"
+                              value={this.state.volume}
+                              onChange={this.handleChange}
+                              error={Boolean(errors.volume)}
+                              helperText={errors.volume}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              className={classes.textField}
+                              name="vol_units"
+                              label="Units"
+                              fullWidth
+                              margin="none"
+                              value={this.state.vol_units}
+                              onChange={this.handleChange}
+                              select
+                            >
+                              {['L', 'mL', 'uL', 'nL'].map(u => (
+                                <MenuItem key={u} value={u}>
+                                  {u}
+                                </MenuItem>
+                              ))}
+                            </TextField>
+                          </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <TextField
-                            className={classes.textField}
-                            name="source"
-                            label="Barcode"
-                            fullWidth
-                            margin="none"
-                            value={this.state.source}
-                            onChange={this.handleChange}
-                            error={Boolean(errors.source)}
-                            helperText={errors.source}
-                          />
+                      </Grid>
+                      <Hidden smDown>
+                        <Grid item xs={1} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+                          <ArrowIcon className={this.state.success ? classes.arrow_success : classes.arrow_default}/>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <TextField
-                            className={classes.textField}
-                            name="volume"
-                            label="Transfer Volume"
-                            fullWidth
-                            margin="none"
-                            value={this.state.volume}
-                            onChange={this.handleChange}
-                            error={Boolean(errors.volume)}
-                            helperText={errors.volume}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <TextField
-                            className={classes.textField}
-                            name="vol_units"
-                            label="Units"
-                            fullWidth
-                            margin="none"
-                            value={this.state.vol_units}
-                            onChange={this.handleChange}
-                            select
-                          >
-                            {['L', 'mL', 'uL', 'nL'].map(u => (
-                              <MenuItem key={u} value={u}>
-                                {u}
-                              </MenuItem>
-                            ))}
-                          </TextField>
+                      </Hidden>
+                      <Grid item xs={12} sm={5}>
+                        <Grid
+                          container
+                          spacing={16}>
+                          <Grid item xs={12}>
+                            <Typography variant="h5" color="primary">
+                              Destination Container
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              className={classes.textField}
+                              name="destination"
+                              label="Barcode"
+                              fullWidth
+                              margin="none"
+                              value={this.state.destination}
+                              onChange={this.handleChange}
+                              error={Boolean(errors.destination)}
+                              helperText={errors.destination}
+                            />
+                          </Grid>
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Hidden smDown>
-                      <Grid item xs={1} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-                        <ArrowIcon className={this.state.success ? classes.arrow_success : classes.arrow_default}/>
+                    <Grid
+                      container
+                      alignItems="flex-end"
+                      justify="flex-start"
+                      className={classes.actions}
+                      spacing={32}>
+                      <Grid item md={3} xs={12} className={classes.registerButton}>
+                        <input type="submit" id="register-button" className={classes.input}/>
+                        <label htmlFor="register-button">
+                          <Button variant="contained"  component="span" color="primary" fullWidth>
+                            Transfer
+                          </Button>
+                        </label>
                       </Grid>
-                    </Hidden>
-                    <Grid item xs={12} sm={5}>
-                      <Grid
-                        container
-                        spacing={16}>
-                        <Grid item xs={12}>
-                          <Typography variant="headline" color="primary">
-                            Destination Container
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <TextField
-                            className={classes.textField}
-                            name="destination"
-                            label="Barcode"
-                            fullWidth
-                            margin="none"
-                            value={this.state.destination}
-                            onChange={this.handleChange}
-                            error={Boolean(errors.destination)}
-                            helperText={errors.destination}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    container
-                    alignItems="flex-end"
-                    justify="flex-start"
-                    className={classes.actions}
-                    spacing={32}>
-                    <Grid item md={3} xs={12} className={classes.registerButton}>
-                      <input type="submit" id="register-button" className={classes.input}/>
-                      <label htmlFor="register-button">
-                        <Button variant="contained"  component="span" color="primary" fullWidth>
-                          Transfer
+                      <Grid item md={3} xs={12}>
+                        <Button variant="contained" color="secondary" fullWidth onClick={this.handleClose(clearErrors)}>
+                          Cancel
                         </Button>
-                      </label>
+                      </Grid>
                     </Grid>
-                    <Grid item md={3} xs={12}>
-                      <Button variant="contained" color="secondary" fullWidth onClick={this.handleClose(clearErrors)}>
-                        Cancel
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </form>
-              </Paper>
+                  </form>
+                </Paper>
+              </Grid>
             </Grid>
-          </Grid>
-        </div>
-      )}
-    </TransferVolume>
+          </div>
+        )}
+      </TransferVolume>
     );
   }
 }

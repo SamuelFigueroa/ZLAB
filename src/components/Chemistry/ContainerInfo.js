@@ -13,6 +13,7 @@ import Chip from '@material-ui/core/Chip';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import PrintIcon from '@material-ui/icons/Print';
+import Fab from '@material-ui/core/Fab';
 
 import GetContainer from '../queries/GetContainer';
 import DeleteContainer from '../mutations/DeleteContainer';
@@ -153,22 +154,22 @@ class ContainerInfo extends Component {
                     data={container.barcode}
                   />
                   <Tooltip title="Edit Container Information">
-                    <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/chemistry/containers/${container.id}/update`}>
+                    <Fab className={classes.fabGreen} color="inherit" component={Link} to={`/chemistry/containers/${container.id}/update`}>
                       <EditIcon />
-                    </Button>
+                    </Fab>
                   </Tooltip>
                   <Grid
                     container
                     spacing={32}>
                     <Grid item xs={12}>
-                      <Typography variant="title" color="textSecondary">
+                      <Typography variant="h6" color="textSecondary">
                         {container.category} Container Information
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Grid container spacing={32} alignItems="center">
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               Barcode: {container.barcode}
                             <Tooltip title="Print barcode" placement="right">
                               <IconButton aria-label="Print" onClick={this.openPrintModal}>
@@ -178,26 +179,26 @@ class ContainerInfo extends Component {
                           </Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               Location: {(container.location.area.name == 'UNASSIGNED') ?
                               'UNASSIGNED' : `${container.location.area.name} / ${container.location.sub_area.name}`}
                           </Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               Batch ID: {container.batch_id}
                           </Typography>
                         </Grid>
                         {
                           container.vendor ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   Vendor: {container.vendor}
                               </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   Institution: {container.institution}
                               </Typography>
                             </Grid>
@@ -206,13 +207,13 @@ class ContainerInfo extends Component {
                         {
                           container.catalog_id ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   Catalog No.: {container.catalog_id}
                               </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   Researcher: {container.researcher}
                               </Typography>
                             </Grid>
@@ -221,7 +222,7 @@ class ContainerInfo extends Component {
                         {
                           container.eln_id  ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   ELN ID: {container.eln_id}
                               </Typography>
                             </Grid>
@@ -230,13 +231,13 @@ class ContainerInfo extends Component {
                         {
                           (container.state == 'S') ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                 {`Mass: ${Math.round(container.mass*1000)/1000} ${container.mass_units}`}
                               </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                 {`Volume: ${Math.round(container.volume*1000)/1000} ${container.vol_units}`}
                               </Typography>
                             </Grid>
@@ -245,7 +246,7 @@ class ContainerInfo extends Component {
                         {
                           (container.state == 'Soln' || container.state == 'Susp') ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                 {`Concentration: ${Math.round(container.concentration*1000)/1000} ${container.conc_units}`}
                               </Typography>
                             </Grid>
@@ -254,7 +255,7 @@ class ContainerInfo extends Component {
                         {
                           (container.state == 'Soln' || container.state == 'Susp') ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   Solvent: {container.solvent}
                               </Typography>
                             </Grid>
@@ -263,36 +264,36 @@ class ContainerInfo extends Component {
                         {
                           container.description ? (
                             <Grid item xs={12}>
-                              <Typography variant="subheading" gutterBottom>
+                              <Typography variant="subtitle1" gutterBottom>
                                   Description:
                               </Typography>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                 {container.description}
                               </Typography>
                             </Grid>
                           ) : null
                         }
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               Owner: {users.find(user => user.id == container.owner).name}
                           </Typography>
                         </Grid>
                         <Grid item xs={12}>
-                          <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                          <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                             Content Information
                           </Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                          <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                               Name: {container.content.name}
                           </Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               Compound ID:
                           </Typography>
                           <Link to={`/chemistry/compounds/${container.content.id}#profile`}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                               {container.content.compound_id}
                             </Typography>
                           </Link>
@@ -300,7 +301,7 @@ class ContainerInfo extends Component {
                         {
                           container.content.smiles ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                              <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                                   Smiles: {container.content.smiles}
                               </Typography>
                             </Grid>
@@ -309,7 +310,7 @@ class ContainerInfo extends Component {
                         {
                           container.content.cas ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   CAS No.: {container.content.cas}
                               </Typography>
                             </Grid>
@@ -318,7 +319,7 @@ class ContainerInfo extends Component {
                         {
                           container.content.attributes.length ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                 Chemical Attributes:
                               </Typography>
                               {
@@ -331,10 +332,10 @@ class ContainerInfo extends Component {
                         {
                           container.content.storage ? (
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="subheading">
+                              <Typography variant="subtitle1">
                                   Storage Conditions:
                               </Typography>
-                              <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                              <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                                 {container.content.storage}
                               </Typography>
                             </Grid>
@@ -343,10 +344,10 @@ class ContainerInfo extends Component {
                         {
                           container.content.description ? (
                             <Grid item xs={12}>
-                              <Typography variant="subheading" gutterBottom>
+                              <Typography variant="subtitle1" gutterBottom>
                                   Description:
                               </Typography>
-                              <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                              <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                                 {container.content.description}
                               </Typography>
                             </Grid>
@@ -372,7 +373,7 @@ class ContainerInfo extends Component {
                           </Button>
                         </Grid>
                         <Grid item xs={12}>
-                          <Typography variant="subheading" color="textSecondary" align="right">
+                          <Typography variant="subtitle1" color="textSecondary" align="right">
                               Registered by {container.registration_event.user} on {dateTimeToString(container.registration_event.date)}
                           </Typography>
                         </Grid>

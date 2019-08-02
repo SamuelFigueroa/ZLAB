@@ -11,6 +11,7 @@ import green from '@material-ui/core/colors/green';
 import EditIcon from '@material-ui/icons/Edit';
 import Chip from '@material-ui/core/Chip';
 import Paper from '@material-ui/core/Paper';
+import Fab from '@material-ui/core/Fab';
 
 import GetCompound from '../queries/GetCompound';
 import DeleteCompound from '../mutations/DeleteCompound';
@@ -134,9 +135,9 @@ class CompoundInfo extends Component {
           tabs[0]['component'] = (
             <div className={classes.root}>
               <Tooltip title="Edit Compound Information">
-                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/chemistry/compounds/${compound.id}/update`}>
+                <Fab className={classes.fabGreen} color="inherit" component={Link} to={`/chemistry/compounds/${compound.id}/update`}>
                   <EditIcon />
-                </Button>
+                </Fab>
               </Tooltip>
               <Grid
                 container
@@ -144,19 +145,19 @@ class CompoundInfo extends Component {
                 <Grid item xs={12} sm={6}>
                   <Grid container spacing={32}>
                     <Grid item xs={12} sm={6}>
-                      <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                      <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                           Name: {compound.name}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <Typography variant="subheading">
+                      <Typography variant="subtitle1">
                           Compound ID: {compound.compound_id}
                       </Typography>
                     </Grid>
                     {
                       compound.smiles ? (
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                          <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                               Smiles: {compound.smiles}
                           </Typography>
                         </Grid>
@@ -165,7 +166,7 @@ class CompoundInfo extends Component {
                     {
                       compound.cas ? (
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               CAS No.: {compound.cas}
                           </Typography>
                         </Grid>
@@ -174,7 +175,7 @@ class CompoundInfo extends Component {
                     {
                       compound.attributes.length ? (
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                             Chemical Attributes:
                           </Typography>
                           {
@@ -187,10 +188,10 @@ class CompoundInfo extends Component {
                     {
                       compound.storage ? (
                         <Grid item xs={12} sm={6}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                               Storage Conditions:
                           </Typography>
-                          <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                          <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                             {compound.storage}
                           </Typography>
                         </Grid>
@@ -199,10 +200,10 @@ class CompoundInfo extends Component {
                     {
                       compound.description ? (
                         <Grid item xs={12}>
-                          <Typography variant="subheading" gutterBottom>
+                          <Typography variant="subtitle1" gutterBottom>
                               Description:
                           </Typography>
-                          <Typography variant="subheading" style={{ overflow: 'scroll' }}>
+                          <Typography variant="subtitle1" style={{ overflow: 'scroll' }}>
                             {compound.description}
                           </Typography>
                         </Grid>
@@ -224,7 +225,7 @@ class CompoundInfo extends Component {
                       </Button>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="subheading" color="textSecondary" align="right">
+                      <Typography variant="subtitle1" color="textSecondary" align="right">
                           Registered by {compound.registration_event.user} on {dateTimeToString(compound.registration_event.date)}
                       </Typography>
                     </Grid>

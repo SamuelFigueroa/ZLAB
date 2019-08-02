@@ -174,7 +174,7 @@ class ContainerForm extends Component {
                           direction="column"
                           spacing={8}>
                           <Grid item xs={12}>
-                            <Typography variant="display1" gutterBottom>
+                            <Typography variant="h4" gutterBottom>
                               Update Container
                             </Typography>
                           </Grid>
@@ -189,7 +189,7 @@ class ContainerForm extends Component {
                                   alignItems="flex-start"
                                   spacing={16}>
                                   <Grid item xs={12}>
-                                    <Typography className={classes.headerSection} variant="headline" color="primary" gutterBottom>
+                                    <Typography className={classes.headerSection} variant="h5" color="primary" gutterBottom>
                                       Container Information
                                     </Typography>
                                   </Grid>
@@ -569,7 +569,7 @@ class ContainerForm extends Component {
                                     </Button>
                                   </Grid>
                                   <Grid item xs={12} md={6}>
-                                    <Typography variant="subheading" color="textSecondary" align="right">
+                                    <Typography variant="subtitle1" color="textSecondary" align="right">
                                       <i>Edited by {this.props.user.name}  at  {dateTimeToString(new Date())}</i>
                                     </Typography>
                                   </Grid>

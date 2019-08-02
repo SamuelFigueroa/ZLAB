@@ -64,7 +64,7 @@ class ExactStructureSearch extends Component {
               alignItems="center"
             >
               <Grid item xs={12}>
-                <Typography align="center" variant="display1" gutterBottom className={classes.title}>
+                <Typography align="center" variant="h4" gutterBottom className={classes.title}>
                   Pre-Registration Structure Check
                 </Typography>
               </Grid>

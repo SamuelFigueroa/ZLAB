@@ -136,7 +136,7 @@ class ContainerInfoPanel extends PureComponent {
                       alignItems="center"
                       spacing={32}>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                             Barcode: {container.barcode}
                           <Tooltip title="Print barcode" placement="right">
                             <IconButton aria-label="Print" onClick={this.openPrintModal}>
@@ -146,18 +146,18 @@ class ContainerInfoPanel extends PureComponent {
                         </Typography>
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                           Location: {(container.location.area.name == 'UNASSIGNED') ?
                             'UNASSIGNED' : `${container.location.area.name} / ${container.location.sub_area.name}`}
                         </Typography>
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                           Category: {container.category}
                         </Typography>
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                           Batch ID: {
                             <Link to={`/chemistry/containers/${container.id}#profile`}>{container.batch_id}</Link>
                           }
@@ -166,13 +166,13 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         container.vendor ? (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Vendor: {container.vendor}
                             </Typography>
                           </Grid>
                         ) : (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Institution: {container.institution}
                             </Typography>
                           </Grid>
@@ -181,13 +181,13 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         container.catalog_id ? (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Catalog No.: {container.catalog_id}
                             </Typography>
                           </Grid>
                         ) : (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Researcher: {container.researcher}
                             </Typography>
                           </Grid>
@@ -196,7 +196,7 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         container.eln_id  ? (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 ELN ID: {container.eln_id}
                             </Typography>
                           </Grid>
@@ -205,13 +205,13 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         (container.state == 'S') ? (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                               {`Mass: ${Math.round(container.mass*1000)/1000} ${container.mass_units}`}
                             </Typography>
                           </Grid>
                         ) : (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                               {`Volume: ${Math.round(container.volume*1000)/1000} ${container.vol_units}`}
                             </Typography>
                           </Grid>
@@ -220,7 +220,7 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         (container.state == 'Soln' || container.state == 'Susp') ? (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                               {`Concentration: ${Math.round(container.concentration*1000)/1000} ${container.conc_units}`}
                             </Typography>
                           </Grid>
@@ -229,7 +229,7 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         (container.state == 'Soln' || container.state == 'Susp') ? (
                           <Grid item xs={12} sm={6}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Solvent: {container.solvent}
                             </Typography>
                           </Grid>
@@ -238,28 +238,28 @@ class ContainerInfoPanel extends PureComponent {
                       {
                         container.description ? (
                           <Grid item xs={12}>
-                            <Typography variant="subheading" gutterBottom>
+                            <Typography variant="subtitle1" gutterBottom>
                                 Description:
                             </Typography>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                               {container.description}
                             </Typography>
                           </Grid>
                         ) : null
                       }
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                             Owner: {users.find(user => user.id == container.owner).name}
                         </Typography>
                       </Grid>
                       <Grid item xs={12}>
-                        <Typography variant="subheading" color="textSecondary" align="right">
+                        <Typography variant="subtitle1" color="textSecondary" align="right">
                             Registered by {container.registration_event.user} on {dateTimeToString(container.registration_event.date)}
                         </Typography>
                       </Grid>
                     </Grid>
                   ) : (
-                    <Typography variant="display1" align="center">
+                    <Typography variant="h4" align="center">
                       Please click a row on the table.
                     </Typography>
                   )

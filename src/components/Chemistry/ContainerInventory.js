@@ -102,7 +102,7 @@ class ContainerInventory extends Component {
                       alignItems="center"
                     >
                       <Grid item xs={12}>
-                        <Typography align="center" variant="display1" className={classes.title}>
+                        <Typography align="center" variant="h4" className={classes.title}>
                         Inventorize Reagents
                         </Typography>
                       </Grid>

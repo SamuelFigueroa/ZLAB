@@ -96,7 +96,7 @@ class DryContainerForm extends Component {
               direction="column"
               spacing={8}>
               <Grid item xs={12}>
-                <Typography variant="display1" gutterBottom>
+                <Typography variant="h4" gutterBottom>
                   Dry Container
                 </Typography>
               </Grid>
@@ -126,7 +126,7 @@ class DryContainerForm extends Component {
                       {
                         this.state.success ? (
                           <Grid item xs={12}>
-                            <Typography variant="subheading" className={classes.success}>
+                            <Typography variant="subtitle1" className={classes.success}>
                               Solvent was successfully removed from container.
                             </Typography>
                           </Grid>

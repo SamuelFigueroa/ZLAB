@@ -99,7 +99,7 @@ class SubstructureSearch extends Component {
               molblock={this.state.molblock}/>
             {
               errors.substructure ? (
-                <Typography color="error" variant="subheading">
+                <Typography color="error" variant="subtitle1">
                   {errors.substructure}
                 </Typography>
               ) : null

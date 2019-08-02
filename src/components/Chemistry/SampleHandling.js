@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 
 const styles = theme => ({
   root: {
@@ -43,7 +43,7 @@ class SampleHandling extends Component {
           alignItems="center"
         >
           <Grid item xs={12}>
-            <Typography align="center" variant="display1" className={classes.title}>
+            <Typography align="center" variant="h4" className={classes.title}>
               Sample Handling
             </Typography>
           </Grid>
@@ -54,14 +54,14 @@ class SampleHandling extends Component {
               justify="center"
             >
               <Grid item>
-                <Button variant="fab" color="default" aria-label="Transfer mass" component={Link} to="/chemistry/containers/transferMass" className={classes.actionButton}>
+                <Fab color="default" aria-label="Transfer mass" component={Link} to="/chemistry/containers/transferMass" className={classes.actionButton}>
                   Transfer Mass
-                </Button>
+                </Fab>
               </Grid>
               <Grid item>
-                <Button variant="fab" color="default" aria-label="Transfer volume" component={Link} to="/chemistry/containers/transferVolume" className={classes.actionButton}>
+                <Fab color="default" aria-label="Transfer volume" component={Link} to="/chemistry/containers/transferVolume" className={classes.actionButton}>
                   Transfer Volume
-                </Button>
+                </Fab>
               </Grid>
             </Grid>
           </Grid>
@@ -72,14 +72,14 @@ class SampleHandling extends Component {
               justify="center"
             >
               <Grid item>
-                <Button variant="fab" color="default" aria-label="Dry container" component={Link} to="/chemistry/containers/dry" className={classes.actionButton}>
+                <Fab color="default" aria-label="Dry container" component={Link} to="/chemistry/containers/dry" className={classes.actionButton}>
                   Dry Container
-                </Button>
+                </Fab>
               </Grid>
               <Grid item>
-                <Button variant="fab" color="default" aria-label="Resuspend Container" component={Link} to="/chemistry/containers/resuspend" className={classes.actionButton}>
+                <Fab color="default" aria-label="Resuspend Container" component={Link} to="/chemistry/containers/resuspend" className={classes.actionButton}>
                   Resuspend Container
-                </Button>
+                </Fab>
               </Grid>
             </Grid>
           </Grid>

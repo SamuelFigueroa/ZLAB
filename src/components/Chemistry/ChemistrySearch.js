@@ -58,14 +58,14 @@ class ChemistrySearch extends Component {
           <Grid container spacing={8}>
             { !initialized ? (
               <Grid item xs={12}>
-                <Typography align="center" variant="display1" gutterBottom>
+                <Typography align="center" variant="h4" gutterBottom>
                   {`Searching for '${this.props.search}'...`}
                 </Typography>
               </Grid>
             ) : null }
             { initialized && !results ? (
               <Grid item xs={12}>
-                <Typography align="center" variant="display1" gutterBottom>
+                <Typography align="center" variant="h4" gutterBottom>
                   {`Search '${this.props.search}' did not match any documents.`}
                 </Typography>
               </Grid>
@@ -74,7 +74,7 @@ class ChemistrySearch extends Component {
               <Grid container spacing={8}>
                 { initialized && results ? (
                   <Grid item xs={12}>
-                    <Typography variant="headline">
+                    <Typography variant="h5">
                       {`Search results: '${this.props.search}'`}
                     </Typography>
                   </Grid>

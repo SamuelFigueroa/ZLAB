@@ -253,7 +253,7 @@ class CompoundForm extends Component {
                               direction="column"
                               spacing={8}>
                               <Grid item xs={12}>
-                                <Typography variant="display1" gutterBottom>
+                                <Typography variant="h4" gutterBottom>
                                   { `${update ? 'Edit' : 'Register'} Reagent/Sample` }
                                 </Typography>
                               </Grid>
@@ -268,7 +268,7 @@ class CompoundForm extends Component {
                                       alignItems="flex-start"
                                       spacing={16}>
                                       <Grid item xs={12}>
-                                        <Typography className={classes.headerSection} variant="headline" color="primary" gutterBottom>
+                                        <Typography className={classes.headerSection} variant="h5" color="primary" gutterBottom>
                                           Chemical Information
                                         </Typography>
                                       </Grid>
@@ -402,7 +402,7 @@ class CompoundForm extends Component {
                                           alignItems="flex-start"
                                           spacing={16}>
                                           <Grid item xs={12}>
-                                            <Typography className={classes.headerSection} variant="headline" color="primary" gutterBottom>
+                                            <Typography className={classes.headerSection} variant="h5" color="primary" gutterBottom>
                                               Container Information
                                             </Typography>
                                           </Grid>
@@ -805,7 +805,7 @@ class CompoundForm extends Component {
                                         </Button>
                                       </Grid>
                                       <Grid item xs={12} md={6}>
-                                        <Typography variant="subheading" color="textSecondary" align="right">
+                                        <Typography variant="subtitle1" color="textSecondary" align="right">
                                           <i>{update ? 'Edited' : 'Registered'} by {this.props.user.name}  at  {dateTimeToString(new Date())}</i>
                                         </Typography>
                                       </Grid>

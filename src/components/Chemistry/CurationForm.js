@@ -136,7 +136,7 @@ class CurationForm extends Component {
               direction="column"
               spacing={8}>
               <Grid item xs={12}>
-                <Typography variant="display1" gutterBottom>
+                <Typography variant="h4" gutterBottom>
                   Curate Structure
                 </Typography>
               </Grid>
@@ -164,7 +164,7 @@ class CurationForm extends Component {
                         />
                         {
                           errors.molblock ? (
-                            <Typography variant="subheading" color="error">
+                            <Typography variant="subtitle1" color="error">
                               {errors.molblock}
                             </Typography>
                           ) : null
@@ -215,7 +215,7 @@ class CurationForm extends Component {
                         </Button>
                       </Grid>
                       <Grid item xs={12} md={6}>
-                        <Typography variant="subheading" color="textSecondary" align="right">
+                        <Typography variant="subtitle1" color="textSecondary" align="right">
                           <i>Edited by {author}  at  {dateTimeToString(new Date())}</i>
                         </Typography>
                       </Grid>
