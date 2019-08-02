@@ -32,12 +32,12 @@ class LoginUser extends Component {
                     <Mutation
                       mutation={LOGIN_USER}
                       onCompleted={
-                        data => {
+                        async data => {
                           const { token } = data.login;
                           //Set token to local localStorage
                           localStorage.setItem('jwtToken', token);
                           // Decode token to get user data
-                          setCurrentUser({ variables: { payload: jwt_decode(token) } });
+                          await setCurrentUser({ variables: { payload: jwt_decode(token) } });
                           return this.props.history.push('/');
                         }
                       }
