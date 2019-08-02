@@ -26,7 +26,7 @@ const normalizeMass = microGrams => {
   if(microGrams >= 1000)
     return { mass: microGrams/1000, mass_units: 'mg' };
   return { mass: microGrams, mass_units: 'ug' };
-}
+};
 
 const normalizeVolume = microLiters => {
   if(microLiters >= 1000000)
@@ -36,7 +36,7 @@ const normalizeVolume = microLiters => {
   if(microLiters >= 1)
     return { volume: microLiters, vol_units: 'uL' };
   return { volume: microLiters * 1000, vol_units: 'nL' };
-}
+};
 
 const normalizeConcentration = microMolar => {
   if(microMolar >= 1000000)
@@ -46,7 +46,7 @@ const normalizeConcentration = microMolar => {
   if(microMolar >= 1)
     return { concentration: microMolar, conc_units: 'uM' };
   return { concentration: microMolar * 1000, conc_units: 'nM' };
-}
+};
 
 const resolvers = {
   Query: {
