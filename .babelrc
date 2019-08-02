@@ -7,6 +7,9 @@
           "node": "current"
         },
         "useBuiltIns": "usage",
+        "corejs": {
+          "version": "2.6.9",
+        },
       }
     ],
     "@babel/preset-react"

@@ -1,7 +1,16 @@
 const path = require('path');
 
 module.exports = {
-  entry: ['@babel/polyfill','./src/index.js'],
+  // entry: {
+  //   polyfills: './src/polyfills.js',
+  //   index: './src/index.js'
+  // },
+  entry: [
+  //   // 'core-js/stable',
+  //   // 'regenerator-runtime/runtime',
+  //   // '@babel/polyfill',
+    './src/index.js'
+  ],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'public'),
@@ -15,15 +24,15 @@ module.exports = {
       //   use: ['json-loader']
       // },
       {
-          test: /\.(jpg|png|gif|svg|pdf|ico)$/,
-          use: [
-              {
-                  loader: 'file-loader',
-                  options: {
-                      name: '[path][name].[ext]'
-                  },
-              },
-          ]
+        test: /\.(jpg|png|gif|svg|pdf|ico)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[path][name].[ext]'
+            },
+          },
+        ]
       },
       {
         test: /\.js$/,
