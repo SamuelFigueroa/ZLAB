@@ -15,10 +15,10 @@ import SafetyDataSheet from '../../models/SafetyDataSheet';
 
 import validateCompoundFilter from '../../validation/compound_filter';
 import validateAddCompoundInput from '../../validation/compound';
-import validateAddContainerInput from '../../validation/container';
 import validateFilename from '../../validation/filename';
 import validateCuration from '../../validation/curation';
 import isCas from '../../validation/is-cas';
+import addCompound from '../../mongo/compound/addCompound';
 
 const storage = path.normalize(storageDir);
 const cache = path.normalize(cacheDir);
@@ -602,84 +602,8 @@ const resolvers = {
 
       compound.smiles = rdkit.molBlockToSmiles(molblock);
 
-      // Check if compound has been previously registered
-      let registeredCompound;
-      if (compound.cas) {
-        registeredCompound = await Compound.findOne({ cas: compound.cas });
-        if (registeredCompound && compound.smiles && registeredCompound.smiles != compound.smiles) {
-          const errors = { errors: { cas: 'Structure in database for this CAS No. does not match structure drawn' } };
-          throw new UserInputError('Compound registration failed', errors);
-        }
-      }
-      if (!registeredCompound && compound.smiles)
-        registeredCompound = await Compound.findOne({ smiles: compound.smiles });
-
-      const { errors: compoundErrors, isValid: isValidCompound } = validateAddCompoundInput(compound);
-      const { errors: containerErrors, isValid: isValidContainer } = validateAddContainerInput(container);
-      const errors = { errors: containerErrors };
-      if (!registeredCompound)
-        errors.errors = { ...compoundErrors, ...containerErrors };
-
-      // Check input validation
-      if (!((isValidCompound || registeredCompound) && isValidContainer)) {
-        throw new UserInputError('Compound registration failed', errors);
-      }
-
-      if (container.category == 'Reagent') {
-        let barcode = await Counter.getNextSequenceValue('Reagent');
-        container.barcode = barcode;
-      } else {
-        let barcodeExists;
-        try {
-          barcodeExists = await Container.findOne({ barcode: container.barcode });
-        } catch(err) {
-          throw new ApolloError('Database lookup failed', 'BAD_DATABASE_CONNECTION', errors);
-        }
-
-        if(barcodeExists) {
-          errors.errors.barcode = 'Barcode already exists';
-          throw new UserInputError('Compound registration failed', errors);
-        }
-      }
-
-      let compound_id;
-      let batch_id;
-
-      if (!registeredCompound) {
-        compound_id = await Counter.getNextSequenceValue('Compound');
-        compound.compound_id = compound_id;
-        let newCompound = new Compound(compound);
-        await newCompound.save();
-
-        container.content = newCompound.id;
-        batch_id = await Compound.getNextBatchId(compound_id);
-        container.batch_id = batch_id;
-        let newContainer = new Container(container);
-        newCompound.containers.push(newContainer.id);
-        await newCompound.save();
-        await newContainer.save();
-        return newCompound.id;
-      } else {
-        compound_id = registeredCompound.compound_id;
-        container.content = registeredCompound.id;
-        if (container.category == 'Sample' && container.eln_id) {
-          let registeredBatch = await Container.findOne({ content: container.content, eln_id: container.eln_id });
-          if (registeredBatch) {
-            batch_id = registeredBatch.batch_id;
-          } else {
-            batch_id = await Compound.getNextBatchId(compound_id);
-          }
-        } else {
-          //Add batch id logic for reagents here. Right now it just auto increments the batch for each container.
-          batch_id = await Compound.getNextBatchId(compound_id);
-        }
-        container.batch_id = batch_id;
-        let newContainer = new Container(container);
-        registeredCompound.containers.push(newContainer.id);
-        await registeredCompound.save();
-        await newContainer.save();
-        return registeredCompound.id;
-      }
+      let id = await addCompound({ container, ...compound });
+      return id;
     },
     updateCompound: async (root, args) => {
       const { input } = args;
