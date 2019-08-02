@@ -50,7 +50,6 @@ class CEnhancedTableHead extends Component {
             return (
               <TableCell
                 key={col.id}
-                numeric={false}
                 sortDirection={orderBy === col.id ? order : false}
               >
                 { col.exclude === undefined || !col.exclude ? (
@@ -130,7 +129,7 @@ let CEnhancedTableToolbar = props => {
             spacing={8}
           >
             <Grid item>
-              <Typography variant="headline" color="inherit">
+              <Typography variant="h5" color="inherit">
                 {numSelected} selected
               </Typography>
             </Grid>
@@ -158,12 +157,12 @@ let CEnhancedTableToolbar = props => {
             className={classes.title}
           >
             <Grid item>
-              <Typography variant="headline" color="primary" id="tableTitle">
+              <Typography variant="h5" color="primary" id="tableTitle">
                 {title}
               </Typography>
             </Grid>
             <Grid item>
-              <Typography variant="headline" color="textSecondary">
+              <Typography variant="h5" color="textSecondary">
                 {subheading}
               </Typography>
             </Grid>
@@ -304,27 +303,35 @@ class CEnhancedTable extends PureComponent {
   isSelected = id => this.state.selected.indexOf(id) !== -1;
 
   render() {
-    const { classes, title, subheading, cols, data, actions, editMode, editable } = this.props;
+    const { classes, title, subheading, cols, data, actions, editMode, editable, toolbar: CustomToolbar } = this.props;
     const { order, orderBy, rowsPerPage, page, selected } = this.state;
     const queryResults = data.slice();
     return (
       <Paper className={classes.root}>
-        <CEnhancedTableToolbar
-          numSelected={selected.length}
-          title={title}
-          subheading={subheading}
-          editMode={editMode}
-          deleteAction={() => {
-            this.setState({selected: []});
-            return actions.delete(selected);
-          }}
-          updateAction={
-            editable ? (
-              selected.length == 1 ? (
-                () => actions.update(selected[0])
-              ) : null
-            ) : null }
-        />
+        { CustomToolbar !== undefined ?
+          <CustomToolbar
+            numSelected={selected.length}
+            title={title}
+            subheading={subheading}
+            clearSelected={() => this.setState({ selected: [] })}
+            selected={selected} />
+          :
+          <CEnhancedTableToolbar
+            numSelected={selected.length}
+            title={title}
+            subheading={subheading}
+            editMode={editMode}
+            deleteAction={() => {
+              this.setState({selected: []});
+              return actions.delete(selected);
+            }}
+            updateAction={
+              editable ? (
+                selected.length == 1 ? (
+                  () => actions.update(selected[0])
+                ) : null
+              ) : null }
+          />}
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <CEnhancedTableHead
@@ -369,7 +376,6 @@ class CEnhancedTable extends PureComponent {
                           padding="dense"
                           component={col.id == 'name' ? 'th' : 'td'}
                           scope={col.id == 'name' ? 'row' : 'col'}
-                          numeric={false}
                           key={col.id}>
                           {n[col.id] === '' ? 'N/A' : n[col.id]}
                         </TableCell>
@@ -413,9 +419,10 @@ CEnhancedTable.propTypes = {
   data: PropTypes.array.isRequired,
   subheading: PropTypes.string,
   onRowClick: PropTypes.func,
-  actions: PropTypes.object.isRequired,
+  actions: PropTypes.object,
   editable: PropTypes.bool.isRequired,
-  editMode: PropTypes.bool.isRequired
+  editMode: PropTypes.bool.isRequired,
+  toolbar: PropTypes.func
 };
 
 export default withStyles(styles, { withTheme: true })(CEnhancedTable);
