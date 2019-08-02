@@ -11,6 +11,7 @@ import jwt_decode from 'jwt-decode';
 import { ApolloServer, PubSub } from 'apollo-server-express';
 import { typeDefs, resolvers } from './graphql/schema';
 import startRfidServer from './rfid-server';
+import startQueueWorker from './queue-worker';
 
 import User from './models/User';
 
@@ -20,7 +21,7 @@ const app = express();
 
 // Connect to MongoDB
 mongoose
-  .connect(mongoURI, { useNewUrlParser: true })
+  .connect(mongoURI, { useNewUrlParser: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.log(err));
 
@@ -131,6 +132,7 @@ fetch(`http://${host}:${port}/graphql`, {
     result.data.__schema.types = filteredData;
     // Start RFID TCP server
     startRfidServer(result.data);
+    startQueueWorker(result.data);
     fs.writeFile(path.join(__dirname, 'src', 'fragmentTypes.json'), JSON.stringify(result.data), err => {
       if (err) {
         console.error('Error writing fragmentTypes file', err);

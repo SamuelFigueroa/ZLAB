@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import HandIcon from '@material-ui/icons/PanTool';
@@ -73,7 +73,7 @@ class Chemistry extends Component {
           alignItems="center"
         >
           <Grid item xs={12}>
-            <Typography align="center" variant="display1" gutterBottom className={classes.title}>
+            <Typography align="center" variant="h4" gutterBottom className={classes.title}>
               Reagents & Samples
             </Typography>
           </Grid>
@@ -95,19 +95,18 @@ class Chemistry extends Component {
                 />
               </Grid>
               <Grid item>
-                <Button
+                <Fab
                   disabled={!this.state.search.trim().length}
                   component={Link}
                   to={`/chemistry/search?q=${this.state.search}`}
-                  variant="fab"
                   color="primary"
                   aria-label="Search"
                   classes={{
-                    disabled: classes.disabled,
-                    contained: classes.searchButton
+                    root: classes.searchButton,
+                    disabled: classes.disabled
                   }}>
                   <SearchIcon />
-                </Button>
+                </Fab>
               </Grid>
             </Grid>
           </Grid>
@@ -119,23 +118,23 @@ class Chemistry extends Component {
             >
               <Grid item>
                 <Tooltip title="Register Reagent/Sample" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="Register reagent or sample" component={Link} to="/chemistry/compounds/register" className={classes.actionButton}>
+                  <Fab color="default" aria-label="Register reagent or sample" component={Link} to="/chemistry/compounds/register" className={classes.actionButton}>
                     <AddIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
               <Grid item>
                 <Tooltip title="View All Compounds" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="View all compounds" component={Link} to="/chemistry/all#containers" className={classes.actionButton}>
+                  <Fab color="default" aria-label="View all compounds" component={Link} to="/chemistry/all#containers" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
               <Grid item>
                 <Tooltip title="Handle Samples" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="Transfer solid" component={Link} to="/chemistry/containers/handleSamples" className={classes.actionButton}>
+                  <Fab color="default" aria-label="Transfer solid" component={Link} to="/chemistry/containers/handleSamples" className={classes.actionButton}>
                     <HandIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
             </Grid>
@@ -147,9 +146,9 @@ class Chemistry extends Component {
               >
                 <Grid item>
                   <Tooltip title="Inventorize Reagents" classes={{ tooltip: classes.tooltip }}>
-                    <Button variant="fab" color="default" aria-label="Inventorize reagents" component={Link} to="/chemistry/containers/inventory" className={classes.actionButton}>
+                    <Fab color="default" aria-label="Inventorize reagents" component={Link} to="/chemistry/containers/inventory" className={classes.actionButton}>
                       <InventoryIcon fontSize="large"/>
-                    </Button>
+                    </Fab>
                   </Tooltip>
                 </Grid>
                 <Grid item>

@@ -12,6 +12,11 @@ const Location = gql`
     sub_area: SubArea!
   }
 
+  type StagedLocation {
+    area: String!
+    sub_area: String!
+  }
+
   type AreaObject {
     name: String!
     sub_areas: [SubArea]!

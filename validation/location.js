@@ -8,7 +8,7 @@ export default data => {
   data.sub_area = !isEmpty(data.sub_area) ? data.sub_area : '';
 
   if(!Validator.isLength(data.area, { min: 2, max: 30 })) {
-    errors.area = 'Area is invalid';
+    errors.area = 'Area name must have 2 to 30 characters';
   }
 
   if(Validator.isEmpty(data.area)) {
@@ -20,7 +20,7 @@ export default data => {
   }
 
   if(!Validator.isLength(data.sub_area, { min: 2, max: 30 })) {
-    errors.sub_area = 'Sub-area is invalid';
+    errors.sub_area = 'Sub-area name must have 2 to 30 characters';
   }
 
   if(Validator.isEmpty(data.sub_area)) {

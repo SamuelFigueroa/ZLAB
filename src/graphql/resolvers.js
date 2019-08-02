@@ -297,6 +297,43 @@ const clientResolvers = {
       cache.writeData({ id, data });
       return null;
     },
+    updateContainerNormalization: (_, args, { cache }) => {
+      const { input } = args;
+
+      const { id: fieldId, registerAs } = input;
+      const id = `ContainerNormalization:${fieldId}`;
+      let data = {
+        registerAs
+      };
+      cache.writeData({ id, data });
+      return null;
+    },
+    updateLocationNormalization: (_, args, { cache }) => {
+      const { input } = args;
+
+      const { id: fieldId, registerAs } = input;
+      const id = `LocationNormalization:${fieldId}`;
+      let data = {
+        registerAs: registerAs === null ? null : ({
+          __typename: 'StagedLocation',
+          area: registerAs.area,
+          sub_area: registerAs.sub_area
+        })
+      };
+      cache.writeData({ id, data });
+      return null;
+    },
+    updateUserNormalization: (_, args, { cache }) => {
+      const { input } = args;
+
+      const { id: fieldId, registerAs } = input;
+      const id = `UserNormalization:${fieldId}`;
+      let data = {
+        registerAs
+      };
+      cache.writeData({ id, data });
+      return null;
+    },
     updateAssetQueryVariables: (_, args, { cache }) => {
       const { input } = args;
       const { id: queryId, ...variables } = input;

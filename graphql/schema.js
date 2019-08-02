@@ -8,6 +8,7 @@ import Compound from './typeDefs/compound';
 import Container from './typeDefs/container';
 import Transfer from './typeDefs/transfer';
 import Safety from './typeDefs/safety';
+import ContainerCollection from './typeDefs/containerCollection';
 
 import assetResolvers from './resolvers/asset';
 import compoundResolvers from './resolvers/compound';
@@ -19,6 +20,7 @@ import documentResolvers from './resolvers/document';
 import locationResolvers from './resolvers/location';
 import printerResolvers from './resolvers/printer';
 import userResolvers from './resolvers/user';
+import containerCollectionResolvers from './resolvers/containerCollection';
 
 const Schema = gql`
 
@@ -50,5 +52,15 @@ const Schema = gql`
 `;
 
 export const
-  typeDefs = () => [Schema, Asset, Compound, Container, Transfer, Safety, Counter, Printer, User],
-  resolvers = [assetResolvers, compoundResolvers, containerResolvers, transferResolvers, safetyResolvers, counterResolvers, documentResolvers, locationResolvers, printerResolvers, userResolvers];
+  typeDefs = () => [
+    Schema, Asset, Compound,
+    Container, Transfer, Safety,
+    Counter, Printer, User,
+    ContainerCollection
+  ],
+  resolvers = [
+    assetResolvers, compoundResolvers, containerResolvers,
+    transferResolvers, safetyResolvers, counterResolvers,
+    documentResolvers, locationResolvers, printerResolvers,
+    userResolvers, containerCollectionResolvers
+  ];

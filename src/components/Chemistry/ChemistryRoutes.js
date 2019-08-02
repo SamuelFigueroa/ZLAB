@@ -21,6 +21,11 @@ import DryContainerForm from './DryContainerForm';
 import ResuspendContainerForm from './ResuspendContainerForm';
 import SampleHandling from './SampleHandling';
 import ContainerInventory from './ContainerInventory';
+import ChemistryRegistration from './ChemistryRegistration';
+import ContainerCollections from './ContainerCollections';
+import NormalizationSteps from './NormalizationSteps';
+import GetContainerCollection from '../queries/GetContainerCollection';
+import RegistrationProgress from './RegistrationProgress';
 
 const ChemistryRoutes = (props) => {
   const {user, isAuthenticated} = props.auth;
@@ -53,7 +58,8 @@ const ChemistryRoutes = (props) => {
               )}
           </GetChemistryQueryVariables>
         )} />
-        <Route exact path="/chemistry/compounds/register" render={()=><ExactStructureSearch />} />
+        <Route exact path="/chemistry/compounds/register" render={()=><ChemistryRegistration />} />
+        <Route exact path="/chemistry/compounds/structureCheck" render={()=><ExactStructureSearch />} />
         <Route exact path="/chemistry/compounds/new" render={({ location }) => {
           const cas = queryString.parse(location.search).cas !== undefined ? queryString.parse(location.search).cas : '';
           return queryString.parse(location.search).smiles !== undefined ?
@@ -71,7 +77,19 @@ const ChemistryRoutes = (props) => {
             }}
           </GetCompound>
         )}/>
-        <Route exact path="/chemistry/containers/register" render={()=><ExactStructureSearch />} />
+        <Route exact path="/chemistry/containers/register" render={()=><ChemistryRegistration />} />
+        <Route exact path="/chemistry/containers/structureCheck" render={()=><ExactStructureSearch />} />
+        <Route exact path="/chemistry/containers/collections" render={()=><ContainerCollections user={user}/>} />
+        <Route exact path="/chemistry/containers/collections/:id" render={({ match })=>(
+          <GetContainerCollection id={match.params.id}>
+            { (collection, refetch) => collection.status === 'Initial' ?
+              <NormalizationSteps collection={collection} handleRegistrationQueued={refetch} />
+              : ( collection.status !== 'Queued' ?
+                <RegistrationProgress collection={collection} handleRegistrationFinished={refetch}/> : null )
+            }
+          </GetContainerCollection>
+
+        )} />
         <Route exact path="/chemistry/containers/handleSamples" render={()=><SampleHandling />} />
         <Route exact path="/chemistry/containers/transferMass" render={()=><MassTransferForm />} />
         <Route exact path="/chemistry/containers/transferVolume" render={()=><VolumeTransferForm />} />

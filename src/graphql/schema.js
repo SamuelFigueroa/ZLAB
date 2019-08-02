@@ -221,6 +221,26 @@ const typeDefs = `
     resultsCount: Int
   }
 
+  input UpdateContainerNormalizationInput {
+    id: String!
+    registerAs: String
+  }
+
+  input UpdateUserNormalizationInput {
+    id: String!
+    registerAs: String
+  }
+
+  input RegisteredLocationInput {
+    area: String!
+    sub_area: String!
+  }
+
+  input UpdateLocationNormalizationInput {
+    id: String!
+    registerAs: RegisteredLocationInput
+  }
+
   type Mutation {
     setCurrentUser(payload: Payload!) : Boolean
     setErrors(errors: [ErrorInput]!) : Boolean
@@ -231,6 +251,10 @@ const typeDefs = `
     updateAssetQueryVariables(input: UpdateAssetQueryVariablesInput!) : Boolean
     #Safety
     updateSafetyQueryVariables(input: UpdateSafetyQueryVariablesInput!) : Boolean
+    #Container collections
+    updateContainerNormalization(input: UpdateContainerNormalizationInput!) : Boolean
+    updateLocationNormalization(input: UpdateLocationNormalizationInput!) : Boolean
+    updateUserNormalization(input: UpdateUserNormalizationInput!) : Boolean
   }
 
   type Query {
