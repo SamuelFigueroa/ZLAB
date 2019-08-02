@@ -26,7 +26,7 @@ const Landing = (props) => {
         direction="column"
         spacing={8}>
         <Grid item>
-          <Typography variant="display1" gutterBottom>
+          <Typography variant="h4" gutterBottom>
             Welcome to ZLAB
           </Typography>
         </Grid>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from './Table';
@@ -47,15 +47,14 @@ class CachedTable extends Component {
                   { (exportData, exportErrors, clearExportErrors) => (
                     <div>
                       <Tooltip title={addButton.tooltip}>
-                        <Button
+                        <Fab
                           className={classes.addButton}
-                          variant="fab"
                           color="primary"
                           aria-label="Add"
                           component={Link}
                           to={addButton.link}>
                           <AddIcon />
-                        </Button>
+                        </Fab>
                       </Tooltip>
                       <DataTable
                         component={Table}

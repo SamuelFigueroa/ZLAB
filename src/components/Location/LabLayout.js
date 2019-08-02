@@ -85,7 +85,7 @@ class LabLayout extends Component {
                     alignItems="center"
                   >
                     <Grid item>
-                      <Typography variant="title" color="textSecondary" className={classes.listHeader}>
+                      <Typography variant="h6" color="textSecondary" className={classes.listHeader}>
                         Layouts
                       </Typography>
                     </Grid>
@@ -111,7 +111,7 @@ class LabLayout extends Component {
           </Hidden>
           <Grid item xs={12} lg={10}>
             <Paper className={classes.paper} elevation={8}>
-              <Typography variant="title" color="textSecondary" className={classes.label}>
+              <Typography variant="h6" color="textSecondary" className={classes.label}>
                 {floorPlans.find(p=>p.id == this.state.floorPlan).label}
               </Typography>
               <FloorPlan className={classes.plan} handleAreaClick={floorPlan => this.setState({floorPlan})} name={this.state.floorPlan}/>
@@ -121,7 +121,7 @@ class LabLayout extends Component {
             <Grid item xs={2}>
               <Paper elevation={8}>
                 <div className={classes.toolbar}>
-                  <Typography variant="title" color="textSecondary" className={classes.listHeader}>
+                  <Typography variant="h6" color="textSecondary" className={classes.listHeader}>
                     Layouts
                   </Typography>
                 </div>

@@ -40,7 +40,7 @@ class SDSCheck extends Component {
           alignItems="center"
         >
           <Grid item xs={12}>
-            <Typography align="center" variant="display1" className={classes.title}>
+            <Typography align="center" variant="h4" className={classes.title}>
               Compounds Without SDS
             </Typography>
           </Grid>
@@ -50,7 +50,7 @@ class SDSCheck extends Component {
                 <InfoIcon className={classes.info}/>
               </Grid>
               <Grid item>
-                <Typography variant="subheading">
+                <Typography variant="subtitle1">
                   Add a SDS to any of the compounds below by clicking its corresponding row.
                 </Typography>
               </Grid>

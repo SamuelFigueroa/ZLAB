@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import Zoom from '@material-ui/core/Zoom';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import green from '@material-ui/core/colors/green';
@@ -135,9 +135,9 @@ class PurchaseLog extends PureComponent {
                 mountOnEnter
                 unmountOnExit
               >
-                <Button variant="fab" className={fab.className} color={fab.color} onClick={this.toggleEventForm}>
+                <Fab className={fab.className} color={fab.color} onClick={this.toggleEventForm}>
                   {fab.icon}
-                </Button>
+                </Fab>
               </Zoom>
             ))}
             <Table

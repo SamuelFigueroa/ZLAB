@@ -110,12 +110,12 @@ class PrinterHub extends PureComponent {
                 alignItems="flex-end"
                 spacing={16}>
                 <Grid item xs={6}>
-                  <Typography variant="headline" color="primary" gutterBottom>
+                  <Typography variant="h5" color="primary" gutterBottom>
                     {name}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="title" color="textSecondary" align="right" gutterBottom>
+                  <Typography variant="h6" color="textSecondary" align="right" gutterBottom>
                     { status }
                   </Typography>
                 </Grid>
@@ -164,7 +164,7 @@ class PrinterHub extends PureComponent {
                         </div>
                       )
                     ) : (
-                      <Typography variant="display1" align="center" >There are no printers connected to this hub.</Typography>
+                      <Typography variant="h4" align="center" >There are no printers connected to this hub.</Typography>
                     )}
                   </Paper>
                 </Grid>

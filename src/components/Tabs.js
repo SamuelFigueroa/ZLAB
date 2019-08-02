@@ -63,7 +63,7 @@ class SwipeableTabs extends Component {
             onChange={onChange}
             indicatorColor="primary"
             textColor="primary"
-            fullWidth
+            variant="fullWidth"
           >{
               tabs.map(tab => <Tab label={tab.label} key={tab.id}/>)
             }

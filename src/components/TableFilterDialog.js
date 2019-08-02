@@ -157,7 +157,7 @@ class TableFilterDialog extends Component {
         {
           filterGroups.map( group => (
             <div className={classes.filterGroup} key={group.key}>
-              <Typography className={classes.filterGroupLabel} id="label" variant="subheading" color="primary">
+              <Typography className={classes.filterGroupLabel} id="label" variant="subtitle1" color="primary">
                 {group.label}
               </Typography>
               <List>

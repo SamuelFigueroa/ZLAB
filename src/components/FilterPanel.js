@@ -59,7 +59,7 @@ class FilterPanel extends PureComponent {
                 value="checked_profile"
               />}
             label={
-              <Typography id="label" variant="subheading" color={enabled ? 'primary' : 'textSecondary'}>
+              <Typography id="label" variant="subtitle1" color={enabled ? 'primary' : 'textSecondary'}>
                 {label}
               </Typography>
             }/>

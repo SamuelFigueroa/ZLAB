@@ -95,7 +95,7 @@ class AddFieldModal extends Component {
             direction="column"
             spacing={8}>
             <Grid item>
-              <Typography variant="display1" align="center" gutterBottom>
+              <Typography variant="h4" align="center" gutterBottom>
                   Create new field
               </Typography>
               <Grid item>

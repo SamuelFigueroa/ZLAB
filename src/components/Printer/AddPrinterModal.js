@@ -3,14 +3,9 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import HelpIcon from '@material-ui/icons/Help';
 import Modal from '@material-ui/core/Modal';
 import AddPrinter from '../mutations/AddPrinter';
 
@@ -81,13 +76,13 @@ class AddPrinterModal extends Component {
                 direction="column"
                 spacing={8}>
                 <Grid item>
-                  <Typography variant="display1" align="center" gutterBottom>
+                  <Typography variant="h4" align="center" gutterBottom>
                   New Printer Found!
                   </Typography>
-                  <Typography align="center" variant="subheading">
+                  <Typography align="center" variant="subtitle1">
                     <i>Connection: {connection_name}</i>
                   </Typography>
-                  <Typography align="center" variant="body2" color="error">
+                  <Typography align="center" variant="body1" color="error">
                     {errors.connection_name !== undefined ? errors.connection_name : ''}
                   </Typography>
                 </Grid>

@@ -9,6 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import green from '@material-ui/core/colors/green';
 import EditIcon from '@material-ui/icons/Edit';
+import Fab from '@material-ui/core/Fab';
 
 import GetAsset from '../queries/GetAsset';
 import DeleteAsset from '../mutations/DeleteAsset';
@@ -124,33 +125,33 @@ class SupplyInfo extends Component {
           tabs[0]['component'] = (
             <div className={classes.root}>
               <Tooltip title="Edit Consumable Information">
-                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/consumables/${asset.id}/update`}>
+                <Fab className={classes.fabGreen} color="inherit" component={Link} to={`/assets/consumables/${asset.id}/update`}>
                   <EditIcon />
-                </Button>
+                </Fab>
               </Tooltip>
               <Grid
                 container
                 className={classes.container}
                 spacing={32}>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                       Name: {asset.name}
                   </Typography>
                 </Grid>
                 {
                   asset.description ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading" gutterBottom>
+                      <Typography variant="subtitle1" gutterBottom>
                           Description:
                       </Typography>
-                      <Typography variant="subheading">
+                      <Typography variant="subtitle1">
                         {asset.description}
                       </Typography>
                     </Grid>
                   ) : (null)
                 }
                 <Grid item xs={12}>
-                  <Typography variant="subheading" color="textSecondary" align="right">
+                  <Typography variant="subtitle1" color="textSecondary" align="right">
                       Registered by {asset.registration_event.user} on {dateTimeToString(asset.registration_event.date)}
                   </Typography>
                 </Grid>

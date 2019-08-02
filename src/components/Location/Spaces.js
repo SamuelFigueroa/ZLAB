@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import MapIcon from '@material-ui/icons/Map';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListIcon from '@material-ui/icons/ViewList';
@@ -49,7 +49,7 @@ class Facilities extends Component {
           alignItems="center"
         >
           <Grid item xs={12}>
-            <Typography align="center" variant="display1" className={classes.title}>
+            <Typography align="center" variant="h4" className={classes.title}>
               Spaces
             </Typography>
           </Grid>
@@ -61,16 +61,16 @@ class Facilities extends Component {
             >
               <Grid item>
                 <Tooltip title="View All Locations" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="View all locations" component={Link} to="/spaces/locations" className={classes.actionButton}>
+                  <Fab color="default" aria-label="View all locations" component={Link} to="/spaces/locations" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
               <Grid item>
                 <Tooltip title="View Lab Layout" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="View lab layout" component={Link} to="/spaces/layout" className={classes.actionButton}>
+                  <Fab color="default" aria-label="View lab layout" component={Link} to="/spaces/layout" className={classes.actionButton}>
                     <MapIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
             </Grid>

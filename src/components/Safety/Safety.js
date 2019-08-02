@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import BookIcon from '@material-ui/icons/Book';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -48,7 +48,7 @@ class Safety extends Component {
           alignItems="center"
         >
           <Grid item xs={12}>
-            <Typography align="center" variant="display1" className={classes.title}>
+            <Typography align="center" variant="h4" className={classes.title}>
               Lab Safety
             </Typography>
           </Grid>
@@ -60,9 +60,9 @@ class Safety extends Component {
             >
               <Grid item>
                 <Tooltip title="View All Safety Data Sheets" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="View all safety data sheets" component={Link} to="/safety/sds/all" className={classes.actionButton}>
+                  <Fab color="default" aria-label="View all safety data sheets" component={Link} to="/safety/sds/all" className={classes.actionButton}>
                     <BookIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
             </Grid>

@@ -251,39 +251,39 @@ class SDSInfo extends Component {
     };
     const info = {
       'product_identifier':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          Product Indentifiers
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary.product_identifier }
         </Typography>
       </Typography>,
       'signal_word':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          Signal word
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           {
             glossary.signal_word.split(new RegExp(`(${Object.keys(terms).join('|')})`, 'g')).map((term,i) => terms[term] === undefined ? term : terms[term](i))
           }
         </Typography>
       </Typography>,
       'pictogram':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          Pictogram
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary.pictogram }
         </Typography>
       </Typography>,
       'hazard_class':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          GHS Hazard Classes
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary.hazard_class }
         </Typography>
       </Typography>,
       'hazard_statement':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          Hazard Statement
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary.hazard_statement }
         </Typography>
         <Grid container alignItems="center" spacing={8}>
@@ -311,9 +311,9 @@ class SDSInfo extends Component {
         </Grid>
       </Typography>,
       'precautionary_statement':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          Precautionary Statement
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary.precautionary_statement }
         </Typography>
         <Grid container alignItems="center" spacing={8}>
@@ -355,9 +355,9 @@ class SDSInfo extends Component {
         </Grid>
       </Typography>,
       'label_element':
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
          GHS Label Elements
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary.label_element }
         </Typography>
       </Typography>,
@@ -365,9 +365,9 @@ class SDSInfo extends Component {
 
     Object.keys(pictograms).forEach(
       k => info[k] =
-      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="title">
+      <Typography style={{ lineHeight: '2.5em' }} component="span" variant="h6">
         {pictograms[k].symbol}
-        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body1">
+        <Typography style={{ lineHeight: '2.5em' }} component="span" variant="body2">
           { glossary[pictograms[k].id] }
         </Typography>
       </Typography>
@@ -410,7 +410,7 @@ class SDSInfo extends Component {
                     <Grid item xs={12}>
                       <Grid container alignItems="center">
                         <Grid item xs={9}>
-                          <Typography variant="headline" color="primary" className={classes.header}>
+                          <Typography variant="h5" color="primary" className={classes.header}>
                             Safety Data Sheet
                           </Typography>
                         </Grid>
@@ -428,7 +428,7 @@ class SDSInfo extends Component {
                             <TableCell colSpan={3}>
                               <ButtonBase onClick={this.getInfo('product_identifier')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                                  <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                                     Product Identifiers
                                   </Typography>
                                 </Tooltip>
@@ -439,12 +439,12 @@ class SDSInfo extends Component {
                         <TableBody>
                           <TableRow>
                             <TableCell>
-                              <Typography variant="subheading">Name</Typography>
+                              <Typography variant="subtitle1">Name</Typography>
                             </TableCell>
                             <TableCell align="left">
                               { sds.compound.name ?
-                                <Typography variant="subheading">{sds.compound.name}</Typography>
-                                : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                                <Typography variant="subtitle1">{sds.compound.name}</Typography>
+                                : <Typography variant="subtitle1" color="textSecondary"><i>No information available</i></Typography>
                               }
                             </TableCell>
                             <Hidden only={['sm', 'xs']}>
@@ -455,33 +455,33 @@ class SDSInfo extends Component {
                           </TableRow>
                           <TableRow>
                             <TableCell>
-                              <Typography variant="subheading">CAS No.</Typography>
+                              <Typography variant="subtitle1">CAS No.</Typography>
                             </TableCell>
                             <TableCell align="left">
                               { sds.compound.cas ?
-                                <Typography variant="subheading">{sds.compound.cas}</Typography>
-                                : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                                <Typography variant="subtitle1">{sds.compound.cas}</Typography>
+                                : <Typography variant="subtitle1" color="textSecondary"><i>No information available</i></Typography>
                               }
                             </TableCell>
                           </TableRow>
                           <TableRow>
                             <TableCell>
-                              <Typography variant="subheading">Compound ID</Typography>
+                              <Typography variant="subtitle1">Compound ID</Typography>
                             </TableCell>
                             <TableCell align="left">
                               <Link to={`/chemistry/compounds/${sds.compound.id}#profile`}>
-                                <Typography variant="subheading">{sds.compound.compound_id}</Typography>
+                                <Typography variant="subtitle1">{sds.compound.compound_id}</Typography>
                               </Link>
                             </TableCell>
                           </TableRow>
                           <TableRow>
                             <TableCell>
-                              <Typography variant="subheading">SDS Supplier</Typography>
+                              <Typography variant="subtitle1">SDS Supplier</Typography>
                             </TableCell>
                             <TableCell align="left">
                               { sds.manufacturer ?
-                                <Typography variant="subheading">{sds.manufacturer}</Typography>
-                                : <Typography variant="subheading" color="textSecondary"><i>No information available</i></Typography>
+                                <Typography variant="subtitle1">{sds.manufacturer}</Typography>
+                                : <Typography variant="subtitle1" color="textSecondary"><i>No information available</i></Typography>
                               }
                             </TableCell>
                           </TableRow>
@@ -502,7 +502,7 @@ class SDSInfo extends Component {
                             <TableCell colSpan={2}>
                               <ButtonBase onClick={this.getInfo('label_element')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                                  <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                                     GHS Label Elements
                                   </Typography>
                                 </Tooltip>
@@ -515,7 +515,7 @@ class SDSInfo extends Component {
                             <TableCell>
                               <ButtonBase onClick={this.getInfo('signal_word')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="subheading">Signal Word</Typography>
+                                  <Typography variant="subtitle1">Signal Word</Typography>
                                 </Tooltip>
                               </ButtonBase>
                             </TableCell>
@@ -526,7 +526,7 @@ class SDSInfo extends Component {
                                   clickable={false}
                                   label={<Typography variant="button" color="inherit">{sds.signal_word}</Typography>}
                                 />
-                                : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'No signal word' : 'No information available'}</i></Typography>
+                                : <Typography variant="subtitle1" color="textSecondary"><i>{ sds.sds_id ? 'No signal word' : 'No information available'}</i></Typography>
                               }
                             </TableCell>
                           </TableRow>
@@ -534,7 +534,7 @@ class SDSInfo extends Component {
                             <TableCell>
                               <ButtonBase onClick={this.getInfo('pictogram')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="subheading">Pictogram(s)</Typography>
+                                  <Typography variant="subtitle1">Pictogram(s)</Typography>
                                 </Tooltip>
                               </ButtonBase>
                             </TableCell>
@@ -545,7 +545,7 @@ class SDSInfo extends Component {
                                     <Pictogram className={classes.pictogram} code={p} />
                                   </ButtonBase>
                                 ))
-                                : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
+                                : <Typography variant="subtitle1" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                               }
                             </TableCell>
                           </TableRow>
@@ -561,7 +561,7 @@ class SDSInfo extends Component {
                             <TableCell colSpan={2}>
                               <ButtonBase onClick={this.getInfo('hazard_class')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                                  <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                                     GHS Classification
                                   </Typography>
                                 </Tooltip>
@@ -574,11 +574,11 @@ class SDSInfo extends Component {
                             sds.h_classes.map(h_class=> (
                               <TableRow key={h_class}>
                                 <TableCell>
-                                  <Typography variant="subheading">{h_class.replace(/\(chapter \d+.\d+\)/, '').trim()}</Typography>
+                                  <Typography variant="subtitle1">{h_class.replace(/\(chapter \d+.\d+\)/, '').trim()}</Typography>
                                 </TableCell>
                               </TableRow>
                             ))
-                            : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
+                            : <Typography variant="subtitle1" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                           }
                         </TableBody>
                       </Table>
@@ -592,7 +592,7 @@ class SDSInfo extends Component {
                             <TableCell colSpan={2}>
                               <ButtonBase onClick={this.getInfo('hazard_statement')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                                  <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                                     Hazard Statements
                                   </Typography>
                                 </Tooltip>
@@ -604,11 +604,11 @@ class SDSInfo extends Component {
                           <TableRow>
                             <Hidden only={['sm', 'xs']}>
                               <TableCell>
-                                <Typography variant="subheading">Code</Typography>
+                                <Typography variant="subtitle1">Code</Typography>
                               </TableCell>
                             </Hidden>
                             <TableCell>
-                              <Typography variant="subheading">Statement</Typography>
+                              <Typography variant="subtitle1">Statement</Typography>
                             </TableCell>
                           </TableRow>
                           { sds.h_statements.length ?
@@ -624,11 +624,11 @@ class SDSInfo extends Component {
                                   </TableCell>
                                 </Hidden>
                                 <TableCell>
-                                  <Typography variant="subheading">{h_statement.statement}</Typography>
+                                  <Typography variant="subtitle1">{h_statement.statement}</Typography>
                                 </TableCell>
                               </TableRow>
                             ))
-                            : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
+                            : <Typography variant="subtitle1" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                           }
                         </TableBody>
                       </Table>
@@ -640,7 +640,7 @@ class SDSInfo extends Component {
                             <TableCell colSpan={3}>
                               <ButtonBase onClick={this.getInfo('precautionary_statement')}>
                                 <Tooltip title="Click for info" placement="right">
-                                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                                  <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                                     Precautionary Statements
                                   </Typography>
                                 </Tooltip>
@@ -652,11 +652,11 @@ class SDSInfo extends Component {
                           <TableRow>
                             <Hidden only={['sm', 'xs']}>
                               <TableCell>
-                                <Typography variant="subheading">Code</Typography>
+                                <Typography variant="subtitle1">Code</Typography>
                               </TableCell>
                             </Hidden>
                             <TableCell>
-                              <Typography variant="subheading">Statement</Typography>
+                              <Typography variant="subtitle1">Statement</Typography>
                             </TableCell>
                           </TableRow>
                           { sds.p_statements.length ?
@@ -673,7 +673,7 @@ class SDSInfo extends Component {
                                   </TableCell>
                                 </Hidden>
                                 <TableCell>
-                                  <Typography variant="subheading">{p_statement.statement}</Typography>
+                                  <Typography variant="subtitle1">{p_statement.statement}</Typography>
                                   {
                                     p_statement.conditions.map(condition=>(
                                       <Typography key={condition} variant="body2" color="textSecondary">
@@ -684,7 +684,7 @@ class SDSInfo extends Component {
                                 </TableCell>
                               </TableRow>
                             ))
-                            : <Typography variant="subheading" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
+                            : <Typography variant="subtitle1" color="textSecondary"><i>{ sds.sds_id ? 'None' : 'No information available'}</i></Typography>
                           }
                         </TableBody>
                       </Table>

@@ -107,7 +107,7 @@ class SDSSearch extends Component {
                   alignItems="center"
                 >
                   <Grid item xs={12}>
-                    <Typography align="center" variant="display1" className={classes.title}>
+                    <Typography align="center" variant="h4" className={classes.title}>
                     SDS Search Results
                     </Typography>
                   </Grid>
@@ -117,7 +117,7 @@ class SDSSearch extends Component {
                         <InfoIcon className={classes.info}/>
                       </Grid>
                       <Grid item>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                           {'Select the SDS to associate with the compound. Choosing one from \'SIGMA ALDRICH\' is highly recommended.'}
                         </Typography>
                       </Grid>
@@ -125,7 +125,7 @@ class SDSSearch extends Component {
                   </Grid>
                   { errors.name ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading" color="error" align="right">
+                      <Typography variant="subtitle1" color="error" align="right">
                         Error: {errors.name}
                       </Typography>
                     </Grid>
@@ -133,7 +133,7 @@ class SDSSearch extends Component {
                   }
                   { errors.size ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading" color="error" align="right">
+                      <Typography variant="subtitle1" color="error" align="right">
                         Error: {errors.size}
                       </Typography>
                     </Grid>
@@ -141,7 +141,7 @@ class SDSSearch extends Component {
                   }
                   { errors.upload ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading" color="error" align="right">
+                      <Typography variant="subtitle1" color="error" align="right">
                         Error: {errors.upload}
                       </Typography>
                     </Grid>
@@ -154,21 +154,21 @@ class SDSSearch extends Component {
                       toolbarProps={{
                         rightHeader: searchErrors.compound ? (
                           <Grid item>
-                            <Typography variant="headline" className={classes.error}>
+                            <Typography variant="h5" className={classes.error}>
                               {searchErrors.compound}
                             </Typography>
                           </Grid>
                         ) : (
                           this.state.selected === null ? (
                             <Grid item>
-                              <Typography variant="headline" color="textSecondary">
+                              <Typography variant="h5" color="textSecondary">
                                Loading results...
                               </Typography>
                             </Grid>
                           ) : (
                             this.state.selected === '' ? (
                               <Grid item>
-                                <Typography variant="headline" color="textSecondary">
+                                <Typography variant="h5" color="textSecondary">
                                   {'Search didn\'t match any SDS'}
                                 </Typography>
                               </Grid>
@@ -186,7 +186,7 @@ class SDSSearch extends Component {
                                         </Button>
                                       </Grid>
                                       <Grid item xs={2}>
-                                        <Typography variant="subheading" color="primary" align="center">
+                                        <Typography variant="subtitle1" color="primary" align="center">
                                     - or -
                                         </Typography>
                                       </Grid>

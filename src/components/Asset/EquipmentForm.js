@@ -200,7 +200,7 @@ class EquipmentForm extends Component {
                           direction="column"
                           spacing={8}>
                           <Grid item xs={12}>
-                            <Typography variant="display1" gutterBottom>
+                            <Typography variant="h4" gutterBottom>
                               { `${update ? 'Edit' : 'Register'} Asset` }
                             </Typography>
                           </Grid>
@@ -216,7 +216,7 @@ class EquipmentForm extends Component {
                                   alignItems="flex-end"
                                   spacing={16}>
                                   <Grid item sm={8}>
-                                    <Typography variant="headline" color="primary" gutterBottom>
+                                    <Typography variant="h5" color="primary" gutterBottom>
                                       General Information
                                     </Typography>
                                   </Grid>
@@ -330,7 +330,7 @@ class EquipmentForm extends Component {
                                     />
                                   </Grid>
                                   <Grid item xs={12}>
-                                    <Typography variant="headline" color="primary" className={classes.sectionTitle}>
+                                    <Typography variant="h5" color="primary" className={classes.sectionTitle}>
                                       Purchasing Information
                                     </Typography>
                                   </Grid>
@@ -402,7 +402,7 @@ class EquipmentForm extends Component {
                                     />
                                   </Grid>
                                   <Grid item xs={12}>
-                                    <Typography variant="headline" color="primary" className={classes.sectionTitle}>
+                                    <Typography variant="h5" color="primary" className={classes.sectionTitle}>
                                       Grant Information
                                     </Typography>
                                   </Grid>
@@ -449,7 +449,7 @@ class EquipmentForm extends Component {
                                     </Autocomplete>
                                   </Grid>
                                   <Grid item xs={12}>
-                                    <Typography variant="headline" color="primary" className={classes.sectionTitle}>
+                                    <Typography variant="h5" color="primary" className={classes.sectionTitle}>
                                       Usage Information
                                     </Typography>
                                   </Grid>
@@ -572,7 +572,7 @@ class EquipmentForm extends Component {
                                     </Button>
                                   </Grid>
                                   <Grid item xs={12} md={6}>
-                                    <Typography variant="subheading" color="textSecondary" align="right">
+                                    <Typography variant="subtitle1" color="textSecondary" align="right">
                                       <i>{update ? 'Edited' : 'Registered'} by {this.props.user.name}  at  {dateTimeToString(new Date())}</i>
                                     </Typography>
                                   </Grid>

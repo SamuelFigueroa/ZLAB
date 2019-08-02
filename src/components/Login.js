@@ -59,7 +59,7 @@ class Login extends Component {
               direction="column"
               spacing={8}>
               <Grid item>
-                <Typography variant="display1" gutterBottom>
+                <Typography variant="h4" gutterBottom>
                   Login to ZLAB
                 </Typography>
               </Grid>

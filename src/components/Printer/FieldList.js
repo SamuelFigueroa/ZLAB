@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
 import List from '@material-ui/core/List';
@@ -54,14 +54,13 @@ class FieldList extends Component {
                 color: 'primary'
               }}  />
             <Tooltip title="Add a Field" placement="top">
-              <Button
-                variant="fab"
+              <Fab
                 style={{ position: 'absolute', right: '-12px', bottom: '16px' }}
                 color="primary"
                 aria-label="Add"
                 onClick={addField}>
                 <AddIcon />
-              </Button>
+              </Fab>
             </Tooltip>
           </ListItem>
           <Divider />

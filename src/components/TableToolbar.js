@@ -19,7 +19,7 @@ const TableToolbar = props => {
         spacing={16}
       >
         <Grid item>
-          <Typography variant="headline" color="primary" id="tableTitle">
+          <Typography variant="h5" color="primary" id="tableTitle">
             {title}
           </Typography>
         </Grid>
@@ -52,7 +52,7 @@ const TableToolbar = props => {
         {
           subheading ? (
             <Grid item xs={4}>
-              <Typography variant="headline" color="textSecondary">
+              <Typography variant="h5" color="textSecondary">
                 {subheading}
               </Typography>
             </Grid>

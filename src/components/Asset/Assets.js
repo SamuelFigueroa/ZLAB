@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import ListIcon from '@material-ui/icons/ViewList';
@@ -41,6 +41,7 @@ const styles = theme => ({
     height: theme.spacing.unit * 10,
     width: theme.spacing.unit * 10,
     color: theme.palette.primary.main,
+    margin: theme.spacing.unit * 2
   },
   tooltip: {
     fontSize: theme.typography.body1.fontSize
@@ -71,7 +72,7 @@ class Assets extends Component {
           alignItems="center"
         >
           <Grid item xs={12}>
-            <Typography align="center" variant="display1" gutterBottom className={classes.title}>
+            <Typography align="center" variant="h4" gutterBottom className={classes.title}>
               Equipment & Consumables
             </Typography>
           </Grid>
@@ -93,19 +94,18 @@ class Assets extends Component {
                 />
               </Grid>
               <Grid item>
-                <Button
+                <Fab
                   disabled={!this.state.search.trim().length}
                   component={Link}
                   to={`/assets/search?q=${this.state.search}`}
-                  variant="fab"
                   color="primary"
                   aria-label="Search"
                   classes={{
-                    disabled: classes.disabled,
-                    contained: classes.searchButton
+                    root: classes.searchButton,
+                    disabled: classes.disabled
                   }}>
                   <SearchIcon />
-                </Button>
+                </Fab>
               </Grid>
             </Grid>
           </Grid>
@@ -114,27 +114,26 @@ class Assets extends Component {
               container
               alignItems="center"
               justify="center"
-              spacing={40}
             >
               <Grid item>
                 <Tooltip title="Add New Equipment/Consumables" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="Add asset" component={Link} to="/assets/equipment/new" className={classes.actionButton}>
+                  <Fab color="default" aria-label="Add asset" component={Link} to="/assets/equipment/new" className={classes.actionButton}>
                     <AddIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
               <Grid item>
                 <Tooltip title="View All Equipment/Consumables" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="View all assets" component={Link} to="/assets/all" className={classes.actionButton}>
+                  <Fab color="default" aria-label="View all assets" component={Link} to="/assets/all" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
               <Grid item>
                 <Tooltip title="Inventorize Equipment" classes={{ tooltip: classes.tooltip }}>
-                  <Button variant="fab" color="default" aria-label="Inventorize equipment" component={Link} to="/assets/equipment/inventory" className={classes.actionButton}>
+                  <Fab color="default" aria-label="Inventorize equipment" component={Link} to="/assets/equipment/inventory" className={classes.actionButton}>
                     <InventoryIcon fontSize="large"/>
-                  </Button>
+                  </Fab>
                 </Tooltip>
               </Grid>
             </Grid>

@@ -77,7 +77,7 @@ const Header = (props) => {
               </IconButton>
         }
         <Button style={{textTransform: 'capitalize' }} color="inherit" component={Link} to="/">
-          <Typography variant="title" color="inherit">
+          <Typography variant="h6" color="inherit">
             {title}
           </Typography>
         </Button>
@@ -118,7 +118,7 @@ const Header = (props) => {
           >
             <Grid item>
               <Button color="inherit" component={Link} to="/login">
-                <Typography variant="title" color="inherit">
+                <Typography variant="h6" color="inherit">
                   Login
                 </Typography>
               </Button>

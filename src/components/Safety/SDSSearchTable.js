@@ -52,12 +52,12 @@ class SDSSearchTable extends Component {
                   <PreviewSafetyDataSheet>
                     { (previewSafetyDataSheet, previewLoading, previewErrors) => (
                       previewErrors[d.id] ? (
-                        <Typography variant="body1" color="error">
+                        <Typography variant="body2" color="error">
                           {previewErrors[d.id]}
                         </Typography>
                       ) : (
                         previewLoading ? (
-                          <Typography variant="body1" color="textSecondary">
+                          <Typography variant="body2" color="textSecondary">
                           Loading preview...
                           </Typography>
                         ) : (

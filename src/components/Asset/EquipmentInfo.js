@@ -11,6 +11,7 @@ import green from '@material-ui/core/colors/green';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
 import PrintIcon from '@material-ui/icons/Print';
+import Fab from '@material-ui/core/Fab';
 
 import GetAsset from '../queries/GetAsset';
 import DeleteAsset from '../mutations/DeleteAsset';
@@ -149,9 +150,9 @@ class EquipmentInfo extends Component {
                 data={asset.barcode}
               />
               <Tooltip title={`Edit ${asset.category} Information`}>
-                <Button variant="fab" className={classes.fabGreen} color="inherit" component={Link} to={`/assets/equipment/${asset.id}/update`}>
+                <Fab className={classes.fabGreen} color="inherit" component={Link} to={`/assets/equipment/${asset.id}/update`}>
                   <EditIcon />
-                </Button>
+                </Fab>
               </Tooltip>
               <Grid
                 container
@@ -159,18 +160,18 @@ class EquipmentInfo extends Component {
                 alignItems="center"
                 spacing={32}>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                       Name: {asset.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                       Location: {(asset.location.area.name == 'UNASSIGNED') ?
                       'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}`}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                       Barcode: {asset.barcode}
                     <Tooltip title="Print barcode" placement="right">
                       <IconButton aria-label="Print" onClick={this.openPrintModal}>
@@ -180,28 +181,28 @@ class EquipmentInfo extends Component {
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                       Condition: {asset.condition}
                   </Typography>
                 </Grid>
                 {
                   asset.brand && asset.model ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading">
+                      <Typography variant="subtitle1">
                       Brand / Model: {`${asset.brand} / ${asset.model}`}
                       </Typography>
                     </Grid>
                   ) : (
                     asset.brand ? (
                       <Grid item xs={12}>
-                        <Typography variant="subheading">
+                        <Typography variant="subtitle1">
                         Brand: {asset.brand}
                         </Typography>
                       </Grid>
                     ) : (
                       asset.model ? (
                         <Grid item xs={12}>
-                          <Typography variant="subheading">
+                          <Typography variant="subtitle1">
                         Model: {asset.model}
                           </Typography>
                         </Grid>
@@ -211,7 +212,7 @@ class EquipmentInfo extends Component {
                 {
                   asset.serial_number ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading">
+                      <Typography variant="subtitle1">
                           Serial No.: {asset.serial_number}
                       </Typography>
                     </Grid>
@@ -220,61 +221,61 @@ class EquipmentInfo extends Component {
                 {
                   asset.description ? (
                     <Grid item xs={12}>
-                      <Typography variant="subheading" gutterBottom>
+                      <Typography variant="subtitle1" gutterBottom>
                           Description:
                       </Typography>
-                      <Typography variant="subheading">
+                      <Typography variant="subtitle1">
                         {asset.description}
                       </Typography>
                     </Grid>
                   ) : (null)
                 }
                 <Grid item xs={12}>
-                  <Typography variant="title" color="textSecondary" className={classes.sectionTitle}>
+                  <Typography variant="h6" color="textSecondary" className={classes.sectionTitle}>
                   Funding Information
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                     Purchase Date: { dateToString(asset.purchasing_info.date)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                     Supplier: {asset.purchasing_info.supplier}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                     Price: { formatCurrency(asset.purchasing_info.price) }
                   </Typography>
                 </Grid>
                 {
                   asset.purchasing_info.warranty_exp ? (
                     <Grid item xs={12} sm={6}>
-                      <Typography variant="subheading">
+                      <Typography variant="subtitle1">
                         Warranty Expires: { dateToString(asset.purchasing_info.warranty_exp) }
                       </Typography>
                     </Grid>
                   ) : (null)
                 }
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                     Grant No.: {asset.grant.grant_number}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                     Project Name: {asset.grant.project_name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subheading">
+                  <Typography variant="subtitle1">
                     Funding Agency: {asset.grant.funding_agency}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subheading" color="textSecondary" align="right">
+                  <Typography variant="subtitle1" color="textSecondary" align="right">
                       Registered by {asset.registration_event.user} on {dateTimeToString(asset.registration_event.date)}
                   </Typography>
                 </Grid>

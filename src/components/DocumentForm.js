@@ -206,7 +206,7 @@ class DocumentForm extends PureComponent {
                     </Button>
                   </Grid>
                   <Grid item>
-                    <Typography variant="subheading" color="error">
+                    <Typography variant="subtitle1" color="error">
                       {errors.name || errors.size}
                     </Typography>
                   </Grid>

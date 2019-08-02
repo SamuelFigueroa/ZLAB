@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link, withRouter } from 'react-router-dom';
 
 import Tooltip from '@material-ui/core/Tooltip';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 
 import Table from '../CheckableTable';
@@ -51,15 +51,14 @@ class PrinterFormats extends PureComponent {
             { printerFormats => (
               <div>
                 <Tooltip title="Add Printer Format">
-                  <Button
-                    variant="fab"
+                  <Fab
                     className={classes.fab}
                     color="primary"
                     component={Link}
                     to={`/printers/${name}/formats/new`}
                   >
                     <AddIcon />
-                  </Button>
+                  </Fab>
                 </Tooltip>
                 <Table
                   cols={printerFormatCols}

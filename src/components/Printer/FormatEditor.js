@@ -7,7 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import PreviewIcon from '@material-ui/icons/Visibility';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import TextFieldEdit from './TextFieldEdit';
@@ -337,7 +337,7 @@ class PrinterFormatEditor extends Component {
               alignItems="center"
             >
               <Grid item xs={12}>
-                <Typography align="center" variant="display1" gutterBottom className={classes.title}>
+                <Typography align="center" variant="h4" gutterBottom className={classes.title}>
                       Format Editor
                 </Typography>
               </Grid>
@@ -346,7 +346,7 @@ class PrinterFormatEditor extends Component {
                   {
                     !isEmpty(printer) && printer.preview.length ?
                       <img src={`data:image/png;base64,${preview}`} alt="Label Preview" />
-                      : <Typography color="textSecondary" className={classes.preview} variant="title" align="center">Label Preview</Typography>
+                      : <Typography color="textSecondary" className={classes.preview} variant="h6" align="center">Label Preview</Typography>
                   }
                 </Paper>
               </Grid>
@@ -366,15 +366,14 @@ class PrinterFormatEditor extends Component {
                       <div style={{ position: 'absolute', right: 0 }}>
                         <Tooltip title="Preview Label" placement="top">
                           <span style={{ position: 'relative', bottom: '32px', right: '32px' }}>
-                            <Button
+                            <Fab
                               disabled={isEmpty(printer)}
-                              variant="fab"
                               color="primary"
                               aria-label="Preview"
                               onClick={this.previewFormat}
                             >
                               <PreviewIcon />
-                            </Button>
+                            </Fab>
                           </span>
                         </Tooltip>
                       </div>

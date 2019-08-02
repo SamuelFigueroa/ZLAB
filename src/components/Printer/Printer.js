@@ -67,7 +67,7 @@ const styles = theme => ({
       marginLeft: theme.spacing.unit * 2,
     },
     position: 'relative',
-    lineHeight: theme.typography.display1.fontSize,
+    lineHeight: theme.typography.h4.fontSize,
   },
   jobs: {
     paddingTop: theme.spacing.unit,
@@ -177,7 +177,7 @@ class Printer extends PureComponent {
               <PrintIcon fontSize="large" color="primary"/>
             </Grid>
             <Grid item>
-              <Typography variant="title" color="primary">
+              <Typography variant="h6" color="primary">
                 {name}
               </Typography>
             </Grid>
@@ -346,7 +346,7 @@ class Printer extends PureComponent {
               className={classes.jobs}
               subheader={
                 <ListSubheader className={classes.subheader}>
-                  <Typography variant="subheading" color="primary">
+                  <Typography variant="subtitle1" color="primary">
                   Printer Queue
                   </Typography>
                 </ListSubheader>
@@ -382,21 +382,21 @@ class Printer extends PureComponent {
         }
         { addErrors[connection_name] ? (
           <Grid item xs={12}>
-            <Typography variant="subheading" color="error">
+            <Typography variant="subtitle1" color="error">
               {addErrors[connection_name].add}
             </Typography>
           </Grid>
         ) : null }
         { deleteErrors[connection_name] ? (
           <Grid item xs={12}>
-            <Typography variant="subheading" color="error">
+            <Typography variant="subtitle1" color="error">
               {deleteErrors[connection_name].delete}
             </Typography>
           </Grid>
         ) : null }
         { updateErrors[connection_name] ? (
           <Grid item xs={12}>
-            <Typography variant="subheading" color="error">
+            <Typography variant="subtitle1" color="error">
               {updateErrors[connection_name].update}
             </Typography>
           </Grid>

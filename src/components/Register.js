@@ -60,8 +60,8 @@ class Register extends Component {
               direction="column"
               spacing={8}>
               <Grid item>
-                <Typography variant="display1" gutterBottom>
-              Join ZLAB
+                <Typography variant="h4" gutterBottom>
+                  Join ZLAB
                 </Typography>
               </Grid>
               <Grid item>
