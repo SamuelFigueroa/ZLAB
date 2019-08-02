@@ -38,7 +38,6 @@ class REnhancedTableHead extends Component {
             return (
               <TableCell
                 key={col.key}
-                numeric={false}
                 sortDirection={orderBy === col.key ? order : false}
               >
                 { col.alphanumeric ? (
@@ -188,7 +187,6 @@ class RadioTable extends PureComponent {
                           padding="dense"
                           component={col.key == 'name' ? 'th' : 'td'}
                           scope={col.key == 'name' ? 'row' : 'col'}
-                          numeric={false}
                           key={col.key}>
                           {n[col.key] == '' ? 'N/A' : n[col.key]}
                         </TableCell>
