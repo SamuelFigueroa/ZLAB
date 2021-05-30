@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import AssetFilterOptions from './AssetFilterOptions';
-import GetAssets from '../queries/GetAssets';
+import GetAssetInventory from '../queries/GetAssetInventory';
 import ExportAssetData from '../mutations/ExportAssetData';
 import AssetQueryVariables from './AssetQueryVariables';
 
@@ -48,12 +48,13 @@ class ConsumablesTable extends Component {
           getCustomProps: () => ({})
         }}
         query={{
-          getQueryInput: ({ filter }) => {
+          getQueryInput: ({ filter, pagination }) => {
+            const { page, ...paginationInput } = pagination;
             filter.category = 'Lab Supplies';
-            return ({ filter, search });
+            return ({ filter, search, ...paginationInput });
           },
-          getQueryOutput: data => data[0].results,
-          component: GetAssets,
+          getQueryOutput: data => data,
+          component: GetAssetInventory,
           variables: AssetQueryVariables
         }}
       />

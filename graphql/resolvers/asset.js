@@ -10,6 +10,8 @@ import Counter from '../../models/Counter';
 import Document from '../../models/Document';
 import Location from '../../models/Location';
 import User from '../../models/User';
+import paginateAggregation from '../../mongo/paginateAggregation';
+import emptyPage from '../../mongo/emptyPage';
 
 import validateAssetFilter from '../../validation/asset_filter';
 import validateAddAssetInput from '../../validation/asset';
@@ -89,7 +91,6 @@ const getFilterConditions = flatFilter =>
   });
 
 const resolvers = {
-
   Asset: {
     __resolveType(obj) {
       if(obj.barcode){
@@ -103,10 +104,9 @@ const resolvers = {
       return null;
     },
   },
-
-  Query: {
-    assets: async (root, args) => {
-      const { filter, search } = args;
+  AssetInventory: {
+    assetsConnection: async (assetInventory, paginationInput) => {
+      const { filter, search } = assetInventory.args;
       let searchPipelineIndex = 3;
 
       let pipeline = [
@@ -146,12 +146,12 @@ const resolvers = {
           }
         },
         { $project: { _id: 0, locArray: 0, 'location.area._id': 0, 'location.sub_area._id': 0 } },
-        { $group: { _id: '$category', results: { $push: '$$ROOT' } } },
-        { $addFields: { category: '$_id' } },
-        { $project: { _id: 0 } },
+        // { $group: { _id: '$category', results: { $push: '$$ROOT' } } },
+        // { $addFields: { category: '$_id' } },
+        // { $project: { _id: 0 } },
       ];
 
-      let assets = [];
+      // let assets = [];
       if(filter && Object.keys(filter).length) {
         const { errors: inputErrors, isValid } = validateAssetFilter(filter);
         const errors = { errors: inputErrors };
@@ -213,12 +213,16 @@ const resolvers = {
 
           pipeline.splice(searchPipelineIndex, 0, { $match: searchConditions });
         } else {
-          return assets;
+          return emptyPage();
         }
       }
-      assets = await Asset.aggregate(pipeline);
-      return assets;
+
+      let assetConnection = await paginateAggregation(Asset, pipeline, paginationInput);
+      return assetConnection;
     },
+  },
+  Query: {
+    assetInventory: (root, args) => ({args}),
     asset: async (root, args) => {
       let asset = await Asset.findById(args.id);
       if(!asset) {

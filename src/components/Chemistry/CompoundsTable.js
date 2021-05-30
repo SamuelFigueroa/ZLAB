@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import CompoundFilterOptions from './CompoundFilterOptions';
-import GetCompounds from '../queries/GetCompounds';
+import GetCompoundInventory from '../queries/GetCompoundInventory';
 import ExportCompoundData from '../mutations/ExportCompoundData';
 import ChemistryQueryVariables from './ChemistryQueryVariables';
 
@@ -58,7 +58,20 @@ class CompoundsTable extends Component {
               molblock: queryVariables.substructurePattern,
               removeHs: queryVariables.substructureRemoveHs,
               onSubmit: async ({ molblock, removeHs }, refetch, closeDialog)=> {
-                await updateQueryVariables({ substructurePattern: molblock, substructureRemoveHs: removeHs });
+                const { first, last } = queryVariables.pagination;
+                const currentLimit = first || last;
+                await updateQueryVariables({
+                  pagination: {
+                    __typename: 'PaginationOptions',
+                    page: 0,
+                    first: currentLimit,
+                    last: null,
+                    after: null,
+                    before: null
+                  },
+                  substructurePattern: molblock,
+                  substructureRemoveHs: removeHs
+                });
                 let success = await refetch();
                 if (success) {
                   closeDialog();
@@ -73,16 +86,17 @@ class CompoundsTable extends Component {
           })
         }}
         query={{
-          getQueryInput: ({ filter,
+          getQueryInput: ({ filter, pagination,
             substructurePattern: pattern,
             substructureRemoveHs: removeHs
           }) => {
+            const { page, ...paginationInput } = pagination;
             if(pattern)
               filter.substructure = { pattern, removeHs };
-            return ({ filter, search, withSDS });
+            return ({ filter, search, withSDS, ...paginationInput });
           },
           getQueryOutput: data => data,
-          component: GetCompounds,
+          component: GetCompoundInventory,
           variables: ChemistryQueryVariables,
           defaultVariables: withSDS === false ? ({
             filter: {

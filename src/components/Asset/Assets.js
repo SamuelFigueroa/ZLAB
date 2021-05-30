@@ -124,7 +124,7 @@ class Assets extends Component {
               </Grid>
               <Grid item>
                 <Tooltip title="View All Equipment/Consumables" classes={{ tooltip: classes.tooltip }}>
-                  <Fab color="default" aria-label="View all assets" component={Link} to="/assets/all" className={classes.actionButton}>
+                  <Fab color="default" aria-label="View all assets" component={Link} to="/assets/all#equipment" className={classes.actionButton}>
                     <ListIcon fontSize="large"/>
                   </Fab>
                 </Tooltip>

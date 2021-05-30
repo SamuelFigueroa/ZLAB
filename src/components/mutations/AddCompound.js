@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
 import ADD_COMPOUND from '../../graphql/compounds/addCompound';
-import GET_COMPOUNDS from '../../graphql/compounds/getCompounds';
+// import GET_COMPOUND_INVENTORY from '../../graphql/compounds/getCompoundInventory';
 import GET_COMPOUND_HINTS from '../../graphql/compounds/getCompoundHints';
 import GET_CONTAINER_HINTS from '../../graphql/containers/getContainerHints';
 import GET_COMPOUND from '../../graphql/compounds/getCompound';
@@ -30,7 +30,7 @@ class AddCompound extends Component {
             { addCompound => {
               const callMutation = (input) => addCompound({ variables: { input },
                 refetchQueries: ({ data }) => [
-                  { query: GET_COMPOUNDS },
+                  // { query: GET_COMPOUND_INVENTORY, variables: { first: 25 } },
                   { query: GET_COMPOUND_HINTS },
                   { query: GET_CONTAINER_HINTS },
                   { query: GET_COMPOUND, variables: { id: data.addCompound } },

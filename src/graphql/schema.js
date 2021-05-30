@@ -47,6 +47,23 @@ const typeDefs = `
     filterOn: Boolean!
     cached: Boolean!
     resultsCount: Int
+    pagination: PaginationOptions
+  }
+
+  type PaginationOptions {
+    page: Int
+    first: Int
+    after: String
+    last: Int
+    before: String
+  }
+
+  input PaginationOptionsInput {
+    page: Int
+    first: Int
+    after: String
+    last: Int
+    before: String
   }
 
   type ChemistryFilter {
@@ -99,6 +116,7 @@ const typeDefs = `
     searchCategories: [String]
     filterOn: Boolean
     resultsCount: Int
+    pagination: PaginationOptionsInput
   }
 
   input AddQueryVariablesInput {
@@ -116,6 +134,7 @@ const typeDefs = `
     filterOn: Boolean!
     cached: Boolean!
     resultsCount: Int
+    pagination: PaginationOptions
   }
 
   type AssetFilter {
@@ -184,6 +203,7 @@ const typeDefs = `
     searchCategories: [String]
     filterOn: Boolean
     resultsCount: Int
+    pagination: PaginationOptionsInput
   }
 
   type SafetyQueryVariables {
@@ -195,6 +215,7 @@ const typeDefs = `
     filterOn: Boolean!
     cached: Boolean!
     resultsCount: Int
+    pagination: PaginationOptions
   }
 
   type SafetyFilter {
@@ -219,6 +240,7 @@ const typeDefs = `
     searchCategories: [String]
     filterOn: Boolean
     resultsCount: Int
+    pagination: PaginationOptionsInput
   }
 
   input UpdateContainerNormalizationInput {

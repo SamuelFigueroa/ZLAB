@@ -7,7 +7,7 @@ import Container from './container';
 
 const Compound = gql`
 
-  type Compound {
+  type Compound implements Node {
     id: ID!
     containers: [Container]!
     smiles: String!
@@ -22,6 +22,35 @@ const Compound = gql`
     transfers: [TransferEvent]!
     curations: [CurationEvent]!
     registration_event: RegistrationEvent!
+    molWt: Float
+    molFormula: String!
+  }
+
+  type InventoryCompoundsConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [InventoryCompoundsEdge]
+  }
+
+  type InventoryCompoundsEdge {
+    cursor: String!
+    node: Compound
+  }
+
+  type CompoundInventory {
+    compoundsConnection(
+      first: Int,
+      after: String,
+      last: Int,
+      before: String,
+    ): InventoryCompoundsConnection
+  }
+
+  type PageInfo {
+    hasPreviousPage: Boolean!
+    hasNextPage: Boolean!
+    startCursor: String!
+    endCursor: String!
   }
 
   type TransferEvent {
@@ -107,7 +136,7 @@ const Compound = gql`
 
   # Queries
   extend type Query {
-    compounds(filter: CompoundFilter, search: String, withSDS: Boolean): [Compound]!
+    compoundInventory(filter: CompoundFilter, search: String, withSDS: Boolean): CompoundInventory!
     compound(id: ID!): Compound!
     compoundHints: CompoundHint!
   }

@@ -16,7 +16,7 @@ const Asset = gql`
     registration_event: RegistrationEvent!
   }
 
-  type Equipment implements Asset {
+  type Equipment implements Asset & Node {
     id: ID!
     name: String!
     barcode: String
@@ -37,7 +37,7 @@ const Asset = gql`
     registration_event: RegistrationEvent!
   }
 
-  type Supply implements Asset {
+  type Supply implements Asset & Node {
     id: ID!
     name: String!
     description: String!
@@ -46,6 +46,26 @@ const Asset = gql`
     purchase_log: [PurchaseEvent]
     documents: [Document]!
     registration_event: RegistrationEvent!
+  }
+
+  type InventoryAssetsConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [InventoryAssetsEdge]
+  }
+
+  type InventoryAssetsEdge {
+    cursor: String!
+    node: Asset
+  }
+
+  type AssetInventory {
+    assetsConnection(
+      first: Int,
+      after: String,
+      last: Int,
+      before: String,
+    ): InventoryAssetsConnection
   }
 
   type Grant {
@@ -254,7 +274,7 @@ const Asset = gql`
 
   # Queries
   extend type Query {
-    assets(filter: AssetFilter, search: String): [AssetSearchResult]!
+    assetInventory(filter: AssetFilter, search: String): AssetInventory!
     asset(id: ID!): Asset!
     assetHints(category: String!): AssetHint!
   }

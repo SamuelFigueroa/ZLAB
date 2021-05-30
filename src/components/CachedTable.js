@@ -6,8 +6,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
-import Table from './Table';
-import DataTable from './DataTable';
+import PaginatedTable from './PaginatedTable';
+import PaginatedDataTable from './PaginatedDataTable';
 import { getFilter } from '../util/filter';
 
 const styles = (theme) => ({
@@ -56,8 +56,8 @@ class CachedTable extends Component {
                           <AddIcon />
                         </Fab>
                       </Tooltip>
-                      <DataTable
-                        component={Table}
+                      <PaginatedDataTable
+                        component={PaginatedTable}
                         tableProps={{
                           cols,
                           onRowClick
@@ -81,19 +81,86 @@ class CachedTable extends Component {
 
                             cachedQueryVariables.filter = filter;
                             const input = getQueryInput(cachedQueryVariables);
-                            let data = await queryData(input);
+                            let queryResult = await queryData(input);
+                            const { pageInfo, data, totalCount } = queryResult;
                             let update = { filterOn };
-                            if(cachedQueryVariables.search !== input.search) {
+                            if (cachedQueryVariables.search !== input.search) {
                               update.search = input.search;
-                              update.resultsCount = data ? data.length : 0;
+                            }
+
+                            if (!input.after && !input.before) {
+                              update.resultsCount = totalCount;
                             }
                             await updateQueryVariables(update);
 
                             if (data && data.length) {
-                              return getQueryOutput(data);
+                              return getQueryOutput({ pageInfo, data, totalCount });
                             }
-                            return data;
-                          }}
+                            return ({ pageInfo, data, totalCount });
+                          }
+                        }
+                        paginationOptions={{
+                          paginationCount: queryVariables.resultsCount,
+                          ...queryVariables.pagination
+                        }}
+                        onChangePageLimit={
+                          async limit => {
+                            const { first } = queryVariables.pagination;
+                            let update = {};
+                            if (first)
+                              update = {
+                                page: 0,
+                                first: limit,
+                                last: null,
+                                after: null,
+                                before: null
+                              };
+                            else {
+                              update = {
+                                page: 0,
+                                first: null,
+                                last: limit,
+                                after: null,
+                                before: null
+                              };
+                            }
+                            await updateQueryVariables({
+                              pagination: {
+                                __typename: 'PaginationOptions',
+                                ...update
+                              }
+                            });
+                          }
+                        }
+                        onChangePage={
+                          async (page, startCursor, endCursor) => {
+                            const { first, last, page: currentPage } = queryVariables.pagination;
+                            const currentLimit = first || last;
+                            let update = {};
+                            if (page > currentPage)
+                              update = {
+                                page,
+                                first: currentLimit,
+                                last: null,
+                                after: endCursor,
+                                before: null
+                              };
+                            if (page < currentPage)
+                              update = {
+                                page,
+                                first: null,
+                                last: currentLimit,
+                                after: null,
+                                before: startCursor
+                              };
+                            await updateQueryVariables({
+                              pagination: {
+                                __typename: 'PaginationOptions',
+                                ...update
+                              }
+                            });
+                          }
+                        }
                         toolbar={Toolbar}
                         toolbarProps={{
                           title,
@@ -129,7 +196,19 @@ class CachedTable extends Component {
                             value: queryVariables.filter,
                             options: filterOptions,
                             onSubmit: async (filter, refetch, closeDialog) => {
-                              await updateQueryVariables({ filter });
+                              const { first, last } = queryVariables.pagination;
+                              const currentLimit = first || last;
+                              await updateQueryVariables({
+                                filter,
+                                pagination: {
+                                  __typename: 'PaginationOptions',
+                                  page: 0,
+                                  first: currentLimit,
+                                  last: null,
+                                  after: null,
+                                  before: null
+                                }
+                              });
                               let success = await refetch();
                               if (success) {
                                 closeDialog();
@@ -139,7 +218,19 @@ class CachedTable extends Component {
                               }
                             },
                             onReset: async (filter, refetch) => {
-                              await updateQueryVariables({ filter });
+                              const { first, last } = queryVariables.pagination;
+                              const currentLimit = first || last;
+                              await updateQueryVariables({
+                                filter,
+                                pagination: {
+                                  __typename: 'PaginationOptions',
+                                  page: 0,
+                                  first: currentLimit,
+                                  last: null,
+                                  after: null,
+                                  before: null
+                                }
+                              });
                               let success = await refetch();
                               if (success) {
                                 clearErrors();

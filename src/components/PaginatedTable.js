@@ -12,7 +12,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
 
-class EnhancedTableHead extends Component {
+class PaginatedTableHead extends Component {
   constructor(props) {
     super(props);
     this.createSortHandler = this.createSortHandler.bind(this);
@@ -58,7 +58,7 @@ class EnhancedTableHead extends Component {
   }
 }
 
-EnhancedTableHead.propTypes = {
+PaginatedTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
@@ -80,14 +80,12 @@ const styles = theme => ({
   }
 });
 
-class EnhancedTable extends PureComponent {
+class PaginatedTable extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      order: 'asc',
+      order: 'desc',
       orderBy: this.props.cols.filter(c => c.alphanumeric)[0].key,
-      page: 0,
-      rowsPerPage: this.props.rowsPerPage || 25
     };
     this.getSorting = this.getSorting.bind(this);
     this.handleRequestSort = this.handleRequestSort.bind(this);
@@ -99,9 +97,7 @@ class EnhancedTable extends PureComponent {
     swipeableViews: PropTypes.object,
   };
 
-  componentDidUpdate(prevProps) {
-    if((prevProps.page !== undefined || prevProps.rowsPerPage !== undefined) && (prevProps.page !== this.props.page || prevProps.rowsPerPage !== this.props.rowsPerPage))
-      this.setState({ page: this.props.page, rowsPerPage: this.props.rowsPerPage });
+  componentDidUpdate() {
     if(this.context.swipeableViews !== undefined)
       this.context.swipeableViews.slideUpdateHeight();
   }
@@ -127,48 +123,25 @@ class EnhancedTable extends PureComponent {
   };
 
   handleChangePage = (event, page) => {
-    const { onPaginate, data } = this.props;
-    const { rowsPerPage } = this.state;
-    if(onPaginate !== undefined) {
-      if(((page + 1) * rowsPerPage) > data.length) {
-        const { paginationCount } = this.props;
-        const limit = ((page + 1) * rowsPerPage) > paginationCount ? (paginationCount - data.length) : rowsPerPage;
-        onPaginate(limit, { page });
-      } else {
-        onPaginate(0, { page });
-      }
-    } else {
-      this.setState({ page });
-    }
+    const { handleChangePage } = this.props;
+    handleChangePage(page);
   };
 
   handleChangeRowsPerPage = event => {
+    const { handleChangeRowsPerPage } = this.props;
     const rowsPerPage = event.target.value;
-    const { onPaginate, data } = this.props;
-    const { page } = this.state;
-    if(onPaginate !== undefined) {
-      if(((page + 1) * rowsPerPage) > data.length) {
-        const { paginationCount } = this.props;
-        const limit = ((page + 1) * rowsPerPage) > paginationCount ? (paginationCount - data.length) : rowsPerPage;
-        onPaginate(limit, { rowsPerPage });
-      } else {
-        onPaginate(0, { rowsPerPage });
-      }
-    } else {
-      this.setState({ rowsPerPage });
-    }
+    handleChangeRowsPerPage(rowsPerPage);
   };
 
   render() {
-    const { classes, cols, onRowClick, toolbar, data, paginationCount } = this.props;
-    const { order, orderBy, rowsPerPage, page } = this.state;
-
+    const { classes, cols, onRowClick, toolbar, data, pageInfo, paginationCount } = this.props;
+    const { order, orderBy } = this.state;
     return (
       <Paper className={classes.root}>
         { toolbar === undefined ? null : toolbar }
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
-            <EnhancedTableHead
+            <PaginatedTableHead
               order={order}
               orderBy={orderBy}
               onRequestSort={this.handleRequestSort}
@@ -177,7 +150,6 @@ class EnhancedTable extends PureComponent {
             <TableBody>
               { data
                 .sort(this.getSorting(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(n => {
                   return (
                     <TableRow
@@ -206,15 +178,17 @@ class EnhancedTable extends PureComponent {
         <TablePagination
           component="div"
           style={{ overflowX: 'auto' }}
-          count={paginationCount ? paginationCount : data.length}
-          rowsPerPage={rowsPerPage}
+          count={paginationCount}
+          rowsPerPage={pageInfo.limit}
           rowsPerPageOptions={[5, 25, 50, 100]}
-          page={page}
+          page={pageInfo.page}
           backIconButtonProps={{
             'aria-label': 'Previous Page',
+            disabled: pageInfo.loading || !pageInfo.hasPreviousPage
           }}
           nextIconButtonProps={{
             'aria-label': 'Next Page',
+            disabled: pageInfo.loading || !pageInfo.hasNextPage
           }}
           onChangePage={this.handleChangePage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
@@ -224,16 +198,16 @@ class EnhancedTable extends PureComponent {
   }
 }
 
-EnhancedTable.propTypes = {
+PaginatedTable.propTypes = {
   classes: PropTypes.object.isRequired,
   cols: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
   onRowClick: PropTypes.func.isRequired,
+  handleChangePage: PropTypes.func.isRequired,
+  handleChangeRowsPerPage: PropTypes.func.isRequired,
   toolbar: PropTypes.object,
-  rowsPerPage: PropTypes.number,
-  page: PropTypes.number,
-  paginationCount: PropTypes.number,
-  onPaginate: PropTypes.func
+  pageInfo: PropTypes.object.isRequired,
+  paginationCount: PropTypes.number.isRequired
 };
 
-export default withStyles(styles)(EnhancedTable);
+export default withStyles(styles)(PaginatedTable);

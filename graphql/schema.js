@@ -30,6 +30,10 @@ const Schema = gql`
     subscription: Subscription
   }
 
+  interface Node {
+    id: ID!
+  }
+
   type Error {
     key: String
     message: String

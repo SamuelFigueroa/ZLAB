@@ -53,8 +53,8 @@ class GetSafetyDataSheets extends Component {
                   });
                   if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;
-                  const { safetyDataSheets } = data;
-                  let formatted_sds = safetyDataSheets.map( sds => ({
+                  const { edges, pageInfo, totalCount } = data.safetyDataSheets.safetyDataSheetsConnection;
+                  let formatted_sds = edges.map( ({ node: sds }) => ({
                     ...sds,
                     compound_id: sds.compound.compound_id,
                     name: sds.compound.name,
@@ -63,7 +63,7 @@ class GetSafetyDataSheets extends Component {
                     signal_word: sds.signal_word ? <Chip className={classes[sds.signal_word.toLowerCase()]} clickable={false} label={sds.signal_word.toUpperCase()} /> : ''
                   }));
 
-                  return formatted_sds;
+                  return ({ data: formatted_sds, pageInfo, totalCount });
                 } catch(errorObj) {
                   await handleError(errorObj);
                 }

@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
 import DELETE_CONTAINER from '../../graphql/containers/deleteContainer';
-import GET_CONTAINERS from '../../graphql/containers/getContainers';
+// import GET_CONTAINER_INVENTORY from '../../graphql/containers/getContainerInventory';
 
 class DeleteContainer extends Component {
   constructor(props) {
@@ -26,7 +26,7 @@ class DeleteContainer extends Component {
             { deleteContainer => {
               const callMutation = id => deleteContainer({
                 variables: { id },
-                refetchQueries: () => [ { query: GET_CONTAINERS, variables: { filter: { }, search: null } } ]
+                // refetchQueries: () => [ { query: GET_CONTAINER_INVENTORY, variables: { filter: { }, search: null, first: 25 } } ]
               });
               return this.props.children(callMutation);
             }}

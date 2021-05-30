@@ -6,7 +6,7 @@ import Range from './range';
 
 const Container = gql`
 
-  type Container {
+  type Container implements Node {
     id: ID!
     category: String!
     barcode: String!
@@ -31,6 +31,26 @@ const Container = gql`
     registration_event: RegistrationEvent!
   }
 
+  type InventoryContainersConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [InventoryContainersEdge]
+  }
+
+  type InventoryContainersEdge {
+    cursor: String!
+    node: Container
+  }
+
+  type ContainerInventory {
+    containersConnection(
+      first: Int,
+      after: String,
+      last: Int,
+      before: String,
+    ): InventoryContainersConnection
+  }
+
   type Content {
     id: ID!
     smiles: String!
@@ -43,6 +63,8 @@ const Container = gql`
     cas: String!
     safety: ID
     registration_event: RegistrationEvent!
+    molWt: Float
+    molFormula: String!
   }
 
   type ContainerHint {
@@ -128,7 +150,7 @@ const Container = gql`
 
   # Queries
   extend type Query {
-    containers(filter: CompoundFilter, search: String): [Container]!
+    containerInventory(filter: CompoundFilter, search: String): ContainerInventory!
     container(id: ID!): Container!
     containerHints: ContainerHint!
   }

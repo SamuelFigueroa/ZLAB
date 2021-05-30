@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
 import ADD_ASSET from '../../graphql/assets/addAsset';
-import GET_ASSETS from '../../graphql/assets/getAssets';
+// import GET_ASSET_INVENTORY from '../../graphql/assets/getAssetInventory';
 import GET_ASSET_HINTS from '../../graphql/assets/getAssetHints';
 
 class AddAsset extends Component {
@@ -28,7 +28,7 @@ class AddAsset extends Component {
             { addAsset => {
               const callMutation = (input) => addAsset({ variables: { input },
                 refetchQueries: () => [
-                  { query: GET_ASSETS, variables: { input: { category: input.category } } },
+                  // { query: GET_ASSET_INVENTORY, variables: { filter: { category: input.category }, first: 25 } },
                   { query: GET_ASSET_HINTS, variables: { category: input.category } }
                 ]
               });

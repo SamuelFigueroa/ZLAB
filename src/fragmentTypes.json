@@ -1,1 +1,1 @@
-{"__schema":{"types":[{"kind":"INTERFACE","name":"Asset","possibleTypes":[{"name":"Equipment"},{"name":"Supply"}]}]}}
+{"__schema":{"types":[{"kind":"INTERFACE","name":"Asset","possibleTypes":[{"name":"Equipment"},{"name":"Supply"}]},{"kind":"INTERFACE","name":"Node","possibleTypes":[{"name":"Compound"},{"name":"Container"},{"name":"SafetyDataSheet"},{"name":"Equipment"},{"name":"Supply"}]}]}}

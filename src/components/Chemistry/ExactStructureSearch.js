@@ -72,12 +72,12 @@ class ExactStructureSearch extends Component {
                 <form
                   onSubmit={this.handleSubmit(getExactCompound)}
                   noValidate
-                  autoComplete="off">
+                  autoComplete="off"
+                >
                   <Grid
                     container
                     direction="column"
                     justify="center"
-                    alignItems="center"
                     spacing={16}>
                     <Grid item xs={12}>
                       <StructureEditor

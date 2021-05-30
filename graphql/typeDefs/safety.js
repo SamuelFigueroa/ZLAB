@@ -4,7 +4,7 @@ import Container from './container';
 
 const Safety = gql`
 
-  type SafetyDataSheet {
+  type SafetyDataSheet implements Node {
     id: ID!
     compound: Content!
     document: ID!
@@ -14,6 +14,26 @@ const Safety = gql`
     pictograms: [String]!
     p_statements: [String]!
     h_statements: [String]!
+  }
+
+  type SafetyDataSheetsConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [SafetyDataSheetsEdge]
+  }
+
+  type SafetyDataSheetsEdge {
+    cursor: String!
+    node: SafetyDataSheet
+  }
+
+  type SafetyDataSheetInventory {
+    safetyDataSheetsConnection(
+      first: Int,
+      after: String,
+      last: Int,
+      before: String,
+    ): SafetyDataSheetsConnection
   }
 
   type FullSafetyDataSheet {
@@ -88,7 +108,7 @@ const Safety = gql`
 
   # Queries
   extend type Query {
-    safetyDataSheets(filter: SDSFilter, search: String): [SafetyDataSheet]!
+    safetyDataSheets(filter: SDSFilter, search: String): SafetyDataSheetInventory!
     safetyDataSheet(id: ID!) : FullSafetyDataSheet!
     safetyDataSheetHints: SafetyDataSheetHint!
     searchChemicalSafety(compoundID: ID!) : [ChemicalSafetySearchResult]!

@@ -90,6 +90,8 @@ class SubstructureSearch extends Component {
           onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
           disableBackdropClick
+          fullWidth
+          maxWidth="sm"
         >
           <DialogContent>
             <StructureEditor

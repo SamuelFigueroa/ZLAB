@@ -13,7 +13,8 @@ const ContainerSchema = new mongoose.Schema({
   },
   content: {
     type: ObjectId,
-    required: true
+    required: true,
+    ref: 'compounds'
   },
   //Batch info
   batch_id: {
@@ -41,7 +42,8 @@ const ContainerSchema = new mongoose.Schema({
   location: {
     area: {
       type: ObjectId,
-      required: true
+      required: true,
+      ref: 'locations'
     },
     sub_area: {
       type: ObjectId,

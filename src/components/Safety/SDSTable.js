@@ -48,7 +48,10 @@ class SDSTable extends Component {
           getCustomProps: () => ({})
         }}
         query={{
-          getQueryInput: ({ filter }) => ({ filter, search }),
+          getQueryInput: ({ filter, pagination }) => {
+            const { page, ...paginationInput } = pagination;
+            return ({ filter, search, ...paginationInput });
+          },
           getQueryOutput: data => data,
           component: GetSafetyDataSheets,
           variables: SafetyQueryVariables

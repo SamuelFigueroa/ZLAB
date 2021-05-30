@@ -67,6 +67,11 @@ const server = new ApolloServer({
     return context;
 
   },
+  playground: {
+    settings: {
+      'schema.polling.enable': false,
+    }
+  },
   // subscriptions: {
   // path: '/subscriptions',
   // onConnect: (connectionParams, webSocket, context) => {

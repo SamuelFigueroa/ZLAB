@@ -1,5 +1,14 @@
 import gql from 'graphql-tag';
 
+const defaultPaginationOptions = {
+  __typename: 'PaginationOptions',
+  page: 0,
+  first: 25,
+  last: null,
+  after: null,
+  before: null
+};
+
 const defaultSafetyFilter = {
   __typename: 'SafetyFilter',
   manufacturer: [],
@@ -94,6 +103,13 @@ const clientResolvers = {
           filterOn
           cached
           resultsCount
+          pagination {
+            page
+            first
+            last
+            before
+            after
+          }
         }`;
       const variables = cache.readFragment({ fragment, id: `ChemistryQueryVariables:${id}` });
       if (variables === null) {
@@ -108,7 +124,8 @@ const clientResolvers = {
           substructureRemoveHs: true,
           filterOn: false,
           cached: false,
-          resultsCount: null
+          resultsCount: 0,
+          pagination: defaultPaginationOptions
         });
       }
 
@@ -153,6 +170,13 @@ const clientResolvers = {
           filterOn
           cached
           resultsCount
+          pagination {
+            page
+            first
+            last
+            before
+            after
+          }
         }`;
       const variables = cache.readFragment({ fragment, id: `AssetQueryVariables:${id}` });
       if (variables === null) {
@@ -165,7 +189,8 @@ const clientResolvers = {
           searchCategories: [],
           filterOn: false,
           cached: false,
-          resultsCount: null
+          resultsCount: 0,
+          pagination: defaultPaginationOptions
         });
       }
 
@@ -188,6 +213,13 @@ const clientResolvers = {
           filterOn
           cached
           resultsCount
+          pagination {
+            page
+            first
+            last
+            before
+            after
+          }
         }`;
       const variables = cache.readFragment({ fragment, id: `SafetyQueryVariables:${id}` });
       if (variables === null) {
@@ -200,7 +232,8 @@ const clientResolvers = {
           searchCategories: [],
           filterOn: false,
           cached: false,
-          resultsCount: null
+          resultsCount: 0,
+          pagination: defaultPaginationOptions
         });
       }
 
@@ -292,6 +325,7 @@ const clientResolvers = {
           search2: '',
           substructurePattern: '',
           substructureRemoveHs: true,
+          pagination: defaultPaginationOptions
         };
       }
       cache.writeData({ id, data });
@@ -346,7 +380,8 @@ const clientResolvers = {
           ...variables,
           filter: defaultAssetFilter,
           filterOn: false,
-          search2: ''
+          search2: '',
+          pagination: defaultPaginationOptions
         };
       }
       cache.writeData({ id, data });
@@ -364,7 +399,8 @@ const clientResolvers = {
           ...variables,
           filter: defaultSafetyFilter,
           filterOn: false,
-          search2: ''
+          search2: '',
+          pagination: defaultPaginationOptions
         };
       }
       cache.writeData({ id, data });

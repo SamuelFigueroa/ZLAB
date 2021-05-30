@@ -24,7 +24,8 @@ const styles = theme => ({
     width: drawerWidth,
   },
   appTitle: {
-    padding: '20px'
+    paddingTop: '20px',
+    paddingLeft: '20px'
   }
 });
 
@@ -34,8 +35,8 @@ const MainDrawer = (props) => {
   const drawer = (
     <div>
       <div className={classes.toolbar}>
-        <Typography variant="title" color="textSecondary" className={classes.appTitle}>
-        ZLAB
+        <Typography variant="h6" color="textSecondary" className={classes.appTitle}>
+          ZLAB
         </Typography>
       </div>
       <Divider />

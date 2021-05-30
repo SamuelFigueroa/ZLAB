@@ -19,6 +19,9 @@ import validateFilename from '../../validation/filename';
 import validateCuration from '../../validation/curation';
 import isCas from '../../validation/is-cas';
 import addCompound from '../../mongo/compound/addCompound';
+import substructureMatches from '../../mongo/compound/substructureMatches';
+import paginateAggregation from '../../mongo/paginateAggregation';
+import emptyPage from '../../mongo/emptyPage';
 
 const storage = path.normalize(storageDir);
 const cache = path.normalize(cacheDir);
@@ -101,10 +104,29 @@ const unit_multipliers = {
 };
 
 const resolvers = {
-
-  Query: {
-    compounds: async (root, args) => {
-      const { filter, search, withSDS } = args;
+  Compound: {
+    molWt: root => {
+      let molWt = null;
+      try {
+        molWt = rdkit.molWtFromSmiles(root.smiles).toFixed(5);
+      } catch(err) {
+        console.log(err);
+      }
+      return molWt;
+    },
+    molFormula: root => {
+      let molFormula = '';
+      try {
+        molFormula = rdkit.smilesToMolFormula(root.smiles);
+      } catch(err) {
+        console.log(err);
+      }
+      return molFormula;
+    }
+  },
+  CompoundInventory: {
+    compoundsConnection: async (compoundInventory, paginationInput) => {
+      const { filter, search, withSDS } = compoundInventory.args;
       let pipeline = [
         {
           $unwind: '$containers'
@@ -281,7 +303,7 @@ const resolvers = {
         },
       ];
 
-      let compounds = [];
+      // let compounds = [];
       let substructureFilter;
       let errors;
       if(filter && Object.keys(filter).length) {
@@ -407,15 +429,16 @@ const resolvers = {
           };
           pipeline.push({ $match: searchConditions });
         } else {
-          return compounds;
+          return emptyPage();
         }
       }
+
+      // SDS Filtering
       if(withSDS !== undefined)
         pipeline.unshift({ $match: withSDS ?
           ({ '$and': [{ safety: { $exists: true } }, { safety: { $type : 'objectId' } }] }) :
           ({ '$or': [{ safety: { $exists: false } }, { safety: null }]}) });
 
-      let pipeOut = await Compound.aggregate(pipeline);
       //Substructure input validation
       if(substructureFilter && substructureFilter.pattern) {
         let patternSmiles;
@@ -427,29 +450,35 @@ const resolvers = {
         }
         if (!patternSmiles)
           substructureFilter.pattern = '';
-      }
-      //Substructure matching filter
-      for (const compound of pipeOut) {
-        if (substructureFilter && substructureFilter.pattern) {
-          let hasSubstructMatch;
-          try {
-            hasSubstructMatch = rdkit.hasSubstructMatch(compound.smiles, substructureFilter.pattern, substructureFilter.removeHs);
-          } catch(err) {
-            errors.errors = { compounds: { substructure : err.message } };
-            throw new UserInputError('Container filtering failed', errors);
+        else {
+          let compoundConnection = await substructureMatches(Compound, pipeline,
+            paginationInput, substructureFilter,
+            compound => compound.smiles
+          );
+          for (const edge of compoundConnection.edges) {
+            let molblock = rdkit.smilesToMolBlock(edge.node.smiles);
+            edge.node.molblock = molblock;
+            for (const container of edge.node.containers)
+              container.content.molblock = molblock;
           }
-          if (!hasSubstructMatch)
-            continue;
+          return compoundConnection;
         }
-        let molblock = rdkit.smilesToMolBlock(compound.smiles);
-        compound.molblock = molblock;
-        for (const container of compound.containers)
-          container.content.molblock = molblock;
-        compounds.push(compound);
       }
 
-      return compounds;
+      let compoundConnection = await paginateAggregation(Compound, pipeline, paginationInput);
+
+      for (const edge of compoundConnection.edges) {
+        let molblock = rdkit.smilesToMolBlock(edge.node.smiles);
+        edge.node.molblock = molblock;
+        for (const container of edge.node.containers)
+          container.content.molblock = molblock;
+      }
+
+      return compoundConnection;
     },
+  },
+  Query: {
+    compoundInventory: (root, args) => ({args}),
     compound: async (root, args) => {
       let compound = await Compound.findById(args.id);
       if(!compound) {

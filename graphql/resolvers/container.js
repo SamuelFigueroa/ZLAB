@@ -13,6 +13,11 @@ import Location from '../../models/Location';
 import SafetyDataSheet from '../../models/SafetyDataSheet';
 import Document from '../../models/Document';
 
+import getContainer from '../../mongo/container/getContainer';
+import substructureMatches from '../../mongo/compound/substructureMatches';
+import paginateAggregation from '../../mongo/paginateAggregation';
+import emptyPage from '../../mongo/emptyPage';
+
 import validateAddContainerInput from '../../validation/container';
 import validateCompoundFilter from '../../validation/compound_filter';
 import validateFilename from '../../validation/filename';
@@ -99,9 +104,29 @@ const unit_multipliers = {
 };
 
 const resolvers = {
-  Query: {
-    containers: async (root, args) => {
-      const { filter, search } = args;
+  Content: {
+    molWt: root => {
+      let molWt = null;
+      try {
+        molWt = rdkit.molWtFromSmiles(root.smiles).toFixed(5);
+      } catch(err) {
+        console.log(err);
+      }
+      return molWt;
+    },
+    molFormula: root => {
+      let molFormula = '';
+      try {
+        molFormula = rdkit.smilesToMolFormula(root.smiles);
+      } catch(err) {
+        console.log(err);
+      }
+      return molFormula;
+    }
+  },
+  ContainerInventory: {
+    containersConnection: async (containerInventory, paginationInput) => {
+      const { filter, search } = containerInventory.args;
 
       let pipeline = [
         {
@@ -264,7 +289,7 @@ const resolvers = {
         },
       ];
 
-      let containers = [];
+      // let containers = [];
       let errors;
       let substructureFilter;
       if(filter && Object.keys(filter).length) {
@@ -386,10 +411,9 @@ const resolvers = {
           };
           pipeline.push({ $match: searchConditions });
         } else {
-          return containers;
+          return emptyPage();
         }
       }
-      let pipeOut = await Container.aggregate(pipeline);
       //Substructure input validation
       if(substructureFilter && substructureFilter.pattern) {
         let patternSmiles;
@@ -401,92 +425,30 @@ const resolvers = {
         }
         if (!patternSmiles)
           substructureFilter.pattern = '';
-      }
-      //Substructure matching filter
-      for (const container of pipeOut) {
-        if(substructureFilter && substructureFilter.pattern) {
-          let hasSubstructMatch;
-          try {
-            hasSubstructMatch = rdkit.hasSubstructMatch(container.content.smiles, substructureFilter.pattern, substructureFilter.removeHs);
-          } catch(err) {
-            errors.errors = { containers: { substructure : err.message } };
-            throw new UserInputError('Container filtering failed', errors);
-          }
-          if (!hasSubstructMatch)
-            continue;
+        else {
+          let containerConnection = await substructureMatches(Container, pipeline,
+            paginationInput, substructureFilter,
+            container => container.content.smiles
+          );
+          for (const edge of containerConnection.edges)
+            edge.node.content.molblock = rdkit.smilesToMolBlock(edge.node.content.smiles);
+          return containerConnection;
         }
-        container.content.molblock = rdkit.smilesToMolBlock(container.content.smiles);
-        containers.push(container);
       }
 
-      // if(substructureFilter && substructureFilter.pattern && !rdkit.molBlockToSmiles(substructureFilter.pattern))
-      //   substructureFilter.pattern = '';
-      // for (const container of pipeOut) {
-      //   if (substructureFilter && substructureFilter.pattern && !rdkit.hasSubstructMatch(container.content.smiles, substructureFilter.pattern, substructureFilter.removeHs))
-      //     continue;
-      //   container.content.molblock = rdkit.smilesToMolBlock(container.content.smiles);
-      //   containers.push(container);
-      // }
+      let containerConnection = await paginateAggregation(Container, pipeline, paginationInput);
 
-      return containers;
+      for (const edge of containerConnection.edges)
+        edge.node.content.molblock = rdkit.smilesToMolBlock(edge.node.content.smiles);
 
+      return containerConnection;
     },
+  },
+  Query: {
+    containerInventory: (root, args) => ({args}),
     container: async (root, args) => {
-      let container = await Container.findById(args.id);
-      if(!container) {
-        throw new ApolloError('Can\'t find container', 'BAD_REQUEST');
-      } else {
-        let compound = await Compound.findById(container.content);
-        const {
-          id,
-          smiles,
-          compound_id,
-          compound_id_aliases,
-          name,
-          description,
-          attributes,
-          storage,
-          cas,
-          registration_event,
-          safety
-        } = compound;
-
-        let molblock = rdkit.smilesToMolBlock(smiles);
-        let content = {
-          id,
-          smiles,
-          molblock,
-          compound_id,
-          compound_id_aliases,
-          name,
-          description,
-          attributes,
-          storage,
-          cas,
-          registration_event,
-          safety
-        };
-
-        let result;
-
-        const { area: areaID, sub_area: subAreaID } = container.location;
-        let location = await Location.findById(areaID);
-        const area = location.area.name;
-        const sub_area = location.area.sub_areas.id(subAreaID).name;
-
-        result = container.toObject({
-          virtuals: true,
-          transform: (doc, ret) => {
-            ret.location = {};
-            ret.location.area = {id: areaID, name: area};
-            ret.location.sub_area = {id: subAreaID, name: sub_area};
-            ret.content = content;
-            return ret;
-          }
-        });
-
-        return result;
-      }
+      let container = await getContainer(args.id);
+      return container;
     },
     containerHints: async (root, args, context, info) => {
 
@@ -1085,6 +1047,7 @@ const resolvers = {
       }
     },
     inventorizeContainer: async (root, args, { pubsub }) => {
+      // console.log(args);
       const { barcode } = args;
       let container = await Container.findOne({ barcode });
       if(!container)

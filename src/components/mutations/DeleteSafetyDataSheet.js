@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
 import DELETE_SAFETY_DATA_SHEET from '../../graphql/safety/deleteSafetyDataSheet';
-import GET_SAFETY_DATA_SHEETS from '../../graphql/safety/getSafetyDataSheets';
+// import GET_SAFETY_DATA_SHEETS from '../../graphql/safety/getSafetyDataSheets';
 
 class DeleteSafetyDataSheet extends Component {
   constructor(props) {
@@ -26,7 +26,7 @@ class DeleteSafetyDataSheet extends Component {
             { deleteSafetyDataSheet => {
               const callMutation = id => deleteSafetyDataSheet({
                 variables: { id },
-                refetchQueries: () => [ { query: GET_SAFETY_DATA_SHEETS } ]
+                // refetchQueries: () => [ { query: GET_SAFETY_DATA_SHEETS, variables: { first: 25 } } ]
               });
               return this.props.children(callMutation);
             }}

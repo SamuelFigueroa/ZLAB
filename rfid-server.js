@@ -37,10 +37,14 @@ export default introspectionQueryResultData => {
   tcpServer.on('connection', socket => {
     socket.on('data', data => {
       socket.write(data);
+      // console.log('Received data: ' + data);
       inventorizeContainer(Buffer.from(data.toString('utf8'), 'hex').toString('utf8').replace(/\0/g, ''));
       inventorizeEquipment(Buffer.from(data.toString('utf8'), 'hex').toString('utf8').replace(/\0/g, ''));
     });
   });
+  // tcpServer.on('error', err => {
+  //   console.log(err);
+  // });
   tcpServer.listen(rfidPort, host, () => {
     console.log('Server listening to ', tcpServer.address());
   });

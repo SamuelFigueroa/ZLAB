@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
 import DELETE_ASSET from '../../graphql/assets/deleteAsset';
-import GET_ASSETS from '../../graphql/assets/getAssets';
+// import GET_ASSET_INVENTORY from '../../graphql/assets/getAssetInventory';
 
 class DeleteAsset extends Component {
   constructor(props) {
@@ -25,9 +25,9 @@ class DeleteAsset extends Component {
             onError={ errorObj => handleError(errorObj) }
           >
             { deleteAsset => {
-              const callMutation = (id, category) => deleteAsset({
-                variables: { id },
-                refetchQueries: () => [ { query: GET_ASSETS, variables: { input: { category } } } ]
+              const callMutation = (id /*, category*/) => deleteAsset({
+                variables: { id }
+                // refetchQueries: () => [ { query: GET_ASSET_INVENTORY, variables: { filter: { category }, first: 25 } } ]
               });
               return this.props.children(callMutation);
             }}

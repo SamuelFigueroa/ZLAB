@@ -7,7 +7,7 @@ import ErrorHandler from './ErrorHandler';
 
 import ADD_SAFETY_DATA_SHEET from '../../graphql/safety/addSafetyDataSheet';
 import VALIDATE_UPLOAD from '../../graphql/documents/validateUpload';
-import GET_COMPOUNDS from '../../graphql/compounds/getCompounds';
+// import GET_COMPOUND_INVENTORY from '../../graphql/compounds/getCompoundInventory';
 
 class AddSafetyDataSheet extends Component {
   constructor(props) {
@@ -31,10 +31,10 @@ class AddSafetyDataSheet extends Component {
                 { (addSafetyDataSheet, { loading }) => {
                   const validateInput = input => validateUpload({ variables: { input }});
                   const callMutation = input => addSafetyDataSheet(
-                    { variables: { input },
-                      refetchQueries:() => [
-                        { query: GET_COMPOUNDS, variables: { filter: {}, search: null, withSDS: false } }
-                      ]
+                    { variables: { input }
+                      // refetchQueries:() => [
+                      //   { query: GET_COMPOUND_INVENTORY, variables: { filter: {}, search: null, withSDS: false, first: 25 } }
+                      // ]
                     });
                   return this.props.children(callMutation, validateInput, loading, errors, clearErrors);
                 }}

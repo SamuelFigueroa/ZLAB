@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import CompoundFilterOptions from './CompoundFilterOptions';
-import GetContainers from '../queries/GetContainers';
+import GetContainerInventory from '../queries/GetContainerInventory';
 import ExportContainerData from '../mutations/ExportContainerData';
 import ChemistryQueryVariables from './ChemistryQueryVariables';
 
@@ -59,7 +59,19 @@ class ContainersTable extends Component {
               molblock: queryVariables.substructurePattern,
               removeHs: queryVariables.substructureRemoveHs,
               onSubmit: async ({ molblock, removeHs }, refetch, closeDialog)=> {
-                await updateQueryVariables({ substructurePattern: molblock, substructureRemoveHs: removeHs });
+                const { first, last } = queryVariables.pagination;
+                const currentLimit = first || last;
+                await updateQueryVariables({
+                  pagination: {
+                    __typename: 'PaginationOptions',
+                    page: 0,
+                    first: currentLimit,
+                    last: null,
+                    after: null,
+                    before: null
+                  },
+                  substructurePattern: molblock,
+                  substructureRemoveHs: removeHs });
                 let success = await refetch();
                 if (success) {
                   closeDialog();
@@ -74,15 +86,16 @@ class ContainersTable extends Component {
           })
         }}
         query={{
-          getQueryInput: ({ filter,
+          getQueryInput: ({ filter, pagination,
             substructurePattern: pattern,
             substructureRemoveHs: removeHs
           }) => {
+            const { page, ...paginationInput } = pagination;
             if(pattern)
               filter.substructure = { pattern, removeHs };
-            return ({ filter, search });
+            return ({ filter, search, ...paginationInput  });
           },
-          getQueryOutput: data => {
+          getQueryOutput: ({ data, pageInfo, totalCount }) => {
             const formatted_containers = data.map(container => ({
               ...container,
               location: (container.location.area.name == 'UNASSIGNED') ?
@@ -97,9 +110,9 @@ class ContainersTable extends Component {
                   `${container.volume} ${container.vol_units} / ${container.concentration} ${container.conc_units}`
               )
             }));
-            return formatted_containers;
+            return { data: formatted_containers, pageInfo, totalCount };
           },
-          component: GetContainers,
+          component: GetContainerInventory,
           variables: ChemistryQueryVariables
         }}
       />

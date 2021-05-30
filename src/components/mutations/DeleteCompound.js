@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo';
 import ErrorHandler from './ErrorHandler';
 
 import DELETE_COMPOUND from '../../graphql/compounds/deleteCompound';
-import GET_COMPOUNDS from '../../graphql/compounds/getCompounds';
+// import GET_COMPOUND_INVENTORY from '../../graphql/compounds/getCompoundInventory';
 
 class DeleteCompound extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class DeleteCompound extends Component {
             { deleteCompound => {
               const callMutation = id => deleteCompound({
                 variables: { id },
-                refetchQueries: () => [ { query: GET_COMPOUNDS } ]
+                // refetchQueries: () => [ { query: GET_COMPOUND_INVENTORY, variables: { first: 25 } } ]
               });
               return this.props.children(callMutation);
             }}

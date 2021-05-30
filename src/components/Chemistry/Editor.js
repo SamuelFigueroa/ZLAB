@@ -27,11 +27,13 @@ class Editor extends Component {
         editor.setMolfile(molblock);
     }
   }
+  // data-chemwriter-width="500"
+
 
   render() {
     return (
       <div id="editor"
-        data-chemwriter-width="500"
+        data-chemwriter-width={this.props.width}
         data-chemwriter-height="350"
         data-chemwriter-ui="editor"
       >

@@ -38,6 +38,13 @@ const GET_ASSET_QUERY_VARS = gql`
       filterOn
       cached
       resultsCount
+      pagination {
+        page
+        first
+        last
+        before
+        after
+      }
     }
   }
 `;

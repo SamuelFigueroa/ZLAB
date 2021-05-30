@@ -1,53 +1,47 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ProgressIndicator from '../ProgressIndicator';
-import { withStyles } from '@material-ui/core/styles';
-
-import GET_COMPOUNDS from '../../graphql/compounds/getCompounds';
+import GET_ASSET_INVENTORY from '../../graphql/assets/getAssetInventory';
 
 import { Query } from 'react-apollo';
 import ErrorHandler from '../mutations/ErrorHandler';
-import StructureImage from '../Chemistry/StructureImage';
 
-const styles = theme => ({
-  image: {
-    width: theme.spacing.unit * 6,
-    height: theme.spacing.unit * 6,
-    margin:'auto'
-  }
-});
-
-class GetCompounds extends Component {
+class GetAssetInventory extends Component {
   constructor(props) {
     super(props);
   }
 
+
   render() {
-    const { classes } = this.props;
     return(
       <ErrorHandler>
         { (handleError, errors, clearErrors) => (
           <Query
-            query={GET_COMPOUNDS}
+            query={GET_ASSET_INVENTORY}
             skip={true}
           >
             { ({ client }) => {
               const callQuery = async variables => {
                 try {
                   const { data, loading, error } = await client.query({
-                    query: GET_COMPOUNDS,
+                    query: GET_ASSET_INVENTORY,
                     variables,
                     fetchPolicy: 'network-only'
                   });
                   if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;
-                  const { compounds } = data;
-                  let formatted_compounds = compounds.map( compound => ({
-                    ...compound,
-                    molblock: <StructureImage className={classes.image} molblock={compound.molblock} />
-                  }));
-
-                  return formatted_compounds;
+                  const { edges, pageInfo, totalCount } = data.assetInventory.assetsConnection;
+                  let formatted_assets = edges.map( ({ node: asset }) => {
+                    if (asset.location !== undefined) {
+                      return ({
+                        ...asset,
+                        location: (asset.location.area.name == 'UNASSIGNED') ?
+                          'UNASSIGNED' : `${asset.location.area.name} / ${asset.location.sub_area.name}`
+                      });
+                    }
+                    return asset;
+                  });
+                  return ({ data: formatted_assets, pageInfo, totalCount });
                 } catch(errorObj) {
                   await handleError(errorObj);
                 }
@@ -61,9 +55,8 @@ class GetCompounds extends Component {
   }
 }
 
-GetCompounds.propTypes = {
+GetAssetInventory.propTypes = {
   children: PropTypes.func.isRequired,
-  classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(GetCompounds);
+export default GetAssetInventory;

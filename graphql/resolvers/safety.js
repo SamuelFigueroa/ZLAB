@@ -13,6 +13,7 @@ import Document from '../../models/Document';
 import Compound from '../../models/Compound';
 
 import validateFilename from '../../validation/filename';
+import paginateAggregation from '../../mongo/paginateAggregation';
 
 const cache = path.normalize(cacheDir);
 const storage = path.join(path.normalize(storageDir), 'SDS');
@@ -82,10 +83,10 @@ JSON.flatten = (data, delimiter) => {
 };
 
 const resolvers = {
-  Query: {
-    safetyDataSheets: async (root, args) => {
+  SafetyDataSheetInventory: {
+    safetyDataSheetsConnection: async (safetyDataSheetInventory, paginationInput) => {
       const { hclass_to_hcodes } = safetyCodes;
-      const { filter, search } = args;
+      const { filter } = safetyDataSheetInventory.args;
 
       let pipeline = [
         {
@@ -148,7 +149,7 @@ const resolvers = {
         }
       ];
 
-      let safetyDataSheets = [];
+      // let safetyDataSheets = [];
 
       if(filter && Object.keys(filter).length) {
         let filterConditions = { '$and': Object.keys(filter).map(key => {
@@ -162,14 +163,16 @@ const resolvers = {
 
       //Implement general text search here if needed.
 
-      safetyDataSheets = await SafetyDataSheet.aggregate(pipeline);
+      let safetyDataSheetsConnection = await paginateAggregation(SafetyDataSheet, pipeline, paginationInput);
 
-      for (const sheet of safetyDataSheets) {
-        sheet.compound.molblock = rdkit.smilesToMolBlock(sheet.compound.smiles);
-      }
+      for (const edge of safetyDataSheetsConnection.edges)
+        edge.node.compound.molblock = rdkit.smilesToMolBlock(edge.node.compound.smiles);
 
-      return safetyDataSheets;
+      return safetyDataSheetsConnection;
     },
+  },
+  Query: {
+    safetyDataSheets: (root, args) => ({args}),
     safetyDataSheet: async (root, args) => {
       const { h_statements: hazards, p_statements: precautions } = safetyCodes;
       let result;
@@ -268,12 +271,21 @@ const resolvers = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              action: 'search',
-              hostName: 'chemicalsafety.com',
-              isContains: '0',
-              p1: 'MSMSDS.COMMON|',
-              p2: 'MSMSDS.MANUFACT|',
-              p3: `MSCHEM.CAS|${compound.cas}`
+              Action: 'search',
+              Bee: 'sugar',
+              Criteria: [`cas|${compound.cas}`],
+              HostName: 'cs website',
+              IncludeSynonyms: false,
+              IsContains: false,
+              ResultColumns: ['revision_date'],
+              SearchSdsServer: false,
+              SearchUrl: ''
+              // action: 'search',
+              // hostName: 'chemicalsafety.com',
+              // isContains: '0',
+              // p1: 'MSMSDS.COMMON|',
+              // p2: 'MSMSDS.MANUFACT|',
+              // p3: `MSCHEM.CAS|${compound.cas}`
             }),
           });
           let cas_response = await cas_search.json();
@@ -292,12 +304,21 @@ const resolvers = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              action: 'search',
-              hostName: 'chemicalsafety.com',
-              isContains: '0',
-              p1: `MSMSDS.COMMON|${compound.name}`,
-              p2: 'MSMSDS.MANUFACT|',
-              p3: 'MSCHEM.CAS|'
+              Action: 'search',
+              Bee: 'sugar',
+              Criteria: [`name|${compound.name}`],
+              HostName: 'cs website',
+              IncludeSynonyms: false,
+              IsContains: false,
+              ResultColumns: ['revision_date'],
+              SearchSdsServer: false,
+              SearchUrl: ''
+              // action: 'search',
+              // hostName: 'chemicalsafety.com',
+              // isContains: '0',
+              // p1: `MSMSDS.COMMON|${compound.name}`,
+              // p2: 'MSMSDS.MANUFACT|',
+              // p3: 'MSCHEM.CAS|'
             }),
           });
           let name_response = await name_search.json();
@@ -407,11 +428,14 @@ const resolvers = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              action: 'msdsdetail',
-              isContains: '',
-              p1: parseInt(sds_id),
-              p2: '',
-              p3: ''
+              Action: 'msdsdetail',
+              Bee: 'chemsafe',
+              P1: parseInt(sds_id)
+              // action: 'msdsdetail',
+              // isContains: '',
+              // p1: parseInt(sds_id),
+              // p2: '',
+              // p3: ''
             }),
           });
 
@@ -514,7 +538,7 @@ const resolvers = {
         throw new UserInputError('Data export failed', errors);
       }
 
-      const { filter, search, searchCategories, search2, name } = input;
+      const { filter, searchCategories, search2, name } = input;
       const { hclass_to_hcodes } = safetyCodes;
       let pipeline = [
         {
