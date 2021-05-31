@@ -37,7 +37,7 @@ class GetContainerInventory extends Component {
                   const { data, loading, error } = await client.query({
                     query: GET_CONTAINER_INVENTORY,
                     variables,
-                    fetchPolicy: 'network-only'
+                    // fetchPolicy: 'network-only'
                   });
                   if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;

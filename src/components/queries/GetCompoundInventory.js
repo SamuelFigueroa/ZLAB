@@ -37,7 +37,7 @@ class GetCompoundInventory extends Component {
                   const { data, loading, error } = await client.query({
                     query: GET_COMPOUND_INVENTORY,
                     variables,
-                    fetchPolicy: 'network-only'
+                    // fetchPolicy: 'network-only'
                   });
                   if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;

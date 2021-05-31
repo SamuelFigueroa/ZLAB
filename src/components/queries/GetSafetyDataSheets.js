@@ -49,7 +49,7 @@ class GetSafetyDataSheets extends Component {
                   const { data, loading, error } = await client.query({
                     query: GET_SAFETY_DATA_SHEETS,
                     variables,
-                    fetchPolicy: 'network-only'
+                    // fetchPolicy: 'network-only'
                   });
                   if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;
