@@ -81,7 +81,9 @@ class CachedTable extends Component {
 
                             cachedQueryVariables.filter = filter;
                             const input = getQueryInput(cachedQueryVariables);
-                            let queryResult = await queryData(input);
+                            let fetchPolicy = (!input.after && !input.before) ?
+                              'network-only' : undefined;
+                            let queryResult = await queryData(input, fetchPolicy);
                             const { pageInfo, data, totalCount } = queryResult;
                             let update = { filterOn };
                             if (cachedQueryVariables.search !== input.search) {

@@ -21,12 +21,12 @@ class GetAssetInventory extends Component {
             skip={true}
           >
             { ({ client }) => {
-              const callQuery = async variables => {
+              const callQuery = async (variables, fetchPolicy) => {
                 try {
                   const { data, loading, error } = await client.query({
                     query: GET_ASSET_INVENTORY,
                     variables,
-                    // fetchPolicy: 'network-only'
+                    fetchPolicy
                   });
                   if (loading) return <ProgressIndicator />;
                   if (error) return `Error!: ${error}`;
