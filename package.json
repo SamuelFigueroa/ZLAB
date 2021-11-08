@@ -18,10 +18,10 @@
   "author": "Samuel Figueroa-Lazu",
   "license": "GPL-3.0",
   "dependencies": {
-    "@aspnet/signalr": "^1.1.4",
     "@babel/polyfill": "^7.4.4",
     "@material-ui/core": "^3.9.3",
     "@material-ui/icons": "^3.0.2",
+    "@microsoft/signalr": "^6.0.0",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.2",
     "apollo-link-context": "^1.0.17",

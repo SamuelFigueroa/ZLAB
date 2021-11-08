@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as signalR from '@aspnet/signalr';
+import * as signalR from '@microsoft/signalr';
 import AddPrinterModal from './AddPrinterModal';
 
 class HubConnection extends Component {
