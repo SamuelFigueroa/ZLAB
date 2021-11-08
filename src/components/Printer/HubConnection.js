@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as signalR from '@microsoft/signalr';
+import * as signalR from '@aspnet/signalr';
 import AddPrinterModal from './AddPrinterModal';
 
 class HubConnection extends Component {
@@ -8,7 +8,11 @@ class HubConnection extends Component {
     super(props);
     this.state = {
       connection: new signalR.HubConnectionBuilder()
-        .withUrl(this.props.address)
+        .withUrl(this.props.address,
+          {
+            skipNegotiation: true,
+            transport: signalR.HttpTransportType.WebSockets
+          })
         .configureLogging(signalR.LogLevel.Trace)
         .build(),
       status: 'Connecting...',
